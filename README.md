@@ -10,6 +10,7 @@ Static website and project showcase for CreativEX2026, including the Kamakaben T
 - `downloads/kamakaben-project-link-map.html` - Kamakaben project link map
 - `downloads/kamakaben-global-brand-profile.pdf` - Kamakaben global brand profile
 - `ami-agent-office.html` - AMI Agent Office: walkable 3D office of AI agents for the ACS Shopee Mall launch and the AMI IPO roadmap
+- `middle-agent-hq.html` - Middle Property Agent HQ: isometric AI office for the online property agency, with 8 teams, 31 agents and a shared Brain holding the sales playbook
 
 ## GitHub Pages
 

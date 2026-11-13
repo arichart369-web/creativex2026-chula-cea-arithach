@@ -1,0 +1,1968 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Middle Property Agent HQ</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="ออฟฟิศ AI ของ Middle Property: 8 ทีม 31 เอเจนต์ และ Brain กลางที่เก็บ playbook การหาห้องและปิดดีลออนไลน์">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anuphan:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: a full-bleed isometric office (WebGL) under a floating HUD. Top bar of tabs, toast stack on the right, a live caption at the bottom; a team sheet docks right on desktop and rises from the bottom on phones. One night look by choice: the office is lit like it is after hours. */
+:root {
+  --night: #0a0f1f;
+  --night-2: #111a33;
+  --glass: rgba(13, 20, 42, .84);
+  --glass-2: rgba(17, 25, 50, .97);
+  --line: #26335b;
+  --line-2: #35467c;
+  --text: #eef1fb;
+  --muted: #9ba8cb;
+  --dim: #6f7ca3;
+  --gold: #f0c35c;
+  --gold-ink: #1d1606;
+  --ok: #45d49b;
+  --warn: #f2b33d;
+  --crit: #ff6b78;
+  --display: "Anuphan", "IBM Plex Sans Thai", "Noto Sans Thai", system-ui, sans-serif;
+  --body: "IBM Plex Sans Thai", "Noto Sans Thai", "Loma", system-ui, sans-serif;
+  --mono: "JetBrains Mono", "IBM Plex Sans Thai", ui-monospace, Menlo, monospace;
+  --bar-bottom: 72px;
+  color-scheme: dark;
+}
+[hidden] { display: none !important; }
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; overflow: hidden; }
+body {
+  background: radial-gradient(ellipse 80% 70% at 50% 42%, #1a2550 0%, #0e1530 48%, var(--night) 100%);
+  color: var(--text); font: 400 14px/1.5 var(--body); -webkit-font-smoothing: antialiased;
+}
+button, input, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.glass { background: var(--glass); border: 1px solid var(--line); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+.mono { font-family: var(--mono); }
+
+#scene { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; outline: none; }
+#scene.grab { cursor: grabbing; }
+#scene.point { cursor: pointer; }
+
+/* ---------- Top bar ---------- */
+.bar {
+  position: fixed; z-index: 30; left: 0; right: 0; top: 0;
+  padding-top: calc(env(safe-area-inset-top, 0px) + 12px);
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; pointer-events: none;
+}
+.bar > * { pointer-events: auto; }
+.brand { display: flex; align-items: center; gap: 9px; padding: 8px 14px; border-radius: 999px; font: 600 12.5px var(--mono); letter-spacing: .06em; white-space: nowrap; }
+.brand .sep { color: var(--dim); }
+.brand .co { color: var(--gold); }
+.live { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 0 3px rgba(69, 212, 155, .2); flex: none; }
+.mid { display: flex; justify-content: center; gap: 10px; min-width: 0; }
+.tabs { display: flex; gap: 2px; padding: 4px; border-radius: 12px; }
+.tabs button { border: 0; background: transparent; padding: 6px 13px; border-radius: 9px; font-size: 13.5px; font-weight: 500; color: var(--muted); display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.tabs button:hover { color: var(--text); background: rgba(255, 255, 255, .05); }
+.tabs button[aria-selected="true"] { color: var(--text); background: var(--line); }
+.count { font: 600 11px var(--mono); padding: 1px 6px; border-radius: 6px; background: rgba(240, 195, 92, .16); color: var(--gold); }
+.ask { display: flex; align-items: center; gap: 8px; padding: 0 10px; border-radius: 12px; width: 260px; min-width: 0; }
+.ask svg { width: 15px; height: 15px; flex: none; color: var(--dim); }
+.ask input { flex: 1; min-width: 0; border: 0; background: transparent; padding: 9px 0; outline: none; font-size: 13.5px; }
+.ask input::placeholder { color: var(--dim); }
+.ask kbd { font: 600 11px var(--mono); color: var(--dim); border: 1px solid var(--line-2); border-radius: 5px; padding: 0 5px; }
+.status { display: flex; align-items: center; gap: 8px; padding: 8px 13px; border-radius: 999px; font-size: 12.5px; color: var(--muted); white-space: nowrap; }
+.status b { font: 600 12.5px var(--mono); color: var(--text); font-variant-numeric: tabular-nums; }
+.status .narrow { display: none; }
+.askToggle { display: none; border: 1px solid var(--line); border-radius: 12px; width: 40px; height: 40px; place-items: center; }
+.askToggle svg { width: 17px; height: 17px; }
+.demo { position: fixed; z-index: 29; left: max(16px, env(safe-area-inset-left, 0px)); top: calc(var(--bar-bottom) + 8px); font-size: 11.5px; color: #ffe2a0; background: rgba(240, 195, 92, .12); border: 1px solid rgba(240, 195, 92, .38); border-radius: 8px; padding: 3px 9px; pointer-events: auto; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; max-width: calc(100% - 32px); }
+.demo.live { color: #c6f3df; background: rgba(69, 212, 155, .12); border-color: rgba(69, 212, 155, .45); }
+.demo.warn { color: #ffd6da; background: rgba(255, 107, 120, .12); border-color: rgba(255, 107, 120, .45); }
+.demo a, .demo button { color: inherit; font: 600 11.5px var(--body); text-decoration: underline; background: none; border: 0; padding: 0; }
+
+/* ---------- Room tags (projected from 3D) ---------- */
+#tags { position: fixed; inset: 0; z-index: 12; pointer-events: none; overflow: hidden; }
+.tag {
+  position: absolute; left: 0; top: 0; pointer-events: auto; will-change: transform;
+  display: flex; align-items: center; gap: 9px; padding: 6px 10px 6px 6px; border-radius: 11px;
+  background: rgba(10, 16, 34, .86); border: 1px solid var(--line-2); text-align: left; white-space: nowrap;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, .35); transition: opacity .25s, border-color .2s;
+}
+.tag:hover, .tag.on { border-color: var(--c); }
+.tag.dim { opacity: .45; }
+.tag .ic { width: 24px; height: 24px; border-radius: 7px; display: grid; place-items: center; background: var(--c); color: #0b1020; flex: none; }
+.tag .ic svg { width: 14px; height: 14px; }
+.tag .tx { display: grid; gap: 1px; }
+.tag .nm { font: 600 12.5px/1.2 var(--display); }
+.tag .sb { font: 500 10.5px/1.2 var(--mono); color: var(--muted); }
+.tag .sb i { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--ok); margin-right: 4px; vertical-align: 1px; }
+.heads { display: flex; margin-left: 4px; }
+.heads span { width: 13px; height: 13px; border-radius: 50%; border: 2px solid #0a1022; margin-left: -4px; background: var(--h); }
+.tag.compact { padding: 4px 8px 4px 4px; gap: 6px; }
+.tag.compact .sb, .tag.compact .heads { display: none; }
+.tag.compact .ic { width: 20px; height: 20px; border-radius: 6px; }
+.tag.compact .nm { font-size: 11.5px; }
+.brainTag { position: absolute; left: 0; top: 0; pointer-events: auto; text-align: center; padding: 5px 12px; border-radius: 9px; background: rgba(10, 16, 34, .8); border: 1px solid rgba(240, 195, 92, .45); will-change: transform; }
+.brainTag b { display: block; font: 600 10.5px var(--mono); letter-spacing: .14em; color: var(--gold); }
+.brainTag span { font: 500 10.5px var(--mono); color: var(--muted); white-space: nowrap; }
+
+/* ---------- Toasts + caption ---------- */
+#toasts { position: fixed; z-index: 25; right: max(16px, env(safe-area-inset-right, 0px)); top: calc(var(--bar-bottom) + 10px); width: 300px; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+.toast { pointer-events: auto; display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: 12px; background: var(--glass-2); border: 1px solid var(--line); text-align: left; width: 100%; box-shadow: 0 10px 26px rgba(0, 0, 0, .35); animation: tin .35s ease-out; }
+.toast:hover { border-color: var(--c); }
+.toast.out { opacity: 0; transform: translateX(16px); transition: opacity .4s, transform .4s; }
+@keyframes tin { from { opacity: 0; transform: translateY(-8px); } }
+.t-ic { width: 26px; height: 26px; border-radius: 8px; background: var(--c); color: #0b1020; display: grid; place-items: center; flex: none; }
+.t-ic svg { width: 15px; height: 15px; }
+.toast .t-h { margin: 0; display: flex; justify-content: space-between; gap: 8px; font-size: 12.5px; }
+.toast .t-h b { font: 600 12.5px var(--display); }
+.toast time { font: 500 10.5px var(--mono); color: var(--dim); flex: none; white-space: nowrap; }
+.toast .t-b { margin: 2px 0 0; font-size: 12.5px; color: var(--muted); line-height: 1.4; }
+.now {
+  position: fixed; z-index: 20; left: 50%; transform: translateX(-50%); bottom: calc(env(safe-area-inset-bottom, 0px) + 18px);
+  max-width: min(640px, calc(100% - 340px)); padding: 9px 16px; border-radius: 12px; background: rgba(8, 12, 26, .82); border: 1px solid var(--line);
+  font: 600 15px/1.4 var(--display); text-align: center; text-wrap: balance; pointer-events: none;
+}
+.now .k { font: 600 10.5px var(--mono); letter-spacing: .12em; color: var(--dim); margin-right: 8px; vertical-align: 2px; }
+.now b { color: var(--c); }
+
+/* ---------- Minimap + zoom ---------- */
+.map { position: fixed; z-index: 20; right: max(16px, env(safe-area-inset-right, 0px)); bottom: calc(env(safe-area-inset-bottom, 0px) + 16px); border-radius: 12px; padding: 6px; display: grid; gap: 6px; }
+.map canvas { display: block; width: 150px; height: 112px; border-radius: 8px; background: rgba(5, 9, 22, .6); cursor: pointer; }
+.zoom { display: flex; align-items: center; justify-content: space-between; gap: 4px; }
+.zoom button { width: 30px; height: 26px; border-radius: 7px; border: 1px solid var(--line); background: transparent; font: 600 14px var(--mono); display: grid; place-items: center; }
+.zoom button:hover { background: var(--line); }
+.zoom span { font: 500 11px var(--mono); color: var(--muted); font-variant-numeric: tabular-nums; }
+.mapLabel { font: 600 9.5px var(--mono); letter-spacing: .12em; color: var(--dim); display: flex; justify-content: space-between; }
+
+/* ---------- Team panel ---------- */
+.panel {
+  position: fixed; z-index: 40; right: max(16px, env(safe-area-inset-right, 0px)); top: calc(var(--bar-bottom) + 12px); bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
+  width: 392px; border-radius: 18px; display: flex; flex-direction: column; overflow: hidden; background: var(--glass-2);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, .5); animation: pin .3s ease-out;
+}
+@keyframes pin { from { opacity: 0; transform: translateX(20px); } }
+.p-head { display: flex; align-items: center; gap: 12px; padding: 14px 14px 10px 16px; }
+.p-ic { width: 38px; height: 38px; border-radius: 11px; background: var(--c); color: #0b1020; display: grid; place-items: center; flex: none; }
+.p-ic svg { width: 20px; height: 20px; }
+.p-head h2 { margin: 0; font: 700 18px/1.2 var(--display); text-wrap: balance; outline: none; }
+.p-head p { margin: 2px 0 0; font-size: 12.5px; color: var(--muted); }
+.p-head p i { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--ok); margin-right: 5px; }
+.x { margin-left: auto; width: 32px; height: 32px; border-radius: 9px; border: 1px solid var(--line); background: transparent; font-size: 18px; line-height: 1; display: grid; place-items: center; flex: none; color: var(--muted); }
+.x:hover { color: var(--text); background: var(--line); }
+.p-tabs { display: flex; gap: 18px; padding: 0 16px; border-bottom: 1px solid var(--line); }
+.p-tabs button { border: 0; background: none; padding: 8px 0 9px; font-size: 13.5px; color: var(--dim); border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.p-tabs button[aria-selected="true"] { color: var(--text); border-bottom-color: var(--c); }
+.p-body { flex: 1; overflow-y: auto; padding: 14px 16px 18px; overscroll-behavior: contain; }
+.goal { margin: 0 0 12px; font-size: 13px; color: var(--muted); line-height: 1.5; }
+.goal b { color: var(--text); font-weight: 600; }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.stat { border: 1px solid var(--line); border-radius: 11px; padding: 9px 10px 6px; background: rgba(255, 255, 255, .02); min-width: 0; }
+.stat span { display: block; font-size: 11.5px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.stat b { display: block; font: 600 19px/1.3 var(--mono); font-variant-numeric: tabular-nums; }
+.stat svg { display: block; width: 100%; height: 22px; margin-top: 2px; }
+.fine { margin: 6px 0 0; font-size: 11px; color: var(--dim); }
+.sec { display: flex; justify-content: space-between; align-items: baseline; margin: 18px 0 8px; font: 600 10.5px var(--mono); letter-spacing: .12em; color: var(--dim); text-transform: uppercase; }
+.sec span { letter-spacing: .04em; color: var(--ok); text-transform: none; }
+.tools { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+.tool { display: flex; align-items: center; gap: 8px; padding: 8px 9px; border-radius: 10px; border: 1px solid var(--line); background: rgba(255, 255, 255, .02); min-width: 0; }
+.tool .g { width: 26px; height: 26px; border-radius: 7px; display: grid; place-items: center; font: 600 11px var(--mono); background: var(--g); color: #fff; flex: none; }
+.tool div { min-width: 0; }
+.tool b { display: block; font-size: 12.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tool small { display: block; font-size: 11px; color: var(--dim); }
+.skills, .agents { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; }
+.skill { display: grid; grid-template-columns: 10px 1fr 82px 34px; align-items: center; gap: 8px; font: 500 12px var(--mono); }
+.skill .d { width: 7px; height: 7px; border-radius: 50%; background: var(--ok); }
+.skill.idle .d { background: var(--dim); }
+.skill .bar { height: 5px; border-radius: 3px; background: var(--line); overflow: hidden; }
+.skill .bar i { display: block; height: 100%; width: 0; background: var(--c); border-radius: 3px; transition: width .9s linear; }
+.skill .pc { text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; }
+.skill.idle .pc { color: var(--dim); }
+.agent { display: flex; align-items: center; gap: 10px; padding: 7px 9px; border-radius: 10px; border: 1px solid var(--line); }
+.av { width: 28px; height: 28px; border-radius: 50%; background: var(--h); position: relative; flex: none; overflow: hidden; }
+.av::after { content: ""; position: absolute; left: 4px; right: 4px; top: 4px; height: 12px; border-radius: 50%; background: var(--s); }
+.agent .who { flex: 1; min-width: 0; }
+.agent b { display: block; font-size: 13px; font-weight: 600; }
+.agent small { display: block; font-size: 11.5px; color: var(--muted); }
+.pill { font: 600 10.5px var(--mono); padding: 2px 8px; border-radius: 999px; white-space: nowrap; border: 1px solid currentColor; }
+.pill.work { color: var(--ok); }
+.pill.idle { color: var(--dim); }
+.pill.wait { color: var(--warn); }
+.lead { font: 600 9.5px var(--mono); color: var(--gold); border: 1px solid rgba(240, 195, 92, .5); border-radius: 5px; padding: 0 5px; margin-left: 6px; vertical-align: 1px; }
+
+/* chat */
+.log { display: flex; flex-direction: column; gap: 10px; }
+.msg { max-width: 92%; }
+.msg.me { align-self: flex-end; background: var(--line); border-radius: 12px 12px 4px 12px; padding: 8px 12px; font-size: 13.5px; }
+.msg.ag { align-self: flex-start; border: 1px solid var(--line); border-left: 3px solid var(--c); border-radius: 4px 12px 12px 12px; padding: 9px 12px; background: rgba(255, 255, 255, .02); }
+.msg .who { display: flex; justify-content: space-between; gap: 10px; font: 600 11px var(--mono); color: var(--muted); margin-bottom: 4px; }
+.msg .src { color: var(--dim); font-weight: 500; }
+.msg .body { font-size: 13.5px; line-height: 1.6; }
+.msg .body p { margin: 0 0 6px; }
+.msg .body ul, .msg .body ol { margin: 0 0 6px; padding-left: 20px; }
+.msg .body li { margin: 2px 0; }
+.msg .body h4 { margin: 8px 0 4px; font: 600 13.5px var(--display); }
+.msg .body blockquote { margin: 0 0 6px; padding: 6px 10px; border-left: 2px solid var(--gold); background: rgba(240, 195, 92, .07); border-radius: 0 8px 8px 0; }
+.msg .body code { font-family: var(--mono); font-size: 12px; }
+.msg .note { color: var(--warn); font-size: 12px; margin: 4px 0 0; }
+.thinking { color: var(--muted); }
+.thinking::after { content: "…"; animation: blink 1.2s infinite; }
+@keyframes blink { 50% { opacity: .2; } }
+.chatEmpty { color: var(--muted); font-size: 13px; margin: 0 0 4px; }
+.composer { border-top: 1px solid var(--line); padding: 10px 12px 12px; display: grid; gap: 8px; background: rgba(10, 16, 34, .6); }
+.quick { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+.quick::-webkit-scrollbar { display: none; }
+.quick button { flex: none; border: 1px solid var(--line-2); background: transparent; border-radius: 999px; padding: 6px 11px; font-size: 12.5px; white-space: nowrap; }
+.quick button:hover { border-color: var(--c); background: rgba(255, 255, 255, .04); }
+.quick button:disabled { opacity: .45; cursor: default; }
+.row { display: flex; gap: 8px; align-items: flex-end; }
+.row textarea { flex: 1; min-width: 0; resize: none; border: 1px solid var(--line-2); border-radius: 10px; background: rgba(5, 9, 22, .6); padding: 8px 10px; max-height: 120px; font-size: 13.5px; line-height: 1.45; }
+.row textarea:focus { outline: none; border-color: var(--c); }
+.btn { border: 0; border-radius: 10px; padding: 9px 14px; font-weight: 600; font-size: 13.5px; background: var(--gold); color: var(--gold-ink); }
+.btn:disabled { opacity: .4; cursor: default; }
+.btn.ghost { background: transparent; color: var(--text); border: 1px solid var(--line-2); }
+.aiNote { margin: 0; font-size: 11.5px; color: var(--dim); display: flex; align-items: center; gap: 6px; }
+.aiNote i { width: 7px; height: 7px; border-radius: 50%; background: var(--warn); flex: none; }
+.aiNote.live i { background: var(--ok); }
+
+/* ---------- Sheets: tasks / calendar / brain ---------- */
+.sheet {
+  position: fixed; z-index: 35; top: calc(var(--bar-bottom) + 12px); bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
+  left: max(16px, env(safe-area-inset-left, 0px)); right: max(16px, env(safe-area-inset-right, 0px));
+  margin: 0 auto; max-width: 1180px; border-radius: 18px; background: var(--glass-2); display: flex; flex-direction: column; overflow: hidden;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, .5); animation: sin .28s ease-out;
+}
+@keyframes sin { from { opacity: 0; transform: translateY(10px); } }
+.s-head { display: flex; align-items: flex-start; gap: 12px; padding: 16px 18px 12px; border-bottom: 1px solid var(--line); }
+.s-head h2 { margin: 0; font: 700 20px/1.25 var(--display); text-wrap: balance; outline: none; }
+.s-head p { margin: 3px 0 0; color: var(--muted); font-size: 13px; }
+.s-body { flex: 1; overflow: auto; padding: 16px 18px 20px; overscroll-behavior: contain; }
+.board { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(172px, 1fr); gap: 12px; }
+.col { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.col h3 { margin: 0 0 2px; display: flex; justify-content: space-between; font: 600 13px var(--display); color: var(--muted); }
+.col h3 span { font: 600 11px var(--mono); color: var(--dim); }
+.card { border: 1px solid var(--line); border-top: 3px solid var(--c); border-radius: 10px; padding: 9px 11px; background: rgba(255, 255, 255, .025); display: grid; gap: 4px; }
+.c-top { display: flex; justify-content: space-between; align-items: center; gap: 6px; }
+.c-id { font: 600 11px var(--mono); color: var(--dim); }
+.temp { font: 600 10px var(--mono); padding: 1px 7px; border-radius: 999px; }
+.temp.hot { background: rgba(255, 107, 120, .16); color: #ff8f99; }
+.temp.warm { background: rgba(242, 179, 61, .16); color: var(--warn); }
+.temp.cold { background: rgba(120, 160, 255, .16); color: #9cb6ff; }
+.temp.new { background: rgba(255, 255, 255, .07); color: var(--muted); }
+.c-title { margin: 0; font-size: 13.5px; font-weight: 600; line-height: 1.4; }
+.c-meta { margin: 0; font-size: 12px; color: var(--muted); }
+.c-foot { display: flex; justify-content: space-between; align-items: center; gap: 6px; margin-top: 2px; font-size: 11.5px; color: var(--dim); }
+.c-foot .own { display: inline-flex; align-items: center; gap: 5px; }
+.c-foot .own i { width: 7px; height: 7px; border-radius: 2px; background: var(--c); }
+.appr { font: 600 10.5px var(--mono); color: var(--warn); }
+.week { display: grid; grid-template-columns: repeat(7, minmax(140px, 1fr)); gap: 10px; min-width: 0; }
+.day { border: 1px solid var(--line); border-radius: 12px; padding: 10px; display: flex; flex-direction: column; gap: 7px; min-width: 0; background: rgba(255, 255, 255, .015); }
+.day.today { border-color: var(--gold); box-shadow: inset 0 0 0 1px rgba(240, 195, 92, .25); }
+.day h3 { margin: 0; display: flex; justify-content: space-between; align-items: baseline; font: 600 13.5px var(--display); }
+.day h3 span { font: 500 11px var(--mono); color: var(--dim); }
+.day.today h3 span { color: var(--gold); }
+.ev { border-left: 3px solid var(--c); padding: 5px 8px; border-radius: 0 8px 8px 0; background: rgba(255, 255, 255, .03); font-size: 12.5px; line-height: 1.4; }
+.ev time { display: block; font: 600 10.5px var(--mono); color: var(--muted); }
+.brainGrid { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 16px; }
+.rules { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; align-content: start; }
+.rule { border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; background: rgba(255, 255, 255, .02); min-width: 0; }
+.rule.wide { grid-column: 1 / -1; }
+.rule h3 { margin: 0 0 6px; font: 600 14.5px var(--display); display: flex; align-items: center; gap: 8px; }
+.rule h3 small { font: 600 10px var(--mono); letter-spacing: .1em; color: var(--dim); margin-left: auto; }
+.rule p, .rule li { font-size: 13px; color: var(--muted); line-height: 1.55; }
+.rule p { margin: 0 0 6px; }
+.rule ul, .rule ol { margin: 0; padding-left: 20px; }
+.rule strong { color: var(--text); font-weight: 600; }
+.rule .warnline { color: #ffd38a; }
+.funnel { columns: 2; column-gap: 26px; }
+.funnel li { break-inside: avoid; margin-bottom: 4px; }
+.mem { display: flex; flex-direction: column; gap: 8px; }
+.mem h3 { margin: 0; font: 600 10.5px var(--mono); letter-spacing: .12em; color: var(--dim); display: flex; justify-content: space-between; }
+.memItem { display: grid; grid-template-columns: 8px 1fr; gap: 10px; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--line); font-size: 12.5px; }
+.memItem i { width: 8px; height: 8px; border-radius: 2px; background: var(--c); margin-top: 6px; }
+.memItem b { font: 600 12.5px var(--display); }
+.memItem time { font: 500 10.5px var(--mono); color: var(--dim); margin-left: 6px; }
+.memItem p { margin: 1px 0 0; color: var(--muted); }
+.memSub { margin-top: 10px !important; }
+.rule a { color: var(--gold); font-weight: 600; }
+.s-act { display: flex; gap: 8px; align-items: center; flex: none; }
+.s-act .btn { text-decoration: none; display: inline-flex; align-items: center; }
+.sheetMsg { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; margin: 0 0 14px; padding: 10px 12px; border-radius: 10px; border: 1px solid rgba(255, 107, 120, .45); background: rgba(255, 107, 120, .08); color: #ffd6da; font-size: 13px; }
+.kpis { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; margin: 0 0 16px; }
+.kpi { border: 1px solid var(--line); border-radius: 11px; padding: 9px 11px; background: rgba(255, 255, 255, .02); min-width: 0; }
+.kpi span { display: block; font-size: 11.5px; color: var(--muted); }
+.kpi b { display: block; font: 600 20px/1.3 var(--mono); font-variant-numeric: tabular-nums; }
+.kpi small { display: block; font-size: 11px; color: var(--dim); }
+.kpi.good b { color: var(--ok); }
+.kpi.bad b { color: var(--crit); }
+.leadForm { border: 1px solid var(--line-2); border-radius: 12px; padding: 12px 14px; margin: 0 0 16px; background: rgba(255, 255, 255, .025); }
+.leadForm h3 { margin: 0 0 10px; font: 600 15px var(--display); }
+.fgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; }
+.fgrid label { display: grid; gap: 4px; font-size: 12px; color: var(--muted); min-width: 0; }
+.fgrid .wide { grid-column: 1 / -1; }
+.fgrid input, .fgrid select { width: 100%; min-width: 0; border: 1px solid var(--line-2); border-radius: 9px; background: rgba(5, 9, 22, .6); padding: 8px 10px; font-size: 14px; color: var(--text); }
+.fgrid input:focus, .fgrid select:focus { outline: none; border-color: var(--gold); }
+.frow { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 12px; }
+.fstat { font-size: 12.5px; color: var(--muted); }
+.fstat.err { color: #ff9aa4; }
+.fstat.ok { color: var(--ok); }
+.mv { justify-self: start; margin-top: 4px; border: 1px solid var(--line-2); background: transparent; border-radius: 8px; padding: 4px 9px; font-size: 12px; color: var(--text); }
+.mv:hover { border-color: var(--c); }
+.mv.confirm { border-color: var(--gold); color: var(--gold); }
+.mv:disabled { opacity: .55; cursor: default; }
+.colEmpty { font-size: 12.5px; color: var(--dim); border: 1px dashed var(--line); border-radius: 10px; padding: 10px; margin: 0; }
+.stat b.tx { font: 600 14px/1.35 var(--display); padding: 3px 0 2px; overflow-wrap: anywhere; }
+
+@media (min-width: 721px) {
+  body.panel-open .map { right: calc(max(16px, env(safe-area-inset-right, 0px)) + 408px); }
+}
+body.panel-open #toasts, body.panel-open .now { display: none; }
+body.sheet-open #tags, body.sheet-open #toasts, body.sheet-open .now, body.sheet-open .map, body.sheet-open .demo { display: none; }
+.brainTag.compact span { display: none; }
+@media (max-width: 1100px) {
+  .ask { width: 200px; }
+  .now { max-width: calc(100% - 220px); }
+}
+@media (max-width: 900px) {
+  .brainGrid { grid-template-columns: 1fr; }
+}
+@media (max-width: 720px) {
+  .bar { grid-template-columns: 1fr auto; row-gap: 8px; }
+  .brand { padding: 7px 11px; font-size: 11.5px; justify-self: start; }
+  .brand .co, .brand .sep { display: none; }
+  body.panel-open .demo { display: none; }
+  .status { padding: 7px 11px; font-size: 12px; }
+  .status .wide { display: none; }
+  .status .narrow { display: inline; color: var(--muted); }
+  .mid { grid-column: 1 / -1; grid-row: 2; justify-content: stretch; flex-wrap: wrap; gap: 8px; }
+  .tabs { flex: 1; }
+  .tabs button { flex: 1; justify-content: center; padding: 7px 4px; font-size: 13px; }
+  .ask { display: none; }
+  .askToggle { display: grid; }
+  .bar.asking .ask { display: flex; flex-basis: 100%; width: auto; }
+  .ask kbd { display: none; }
+  #toasts { left: max(16px, env(safe-area-inset-left, 0px)); width: auto; top: calc(var(--bar-bottom) + 40px); }
+  #toasts .toast:nth-child(n+2) { display: none; }
+  .now { width: calc(100% - 32px); max-width: none; bottom: calc(env(safe-area-inset-bottom, 0px) + 58px); font-size: 13.5px; padding: 7px 12px; }
+  .map canvas, .mapLabel { display: none; }
+  .map { padding: 4px; left: max(16px, env(safe-area-inset-left, 0px)); right: auto; bottom: calc(env(safe-area-inset-bottom, 0px) + 12px); }
+  .panel { left: 0; right: 0; bottom: 0; top: auto; width: auto; height: 64%; border-radius: 20px 20px 0 0; border-bottom: 0; padding-bottom: env(safe-area-inset-bottom, 0px); animation-name: pup; }
+  .panel::before { content: ""; position: absolute; left: 50%; top: 6px; width: 38px; height: 4px; margin-left: -19px; border-radius: 2px; background: var(--line-2); }
+  @keyframes pup { from { transform: translateY(30px); opacity: 0; } }
+  .sheet { left: 0; right: 0; bottom: 0; border-radius: 20px 20px 0 0; padding-bottom: env(safe-area-inset-bottom, 0px); }
+  .s-head, .s-body { padding-left: 16px; padding-right: 16px; }
+  .week { grid-template-columns: 1fr; }
+  .rules { grid-template-columns: 1fr; }
+  .funnel { columns: 1; }
+  .board { grid-auto-columns: minmax(78%, 1fr); }
+  .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .s-head { flex-wrap: wrap; }
+  .s-act { order: 3; width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
+</style>
+</head>
+<body>
+<canvas id="scene" tabindex="0" aria-label="ภาพออฟฟิศ 3 มิติ ลากเพื่อเลื่อน ซูมด้วยล้อเมาส์หรือสองนิ้ว แตะห้องเพื่อเปิดทีม"></canvas>
+<div id="tags"></div>
+
+<header class="bar" id="bar">
+  <div class="brand glass"><span class="live"></span><span>AGENT HQ</span><span class="sep">·</span><span class="co">MIDDLE PROPERTY</span></div>
+  <div class="mid">
+    <nav class="tabs glass" role="tablist" aria-label="มุมมอง">
+      <button role="tab" data-view="office" aria-selected="true">ออฟฟิศ</button>
+      <button role="tab" data-view="tasks" aria-selected="false">งาน <span class="count" id="taskCount">0</span></button>
+      <button role="tab" data-view="calendar" aria-selected="false">ปฏิทิน</button>
+      <button role="tab" data-view="brain" aria-selected="false">Brain</button>
+    </nav>
+    <form class="ask glass" id="askForm" role="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      <input id="askInput" type="text" autocomplete="off" placeholder="ถามเอเจนต์ตัวไหนก็ได้…" aria-label="ถามเอเจนต์">
+      <kbd>/</kbd>
+    </form>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center">
+    <button class="askToggle glass" id="askToggle" aria-label="ถามเอเจนต์"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></button>
+    <div class="status glass"><span class="live"></span><span><span class="wide"><b id="agentCount">31</b> เอเจนต์ · </span><b id="runCount">0</b><span class="narrow">/31</span> ทำงานอยู่</span></div>
+  </div>
+</header>
+<div class="demo" id="demo"><span id="demoText">โหมดจำลอง · ข้อมูลในหน้านี้เป็นตัวอย่าง ยังไม่ต่อระบบจริง</span><a id="demoLink" target="_blank" rel="noopener" hidden>เปิดชีต</a><button id="demoAct" type="button" hidden></button></div>
+
+<div id="toasts" aria-live="polite"></div>
+<div class="now" id="now"><span class="k">ตอนนี้</span><span id="nowText">ทุกทีมกำลังเริ่มงาน</span></div>
+
+<div class="map glass" id="map">
+  <div class="mapLabel"><span>MAP</span><span id="mapZoom">100%</span></div>
+  <canvas id="mini" width="300" height="224" aria-label="แผนที่ย่อ แตะเพื่อเลื่อนไปจุดนั้น"></canvas>
+  <div class="zoom">
+    <button id="zoomOut" aria-label="ซูมออก">−</button>
+    <button id="spin" aria-label="หมุนมุมมอง" title="หมุนมุมมอง">↻</button>
+    <button id="home" aria-label="ดูทั้งออฟฟิศ" title="ดูทั้งออฟฟิศ">⌂</button>
+    <button id="zoomIn" aria-label="ซูมเข้า">+</button>
+  </div>
+</div>
+
+<aside class="panel" id="panel" hidden aria-labelledby="pName">
+  <div class="p-head">
+    <span class="p-ic" id="pIc"></span>
+    <div style="min-width:0"><h2 id="pName" tabindex="-1"></h2><p id="pSub"></p></div>
+    <button class="x" id="pClose" aria-label="ปิดแผงทีม">×</button>
+  </div>
+  <div class="p-tabs" role="tablist" aria-label="ข้อมูลทีม">
+    <button role="tab" data-ptab="overview" aria-selected="true">ภาพรวม</button>
+    <button role="tab" data-ptab="tasks" aria-selected="false">งานของทีม</button>
+    <button role="tab" data-ptab="chat" aria-selected="false">คุยกับทีม</button>
+  </div>
+  <div class="p-body" id="pBody">
+    <div id="pt-overview"></div>
+    <div id="pt-tasks" hidden></div>
+    <div id="pt-chat" hidden></div>
+  </div>
+  <div class="composer" id="composer" hidden>
+    <div class="quick" id="quick"></div>
+    <div class="row">
+      <textarea id="msg" rows="1" placeholder="พิมพ์รายละเอียดหรือคำถามถึงทีมนี้…" aria-label="ข้อความถึงทีม"></textarea>
+      <button class="btn" id="sendBtn" disabled>ส่ง</button>
+      <button class="btn ghost" id="stopBtn" hidden>หยุด</button>
+    </div>
+    <p class="aiNote" id="aiNote"><i></i><span id="aiText">กำลังเชื่อม Claude…</span></p>
+  </div>
+</aside>
+
+<section class="sheet" id="view-tasks" hidden aria-labelledby="tasksTitle">
+  <div class="s-head"><div style="flex:1;min-width:0"><h2 id="tasksTitle" tabindex="-1">งานในท่อ <span class="count" id="taskCount2"></span></h2><p id="tasksSub">เรียงตาม funnel ออนไลน์ 8 ขั้นของ Middle Property · การ์ดทั้งหมดเป็นตัวอย่างจำลอง</p></div><div class="s-act" id="sheetActs" hidden><button class="btn" id="addLeadBtn" type="button" hidden>เพิ่มลีด</button><a class="btn ghost" id="openSheetBtn" target="_blank" rel="noopener">เปิดชีต</a></div><button class="x" data-close aria-label="ปิด">×</button></div>
+  <div class="s-body">
+    <div class="sheetMsg" id="sheetMsg" hidden></div>
+    <form class="leadForm" id="leadForm" hidden novalidate>
+      <h3>เพิ่มลีดใหม่ลงชีตลีดกลาง</h3>
+      <div class="fgrid">
+        <label>ช่องทาง *<select id="fChannel"><option value="">เลือกช่องทาง</option><option>LINE OA</option><option>Facebook</option><option>Instagram</option><option>TikTok</option><option>เว็บไซต์</option><option>พอร์ทัลประกาศ</option><option>พาร์ตเนอร์</option><option>อื่นๆ</option></select></label>
+        <label>ชื่อลูกค้า<input id="fName" autocomplete="off"></label>
+        <label>ติดต่อ (LINE/เบอร์)<input id="fContact" autocomplete="off"></label>
+        <label>งบต่อเดือน (฿)<input id="fBudget" type="number" inputmode="numeric" min="0" step="500"></label>
+        <label>ประเภทห้อง<select id="fType"><option value="">ไม่ระบุ</option><option>สตูดิโอ</option><option>1 นอน</option><option>2 นอน</option><option>3 นอนขึ้นไป</option><option>อื่นๆ</option></select></label>
+        <label>ทำเล / สถานี<input id="fLoc" autocomplete="off"></label>
+        <label>วันย้ายเข้า<input id="fMovein" type="date"></label>
+        <label>ระดับ<select id="fLevel"><option value="">ยังไม่จัดระดับ</option><option>HOT</option><option>WARM</option><option>COLD</option></select></label>
+        <label>ตอบแรก (นาที)<input id="fResp" type="number" inputmode="numeric" min="0"></label>
+        <label class="wide">หมายเหตุ<input id="fNote" autocomplete="off"></label>
+      </div>
+      <div class="frow"><button class="btn" id="fSave" type="submit">บันทึกลงชีต</button><button class="btn ghost" type="button" id="fCancel">ปิดฟอร์ม</button><span class="fstat" id="fStat" role="status"></span></div>
+    </form>
+    <div class="kpis" id="kpis" hidden></div>
+    <div class="board" id="board"></div>
+  </div>
+</section>
+<section class="sheet" id="view-calendar" hidden aria-labelledby="calTitle">
+  <div class="s-head"><div><h2 id="calTitle" tabindex="-1">ปฏิทินสัปดาห์นี้</h2><p id="calSub">โพสต์ วิดีโอคอล นัดดูจริง และรอบติดตามลูกค้า · รายการเป็นตัวอย่างจำลอง</p></div><button class="x" data-close aria-label="ปิด">×</button></div>
+  <div class="s-body"><div class="week" id="week"></div></div>
+</section>
+<section class="sheet" id="view-brain" hidden aria-labelledby="brainTitle">
+  <div class="s-head"><div><h2 id="brainTitle" tabindex="-1">The Brain · ความจำร่วมของทุกทีม</h2><p>Playbook ที่ทุกเอเจนต์อ่านก่อนทำงาน และบันทึกที่ทีมส่งเข้ามา</p></div><button class="x" data-close aria-label="ปิด">×</button></div>
+  <div class="s-body"><div class="brainGrid"><div class="rules" id="rules"></div><div class="mem" id="mem"></div></div></div>
+</section>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+"use strict";
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const REDUCE = matchMedia("(prefers-reduced-motion: reduce)").matches;
+function rng(seed) { return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const pick = (arr, r = Math.random) => arr[Math.floor(r() * arr.length)];
+const hhmm = d => String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
+
+/* ---------- Icons ---------- */
+const ICON = {
+  inbox: '<path d="M4 13h4l2 3h4l2-3h4"/><path d="M5.5 5h13L20 13v6H4v-6z"/>',
+  screening: '<path d="M4 5h16l-6 8v6l-4-2v-4z"/>',
+  listings: '<path d="M6 21V4h9v17"/><path d="M15 9h3v12"/><path d="M9 8h3M9 12h3M9 16h3"/><path d="M4 21h16"/>',
+  walkthrough: '<rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 10l5-3v10l-5-3z"/>',
+  closing: '<path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5"/><path d="M9 14l2 2 4-4"/>',
+  analytics: '<path d="M5 20v-8M11 20V5M17 20v-11M3 20h18"/>',
+  creative: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 9l5 3-5 3z"/>',
+  social: '<path d="M4 10v4h3l7 4V6l-7 4z"/><path d="M17.5 9a4 4 0 0 1 0 6"/>',
+};
+const svg = id => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + ICON[id] + "</svg>";
+
+/* ---------- The business playbook (from Middle Property online sales) ---------- */
+const PLAYBOOK = [
+  "บริบท: ลูกค้าทั้งหมดมาจากออนไลน์ ไม่พึ่งคนรู้จัก ต้นทุนการเดินทางไปดูห้องจริงสูง ถ้าไม่ใช้ BTS อัตราปิดดีลประมาณ 50-50 เป้าหมายคือยกอัตราปิดให้สูงกว่านั้นด้วยการกรองและวิดีโอคอลวอล์คทรูก่อนนัดจริง",
+  "กฎห้าม: ห้ามแต่งสเปคห้อง ราคา หรือเงื่อนไข ห้ามกดดันเกินจริง ถ้าไม่แน่ใจให้ถามเจ้าของทรัพย์ก่อน",
+  "Step +1: ไม่เสนอห้องตามงบพอดี แต่หาห้องที่ดีกว่างบเล็กน้อยที่ลูกค้าควรได้ เช่น งบ ~$600 ได้ห้องระดับ ~$650-700, งบ ~$1,000 ได้ 2 นอน 1 น้ำ เพดานสูง ฟาซิลิตี้ดี โปร่ง สวย สื่อให้ชัดว่าคุ้มขึ้นอย่างไร ต้องเป็นข้อเท็จจริง ให้ลูกค้าเลือกเอง ไม่บังคับ",
+  "Funnel: 1) ลีดเข้า ตอบภายใน 5 นาที 2) คัดกรอง 3-5 คำถาม (งบ, ประเภทห้อง, ทำเล/สถานี BTS, วันย้ายเข้า, ระยะสัญญา, จำนวนคน/สัตว์เลี้ยง, สิ่งที่ขาดไม่ได้, ใครตัดสินใจ) 3) จัดระดับ HOT/WARM/COLD 4) เสนอ 2-3 ห้อง มี 1 ห้องเป็น step +1 5) วิดีโอคอลวอล์คทรูแทนการไปดูรอบแรก 6) หลังคอลถามว่าชอบห้องไหน ติดใจอะไร คัดเหลือ 1-2 ห้อง 7) นัดดูจริงเฉพาะลูกค้าที่พร้อมตัดสินใจ จัดหลายห้องในเส้นทางเดียว ยืนยันก่อน 1 วัน 8) ปิดดีล ทำสัญญา/เซ็นออนไลน์ ส่งมอบ",
+  "เช็กลิสต์วิดีโอคอล: ห้องนอน, ห้องน้ำ, ระเบียง/วิว, แสง, เฟอร์นิเจอร์จริง, สภาพแอร์/อ่างน้ำ, ฟาซิลิตี้ส่วนกลาง, ทางเดินไป BTS",
+  "ค่าบริการ: แผนคือเก็บค่าบริการ 1 เดือนแรกหลังปิดดีล (ต้องยืนยันเงื่อนไขกับเจ้าของธุรกิจก่อนใช้จริง) แจ้งลูกค้าตั้งแต่ต้นก่อนนัดดูห้อง ไม่บอกหลังจบดีล",
+  "ปฏิเสธอย่างสุภาพ: เมื่อเงื่อนไขไม่ตรง (งบต่ำกว่าตลาด, ทำเลที่ไม่มีห้อง, ขอดูซ้ำโดยไม่ตัดสินใจ) บอกตรงๆ เสนอทางเลือก (ปรับงบ/ทำเล/วันย้าย) แล้วบันทึกเหตุผล",
+  "ติดตาม: HOT +1, +3, +7 วัน / WARM +3, +10, +21 วัน ทุกครั้งต้องมีข้อมูลหรือห้องใหม่",
+  "KPI: ลีดใหม่, เวลาตอบแรก, % คอลวอล์คทรู, % นัดดูจริง, win rate หลังดูจริง (เป้าสูงกว่า 50%), วันจากลีดถึงสัญญา, ต้นทุนต่อดีล",
+  "Human-in-the-loop: ร่างข้อความ/สัญญา/ชุดนัดได้เต็มที่ แต่การส่งจริง การยืนยันราคา และการรับเงินมัดจำต้องให้คนอนุมัติก่อน",
+].join("\n");
+
+/* ---------- Teams: 8 teams, 31 agents ---------- */
+const TEAMS = [
+  { id: "inbox", name: "รับลีด", en: "LEAD INBOX", color: "#F2994A", slot: 270,
+    goal: "ตอบลีดใหม่ทุกช่องทาง <b>ภายใน 5 นาที</b> แล้วส่งต่อทีมคัดกรองโดยไม่ให้ลีดหลุด",
+    turn: "3 นาที",
+    agents: [["ตอบไลน์", "ตอบ LINE OA ทันทีที่ลีดทัก"], ["ตอบแชตเพจ", "Messenger และ Instagram DM"], ["จับลีดเว็บ", "ดึงลีดจากฟอร์มเว็บและ TikTok"], ["ส่งต่อลีด", "รวมลีดซ้ำ ส่งเข้าทีมคัดกรอง"]],
+    tools: [["LINE OA", "L", "#2f9e5c"], ["Facebook Page", "F", "#3a63c9"], ["Instagram", "IG", "#b0457d"], ["Google Sheets", "S", "#2b8a57"]],
+    skills: ["reply-under-5-min", "capture-lead", "dedupe-contact", "after-hours-reply", "route-to-screen"],
+    events: ["ลีดใหม่จาก LINE OA · ตอบแล้วใน 2 นาที", "ลีดจากเพจ Facebook · ส่งต่อทีมคัดกรอง", "รวมลีดซ้ำ 1 รายการ (เบอร์เดียวกัน)", "ตอบลีดนอกเวลา · นัดคุยต่อพรุ่งนี้ 10:00", "ลีดจาก TikTok DM · ขอเบอร์ติดต่อแล้ว"],
+    actions: [
+      { label: "ร่างข้อความตอบลีดแรก", prompt: t => "ร่างข้อความตอบลีดแรกที่ส่งได้ภายใน 5 นาที สั้น อบอุ่น และถามคำถามคัดกรองเบื้องต้น 3 ข้อ" + (t ? " บริบทลีด: " + t : ""),
+        fallback: "ข้อความตอบลีดแรก (ส่งภายใน 5 นาที)\n> สวัสดีครับ/ค่ะ ขอบคุณที่ทักมาหา Middle Property ขอถามสั้นๆ 3 ข้อ เพื่อหาห้องที่ตรงใจที่สุด\n> 1) งบต่อเดือนประมาณเท่าไร\n> 2) อยากได้ใกล้สถานี BTS/MRT ไหน\n> 3) จะย้ายเข้าประมาณวันไหน\n- ลูกค้าตอบแล้ว ส่งต่อทีมคัดกรองทันที\n- ถ้าทักนอกเวลา ตอบรับก่อน แล้วนัดเวลาคุยต่อที่ชัดเจน\n- ข้อความนี้เป็นร่าง การส่งจริงให้คนกดยืนยัน\nขั้นต่อไป: ตั้งข้อความนี้เป็นข้อความตอบกลับแรกใน LINE OA และเพจ" },
+      { label: "กันลีดหลุด", prompt: t => "ออกแบบระบบไม่ให้ลีดหลุดจากหลายช่องทาง (LINE OA, เพจ, IG, เว็บ, TikTok) สำหรับธุรกิจเอเจนต์ออนไลน์ขนาดเล็ก" + (t ? " ข้อมูลเพิ่ม: " + t : ""),
+        fallback: "กันลีดหลุด\n1. รวมลีดทุกช่องทางไว้ในชีตเดียว: วันที่ ช่องทาง ชื่อ ช่องทางติดต่อ งบ ทำเล สถานะ\n2. ตั้งเวลาตอบแรกเป็นตัวชี้วัด เป้าคือไม่เกิน 5 นาที\n3. ลีดที่ยังไม่ได้คัดกรองเกิน 2 ชั่วโมง ให้ขึ้นเตือน\n4. เบอร์หรือไลน์ซ้ำ ให้รวมเป็นลีดเดียว\n5. ปิดวันด้วยการเช็กว่าลีดวันนี้ได้คำตอบครบทุกคน\nขั้นต่อไป: สร้างชีตลีดกลาง แล้วให้ทุกช่องทางส่งเข้าที่เดียว" },
+    ] },
+  { id: "screening", name: "คัดกรอง", en: "SCREENING", color: "#2FB67C", slot: 315,
+    goal: "ถาม 3-5 คำถาม แล้วจัด <b>HOT / WARM / COLD</b> เพื่อให้ทีมใช้เวลากับลูกค้าที่พร้อมจริง",
+    turn: "11 นาที",
+    agents: [["ถาม 5 ข้อ", "ถามงบ ทำเล วันย้าย สัญญา ผู้ตัดสินใจ"], ["ให้คะแนนลีด", "จัด HOT / WARM / COLD"], ["ปฏิเสธอย่างสุภาพ", "เสนอทางเลือกเมื่อเงื่อนไขไม่ตรง"]],
+    tools: [["LINE OA", "L", "#2f9e5c"], ["Google Sheets", "S", "#2b8a57"], ["Google Forms", "Fm", "#6b4fc4"]],
+    skills: ["five-question-screen", "score-hot-warm-cold", "budget-reality-check", "polite-decline"],
+    events: ["คัดกรองครบ 5 ข้อ · จัดเป็น HOT", "ลีด WARM 2 ราย · ตั้งติดตาม +3 วัน", "ถามเพิ่มว่าใครเป็นผู้ตัดสินใจ", "งบต่ำกว่าตลาด · ร่างข้อความเสนอทางเลือก รออนุมัติ", "ลีดเลี้ยงแมว · แจ้งทีมห้องหาห้องที่รับสัตว์"],
+    actions: [
+      { label: "ร่างคำถามคัดกรอง", prompt: t => "ร่างชุดคำถามคัดกรอง 5 ข้อที่ส่งทางแชตได้ พร้อมเกณฑ์จัด HOT/WARM/COLD ที่ใช้ได้จริง" + (t ? " บริบท: " + t : ""),
+        fallback: "คำถามคัดกรอง 5 ข้อ (ส่งทางแชต)\n1. งบต่อเดือนที่สบายใจ และงบสูงสุดที่รับได้\n2. ประเภทห้อง และทำเลหรือสถานี BTS/MRT ที่ต้องการ\n3. ย้ายเข้าวันไหน สัญญากี่เดือน\n4. อยู่กี่คน มีสัตว์เลี้ยงไหม และสิ่งที่ขาดไม่ได้\n5. ใครเป็นคนตัดสินใจ และพร้อมวิดีโอคอลดูห้องเมื่อไร\n\n**เกณฑ์จัดระดับ**\n- HOT: ย้ายเข้าภายใน 30 วัน งบตรงตลาด ผู้ตัดสินใจอยู่ในแชต\n- WARM: ย้ายใน 1-3 เดือน หรือยังมีเงื่อนไขที่ต้องคุย\n- COLD: ยังไม่มีวันย้าย หรืองบต่ำกว่าตลาดมาก\nขั้นต่อไป: ส่งชุดนี้ต่อจากข้อความตอบแรกทุกลีด" },
+      { label: "ปฏิเสธอย่างสุภาพ", needs: "พิมพ์สถานการณ์ก่อน เช่น งบ 8,000 แต่อยากได้ 1 นอนทองหล่อ แล้วกดอีกครั้ง",
+        prompt: t => "ร่างข้อความปฏิเสธลูกค้าอย่างสุภาพ บอกตรงๆ และเสนอทางเลือก (ปรับงบ/ทำเล/วันย้าย) สถานการณ์: " + t,
+        fallback: "ข้อความปฏิเสธอย่างสุภาพ\n> ขอบคุณที่ไว้ใจให้ช่วยหาห้องนะครับ/คะ ตอนนี้ห้องในงบนี้ที่ทำเลนี้ยังไม่มีที่ตรงเงื่อนไขจริงๆ เพื่อไม่ให้เสียเวลา ขอเสนอ 2 ทาง: ขยับทำเลไปอีก 2-3 สถานีที่ยังเดินทางสะดวก หรือขยับงบขึ้นเล็กน้อยในทำเลเดิม สนใจทางไหน เดี๋ยวคัดห้องจริงให้ดู\n- บอกตรง ไม่ทิ้งลูกค้าไว้กลางทาง\n- บันทึกเหตุผลลงชีต เพื่อดูว่าตลาดไหนลูกค้าต้องการแต่เรายังไม่มีห้อง\n- ข้อความนี้เป็นร่าง ให้คนอนุมัติก่อนส่ง\nขั้นต่อไป: ใส่สถานการณ์จริงในช่องพิมพ์ เพื่อให้ร่างตรงกับลูกค้ารายนั้น" },
+    ] },
+  { id: "listings", name: "ห้องและเจ้าของ", en: "LISTINGS", color: "#4C84F5", slot: 0,
+    goal: "คัดห้อง 2-3 ห้องต่อลูกค้า มี 1 ห้องเป็น <b>Step +1</b> และยืนยันสเปคกับเจ้าของทุกครั้ง",
+    turn: "42 นาที",
+    agents: [["จับคู่ Step +1", "หาห้องที่ดีกว่างบเล็กน้อย"], ["ประสานเจ้าของ", "คุยเจ้าของทรัพย์ทาง LINE"], ["ตรวจสเปค", "ยืนยันสเปคและราคากับเจ้าของ"], ["วัดทาง BTS", "เวลาเดินจริงถึงสถานี"], ["คลังห้อง", "อัปเดตห้องว่างทุกวัน"]],
+    tools: [["Google Drive", "D", "#3069d8"], ["Google Sheets", "S", "#2b8a57"], ["Google Maps", "M", "#c2493b"], ["LINE (เจ้าของ)", "L", "#2f9e5c"]],
+    skills: ["step-plus-one-match", "verify-with-owner", "bts-walk-time", "vacancy-sync", "listing-photo-pack"],
+    events: ["พบห้อง Step +1 ใหม่ 2 ห้อง ใกล้ BTS", "ส่งคำถามสเปคห้องให้เจ้าของยืนยัน", "เจ้าของยืนยันราคาแล้ว 1 ห้อง", "อัปเดตเวลาเดินถึง BTS 3 ห้อง", "ห้องที่เสนอไว้ถูกเช่าแล้ว · หาห้องแทน"],
+    actions: [
+      { label: "หาห้อง Step +1", needs: "พิมพ์งบ ทำเล และเงื่อนไขของลูกค้าก่อน เช่น งบ 18,000 1 นอน ใกล้ BTS อารีย์ แล้วกดอีกครั้ง",
+        prompt: t => "ลูกค้า: " + t + "\nวางแนวทางเสนอ 2-3 ห้องตามหลัก Step +1 ระบุว่าแต่ละห้องควรมีคุณสมบัติแบบไหน และเหตุผลความคุ้มที่สื่อกับลูกค้าได้ อย่าแต่งชื่อโครงการหรือราคา ให้บอกว่าข้อมูลไหนต้องเช็กกับเจ้าของ",
+        fallback: "หลัก Step +1 สำหรับเสนอห้อง\n1. ห้องตรงงบ 1 ห้อง: ครบตามที่ลูกค้าขอ\n2. ห้อง Step +1 อีก 1 ห้อง: แพงกว่างบเล็กน้อย แต่ได้ของที่คุ้มกว่าชัดเจน เช่น ห้องใหญ่ขึ้น ใกล้ BTS ขึ้น วิวโปร่งขึ้น หรือฟาซิลิตี้ดีกว่า\n3. ห้องสำรอง 1 ห้อง: ถ้าลูกค้ายอมขยับทำเล\n- ตัวอย่างจากเจ้าของธุรกิจ: งบ ~$600 ได้ห้องระดับ ~$650-700, งบ ~$1,000 ได้ 2 นอน 1 น้ำ เพดานสูง ฟาซิลิตี้ดี\n- บอกความคุ้มเป็นข้อเท็จจริง และให้ลูกค้าเลือกเอง\n- สเปคและราคาทุกห้องต้องยืนยันกับเจ้าของก่อนส่ง\nขั้นต่อไป: พิมพ์งบและทำเลของลูกค้าจริง เพื่อให้ทีมจับคู่ห้องให้" },
+      { label: "คำถามยืนยันกับเจ้าของ", prompt: t => "ร่างชุดคำถามสั้นๆ ที่ส่งให้เจ้าของห้องทาง LINE เพื่อยืนยันสเปค ราคา และเงื่อนไขก่อนเสนอลูกค้า" + (t ? " ห้อง: " + t : ""),
+        fallback: "ถามเจ้าของก่อนเสนอห้อง\n1. ห้องยังว่างไหม ว่างตั้งแต่วันไหน\n2. ค่าเช่าต่อเดือน มัดจำ และค่าล่วงหน้ากี่เดือน\n3. สัญญาขั้นต่ำกี่เดือน\n4. รับสัตว์เลี้ยงไหม จำนวนคนพักสูงสุด\n5. เฟอร์นิเจอร์และเครื่องใช้ที่อยู่ในห้องจริง\n6. ค่าน้ำ ค่าไฟ คิดแบบไหน\n7. ขอรูปหรือวิดีโอล่าสุด หรือให้ทีมเข้าไปถ่ายได้วันไหน\nขั้นต่อไป: บันทึกคำตอบลงคลังห้อง ก่อนส่งให้ลูกค้าทุกครั้ง" },
+    ] },
+  { id: "walkthrough", name: "วิดีโอคอลดูห้อง", en: "WALKTHROUGH", color: "#F2C94C", slot: 45,
+    goal: "ใช้ <b>วิดีโอคอลวอล์คทรู</b> แทนการไปดูรอบแรก แล้วนัดดูจริงเฉพาะลูกค้าที่พร้อมตัดสินใจ",
+    turn: "1.5 ชม.",
+    agents: [["นัดวิดีโอคอล", "นัดเวลาคอลกับลูกค้าและเจ้าของ"], ["เช็กลิสต์ 8 จุด", "ให้เห็นครบทุกจุดในคอล"], ["จัดเส้นทางดูจริง", "หลายห้องในเส้นทางเดียว"], ["ยืนยันนัด", "ยืนยันล่วงหน้า 1 วัน"]],
+    tools: [["LINE วิดีโอคอล", "L", "#2f9e5c"], ["Google Meet", "Mt", "#2a7e6a"], ["Google Calendar", "C", "#3a63c9"], ["Google Maps", "M", "#c2493b"]],
+    skills: ["book-video-call", "eight-point-checklist", "route-plan-viewings", "confirm-day-before"],
+    events: ["นัดวิดีโอคอลวอล์คทรู 14:00", "ส่งเช็กลิสต์ 8 จุดให้ทีมถ่าย", "จัดเส้นทางดูจริง 3 ห้องสายเดียวกัน", "ยืนยันนัดล่วงหน้า 1 วันแล้ว", "หลังคอล: ลูกค้าเหลือ 2 ห้องที่ชอบ"],
+    actions: [
+      { label: "เช็กลิสต์วิดีโอคอล", prompt: t => "ทำสคริปต์วิดีโอคอลวอล์คทรูห้องเช่า ไล่ตามเช็กลิสต์ 8 จุด พร้อมคำพูดสั้นๆ ระหว่างคอล และคำถามปิดท้ายหลังคอล" + (t ? " ห้อง: " + t : ""),
+        fallback: "วิดีโอคอลวอล์คทรู · 8 จุดที่ต้องให้เห็น\n1. ห้องนอน\n2. ห้องน้ำ\n3. ระเบียงและวิว\n4. แสงธรรมชาติ\n5. เฟอร์นิเจอร์จริงในห้อง\n6. สภาพแอร์และอ่างน้ำ\n7. ฟาซิลิตี้ส่วนกลาง\n8. ทางเดินจริงไป BTS\n\n**หลังคอล** ถามว่า \"ชอบห้องไหน ติดใจอะไร\" แล้วคัดให้เหลือ 1-2 ห้อง\nขั้นต่อไป: นัดดูจริงเฉพาะลูกค้าที่บอกว่าพร้อมตัดสินใจ" },
+      { label: "จัดวันดูจริง", prompt: t => "วางแผนวันดูห้องจริงหลายห้องในเส้นทางเดียว รวมการยืนยันล่วงหน้า 1 วัน และสิ่งที่ต้องเตรียม" + (t ? " ข้อมูล: " + t : ""),
+        fallback: "จัดวันดูจริงให้คุ้มการเดินทาง\n1. นัดเฉพาะลูกค้าที่ผ่านวิดีโอคอลและบอกว่าพร้อมตัดสินใจ\n2. รวม 2-3 ห้องที่อยู่สาย BTS เดียวกัน เรียงตามเส้นทาง\n3. เว้นเวลาห้องละ 30-40 นาที รวมเวลาเดิน\n4. ยืนยันกับลูกค้าและเจ้าของล่วงหน้า 1 วัน\n5. เตรียมเอกสารสัญญาไว้ ถ้าลูกค้าตัดสินใจหน้างาน\nขั้นต่อไป: ส่งตารางนัดให้คนอนุมัติก่อนยืนยันกับลูกค้า" },
+    ] },
+  { id: "closing", name: "ปิดดีล", en: "CLOSING", color: "#EB6060", slot: 90,
+    goal: "ทำสัญญาและเซ็นออนไลน์ให้เร็ว โดย <b>การส่งจริง ราคา และมัดจำ ต้องมีคนอนุมัติ</b>",
+    turn: "1 วัน",
+    agents: [["ร่างสัญญา", "ร่างสัญญาเช่าจากข้อมูลที่ยืนยันแล้ว"], ["เซ็นออนไลน์", "เตรียมเอกสารเซ็นออนไลน์"], ["ติดตามมัดจำ", "รอคนอนุมัติก่อนรับเงิน", "wait"], ["ส่งมอบห้อง", "เช็กลิสต์ส่งมอบและวันย้ายเข้า"]],
+    tools: [["Google Docs", "Dc", "#3069d8"], ["เซ็นออนไลน์", "eS", "#5a5fd0"], ["Google Drive", "D", "#3069d8"], ["บัญชีธนาคาร (คนตรวจ)", "฿", "#8a6d1f"]],
+    skills: ["draft-lease", "e-sign-pack", "fee-disclosure", "deposit-watch", "handover-checklist"],
+    events: ["ร่างสัญญาเช่า · รอคนตรวจก่อนส่ง", "มัดจำ: รอเจ้าของธุรกิจอนุมัติ", "เตรียมเอกสารเซ็นออนไลน์ครบ", "เช็กลิสต์ส่งมอบห้องพร้อม", "แจ้งค่าบริการลูกค้าใหม่ตั้งแต่ต้นแล้ว"],
+    actions: [
+      { label: "แจ้งค่าบริการตั้งแต่ต้น", prompt: t => "ร่างข้อความแจ้งลูกค้าเรื่องค่าบริการตั้งแต่ก่อนนัดดูห้อง ให้โปร่งใสและสุภาพ ตามแผนเก็บค่าบริการ 1 เดือนแรกหลังปิดดีล และเตือนว่าต้องยืนยันเงื่อนไขกับเจ้าของธุรกิจก่อนใช้จริง" + (t ? " ข้อมูลเพิ่ม: " + t : ""),
+        fallback: "แจ้งค่าบริการก่อนนัดดูห้อง\n> ก่อนนัดดูห้อง ขอแจ้งเรื่องค่าบริการให้ชัดตั้งแต่ตอนนี้ Middle Property คิดค่าบริการเท่ากับค่าเช่า 1 เดือนแรก เก็บเฉพาะเมื่อปิดดีลและเซ็นสัญญาแล้วเท่านั้น ถ้ายังไม่ได้ห้อง ไม่มีค่าใช้จ่าย\n- **ต้องยืนยันเงื่อนไขค่าบริการกับเจ้าของธุรกิจก่อนใช้จริง**\n- แจ้งก่อนนัดดูห้องเสมอ ไม่บอกหลังจบดีล\nขั้นต่อไป: ยืนยันเงื่อนไขค่าบริการ แล้วใส่ข้อความนี้ในขั้นคัดกรอง" },
+      { label: "เช็กลิสต์ก่อนรับมัดจำ", prompt: t => "ทำเช็กลิสต์ก่อนรับเงินมัดจำค่าเช่าห้อง ให้คนอนุมัติได้เร็วและปลอดภัย" + (t ? " ข้อมูล: " + t : ""),
+        fallback: "ก่อนรับมัดจำ (ต้องมีคนอนุมัติ)\n1. เจ้าของยืนยันค่าเช่า มัดจำ และวันเริ่มสัญญาเป็นลายลักษณ์อักษร\n2. ชื่อบัญชีรับเงินตรงกับเจ้าของห้องหรือบริษัท\n3. ลูกค้าได้อ่านร่างสัญญาครบแล้ว\n4. ระบุในหลักฐานว่าเป็นเงินมัดจำห้องไหน\n5. เจ้าของธุรกิจกดอนุมัติก่อนแจ้งเลขบัญชี\nขั้นต่อไป: ส่งเช็กลิสต์นี้ให้ผู้อนุมัติพร้อมเอกสาร" },
+    ] },
+  { id: "analytics", name: "วัดผล", en: "ANALYTICS", color: "#1FB8C9", slot: 135,
+    goal: "ดู KPI ทุกสัปดาห์ เป้าคือ <b>win rate หลังดูจริงสูงกว่า 50%</b> และรู้ว่าช่องทางไหนปิดได้จริง",
+    turn: "20 นาที",
+    agents: [["ติดตาม KPI", "เวลาตอบแรก, % คอล, % ดูจริง"], ["วิเคราะห์ช่องทาง", "ช่องทางไหนปิดดีลได้จริง"], ["สรุปรายสัปดาห์", "ข้อเสนอปรับกลยุทธ์สัปดาห์หน้า"]],
+    tools: [["Google Sheets", "S", "#2b8a57"], ["Looker Studio", "Lk", "#3a63c9"], ["Meta Ads Manager", "Ad", "#3a63c9"]],
+    skills: ["kpi-tracker", "channel-win-rate", "cost-per-deal", "weekly-review"],
+    events: ["อัปเดตเวลาตอบแรกเฉลี่ยของวันนี้", "สรุป % ลีดที่ได้วิดีโอคอล", "เทียบ win rate หลังดูจริงกับเป้า 50%", "บันทึกช่องทางที่ปิดได้จริงสัปดาห์นี้", "คำนวณต้นทุนต่อดีลจากค่าโฆษณา"],
+    actions: [
+      { label: "ตั้ง KPI สัปดาห์", prompt: t => "ตั้งแดชบอร์ด KPI รายสัปดาห์สำหรับเอเจนต์อสังหาออนไลน์ ระบุสูตรคำนวณแต่ละตัว แหล่งข้อมูล และเกณฑ์ที่ควรตกใจ" + (t ? " ข้อมูล: " + t : ""),
+        fallback: "KPI รายสัปดาห์\n- ลีดใหม่ (แยกตามช่องทาง)\n- เวลาตอบแรกเฉลี่ย (เป้า ไม่เกิน 5 นาที)\n- % ลีดที่ได้วิดีโอคอลวอล์คทรู\n- % ที่ไปนัดดูจริง\n- Win rate หลังดูจริง (เป้า สูงกว่า 50%)\n- จำนวนวันจากลีดถึงเซ็นสัญญา\n- ต้นทุนต่อดีล = ค่าโฆษณาและค่าเดินทาง ÷ ดีลที่ปิด\nขั้นต่อไป: เริ่มเก็บตัวเลขเหล่านี้ในชีตลีดกลางตั้งแต่สัปดาห์นี้" },
+      { label: "ช่องทางไหนปิดได้จริง", prompt: t => "วิธีวิเคราะห์ว่าช่องทางไหน (LINE OA, เพจ, TikTok, พอร์ทัลประกาศ, พาร์ตเนอร์) ปิดดีลได้จริง และควรย้ายงบหรือเวลาไปไหน" + (t ? " ข้อมูล: " + t : ""),
+        fallback: "ดูว่าช่องทางไหนปิดได้จริง\n1. ทุกลีดต้องมีช่องทางที่มา ตั้งแต่วันแรก\n2. นับต่อช่องทาง: ลีด → วิดีโอคอล → ดูจริง → ปิดดีล\n3. ดูอัตราปิดและต้นทุนต่อดีลของแต่ละช่องทาง ไม่ใช่แค่จำนวนลีด\n4. ช่องทางที่ลีดเยอะแต่ไม่ถึงคอล ให้ปรับข้อความหรือคำถามคัดกรอง\n5. ย้ายงบไปช่องทางที่ปิดได้จริง ทีละน้อยแล้ววัดซ้ำ\nขั้นต่อไป: ใส่คอลัมน์ ช่องทาง ในชีตลีดกลาง" },
+    ] },
+  { id: "creative", name: "วิดีโอและภาพ", en: "CREATIVE", color: "#8B6CFF", slot: 180,
+    goal: "ทำวิดีโอทัวร์ห้องและภาพประกาศที่ <b>ตรงกับห้องจริง</b> เพื่อให้ลูกค้าตัดสินใจได้ก่อนเดินทาง",
+    turn: "14 นาที",
+    agents: [["ตัดต่อวิดีโอ", "คลิปทัวร์ห้อง 30-60 วินาที"], ["คำบรรยายและแคปชัน", "ซับไตเติลไทย-อังกฤษ"], ["ทำปก", "ปกคลิปและภาพประกาศ"], ["ตรวจแบรนด์", "เช็กโทนและข้อมูลให้ตรงจริง"]],
+    tools: [["CapCut", "Cc", "#26292f"], ["Canva", "Cv", "#1f9fb5"], ["Google Drive", "D", "#3069d8"]],
+    skills: ["room-tour-cut", "captions-burn-in", "resize-for-reels", "thumbnail-maker", "brand-check"],
+    events: ["ตัดวิดีโอทัวร์ห้อง 30 วินาทีเสร็จ", "ใส่ซับไตเติลไทย-อังกฤษ 2 คลิป", "ทำปกคลิป 3 แบบให้เลือก", "ปรับขนาดลง Reels และ TikTok", "ตรวจแบรนด์: แก้ข้อความที่ยังไม่ได้ยืนยันกับเจ้าของ"],
+    actions: [
+      { label: "สคริปต์ทัวร์ห้อง 30 วิ", prompt: t => "เขียนสคริปต์และช็อตลิสต์วิดีโอทัวร์ห้องเช่า 30 วินาทีสำหรับ Reels/TikTok ห้ามแต่งสเปค ใช้ช่องว่างให้เติมข้อมูลจริง" + (t ? " ห้อง: " + t : ""),
+        fallback: "วิดีโอทัวร์ห้อง 30 วินาที\n1. 0-3 วิ: ภาพเปิดที่ดีที่สุดของห้อง (วิวหรือแสง) + ข้อความ \"[ประเภทห้อง] ใกล้ BTS [สถานี]\"\n2. 3-10 วิ: เดินเข้าห้อง เห็นพื้นที่รวม\n3. 10-16 วิ: ห้องนอน และเฟอร์นิเจอร์จริง\n4. 16-21 วิ: ห้องน้ำ\n5. 21-26 วิ: ระเบียงหรือวิว และฟาซิลิตี้\n6. 26-30 วิ: ทางเดินไป BTS + \"ทักไลน์เพื่อวิดีโอคอลดูห้อง\"\n- ข้อมูลในคลิปทุกอย่างต้องยืนยันกับเจ้าของแล้ว\nขั้นต่อไป: ถ่ายตามช็อตลิสต์ในรอบเดียวกับการเก็บข้อมูลห้อง" },
+      { label: "ไอเดียคลิป 5 เรื่อง", prompt: t => "เสนอไอเดียคลิปสั้น 5 เรื่องสำหรับเพจเอเจนต์เช่าห้องออนไลน์ ที่ดึงลีดคุณภาพและสอดคล้องกับหลัก Step +1" + (t ? " โจทย์: " + t : ""),
+        fallback: "ไอเดียคลิปสั้น 5 เรื่อง\n1. งบเท่ากัน ได้ห้องต่างกันแค่ไหน (เทียบห้องตรงงบกับห้อง Step +1)\n2. เดินจากห้องถึง BTS ใช้เวลาจริงกี่นาที\n3. 8 จุดที่ต้องดูในวิดีโอคอลก่อนไปดูห้องจริง\n4. ห้องเลี้ยงสัตว์ได้ในทำเลรถไฟฟ้า\n5. ค่าใช้จ่ายวันย้ายเข้ามีอะไรบ้าง\nขั้นต่อไป: เลือก 2 เรื่องมาถ่ายสัปดาห์นี้" },
+    ] },
+  { id: "social", name: "โพสต์และโฆษณา", en: "SOCIAL & ADS", color: "#E05BC2", slot: 225,
+    goal: "โพสต์สม่ำเสมอทุกวันและคุมงบโฆษณา ให้ลีดใหม่ <b>เข้ามาตลอดโดยไม่ต้องพึ่งคนรู้จัก</b>",
+    turn: "6 นาที",
+    agents: [["ตั้งเวลาโพสต์", "โพสต์ห้องใหม่ทุกวัน 09:00"], ["ดูแลโฆษณา", "คุมงบและกลุ่มเป้าหมาย"], ["ลงประกาศพอร์ทัล", "DDproperty และ Livinginsider"], ["ตอบคอมเมนต์", "ตอบใต้โพสต์ แล้วชวนทักไลน์"]],
+    tools: [["Facebook Page", "F", "#3a63c9"], ["TikTok", "Tk", "#26292f"], ["Instagram", "IG", "#b0457d"], ["Meta Ads", "Ad", "#3a63c9"]],
+    skills: ["schedule-posts", "ads-budget-guard", "portal-listing", "comment-reply"],
+    events: ["ตั้งเวลาโพสต์พรุ่งนี้ 09:00", "ตอบคอมเมนต์ใต้โพสต์ 6 รายการ", "ลงประกาศห้องใหม่บนพอร์ทัล", "ส่งสรุปผลโฆษณาเมื่อวานให้ทีมวัดผล", "ร่างโพสต์ห้องใหม่ · รอคนตรวจก่อนลง"],
+    actions: [
+      { label: "ตารางโพสต์ 7 วัน", prompt: t => "วางตารางโพสต์ 7 วันสำหรับเพจและ TikTok ของเอเจนต์เช่าห้องออนไลน์ ระบุเวลา รูปแบบ และเป้าหมายของแต่ละโพสต์" + (t ? " ข้อมูล: " + t : ""),
+        fallback: "ตารางโพสต์ 7 วัน (โพสต์ 09:00 ทุกวัน)\n- จันทร์: ห้องใหม่ประจำสัปดาห์ (คลิปทัวร์)\n- อังคาร: เทียบห้องตรงงบกับห้อง Step +1\n- พุธ: ทางเดินจริงจากห้องถึง BTS\n- พฤหัสฯ: รีวิวฟาซิลิตี้ส่วนกลาง\n- ศุกร์: รวมห้องว่างพร้อมย้ายเข้าเดือนหน้า\n- เสาร์: เคล็ดลับดูห้องผ่านวิดีโอคอล\n- อาทิตย์: ห้องเลี้ยงสัตว์ได้\nทุกโพสต์ปิดด้วย ทักไลน์เพื่อวิดีโอคอลดูห้อง\nขั้นต่อไป: ให้ทีมวิดีโอเตรียมคลิปวันจันทร์และอังคารก่อน" },
+      { label: "แคปชันประกาศห้อง", needs: "พิมพ์ข้อมูลห้องที่เจ้าของยืนยันแล้วก่อน เช่น 1 นอน 35 ตร.ม. ชั้น 20 เดิน 5 นาทีถึง BTS แล้วกดอีกครั้ง",
+        prompt: t => "เขียนแคปชันประกาศห้องเช่าสำหรับเพจและ TikTok จากข้อมูลที่ยืนยันแล้วนี้เท่านั้น ห้ามเพิ่มสเปค: " + t,
+        fallback: "โครงแคปชันประกาศห้อง\n> [ประเภทห้อง] ใกล้ BTS [สถานี] เดิน [x] นาที\n> [ขนาด] · ชั้น [x] · [วิว/ทิศ]\n> ค่าเช่า [ราคาที่เจ้าของยืนยัน] · ว่าง [วันที่]\n> ดูห้องผ่านวิดีโอคอลได้ก่อนนัดจริง ทักไลน์ได้เลย\n- ใส่เฉพาะข้อมูลที่เจ้าของยืนยันแล้ว\n- ให้คนตรวจก่อนโพสต์\nขั้นต่อไป: พิมพ์ข้อมูลห้องจริง เพื่อให้ร่างแคปชันเต็ม" },
+    ] },
+];
+const T = Object.fromEntries(TEAMS.map(t => [t.id, t]));
+
+/* agents with deterministic looks */
+const SKIN = ["#f3cba9", "#e4b18c", "#cf966d", "#b07651", "#f6d7bd"];
+const HAIR = ["#2a1c15", "#46291c", "#141414", "#6f4426", "#b9653a", "#d8b46a", "#3b3f4f"];
+const SHIRTS = ["#f4f6fb", "#2c3550", "#d9dee9", "#3d465f"];
+let AGENTS = [];
+{
+  const r = rng(20261016);
+  for (const t of TEAMS) {
+    t.list = t.agents.map((a, i) => {
+      const ag = { team: t.id, name: a[0], role: a[1], lead: i === 0, state: a[2] || (r() < .55 ? "work" : "idle"), skin: pick(SKIN, r), hair: pick(HAIR, r), shirt: r() < .5 ? t.color : pick(SHIRTS, r) };
+      AGENTS.push(ag); return ag;
+    });
+    t.today = 6 + Math.floor(r() * 16);
+    t.series = Array.from({ length: 12 }, () => 3 + Math.floor(r() * 10));
+    t.runSeries = Array.from({ length: 12 }, () => 1 + Math.floor(r() * 4));
+    t.turnSeries = Array.from({ length: 12 }, () => 5 + Math.floor(r() * 10));
+    t.skillState = t.skills.map((s, i) => ({ name: s, p: Math.floor(r() * 80), run: i < 3 || r() < .4 }));
+    t.lead = t.list[0].name;
+  }
+}
+
+/* ---------- Pipeline cards (examples) ---------- */
+const STAGES = [["new", "ลีดใหม่"], ["screen", "คัดกรอง"], ["offer", "เสนอห้อง"], ["call", "วิดีโอคอล"], ["view", "นัดดูจริง"], ["close", "ปิดดีล"]];
+const TASKS = [
+  ["L-1054", "new", "new", "inbox", "ห้องใกล้ BTS อารีย์", "TikTok DM · ย้ายเข้าเดือนหน้า"],
+  ["L-1053", "new", "new", "inbox", "2 นอน เลี้ยงแมวได้", "เว็บไซต์ · ยังไม่ระบุทำเล"],
+  ["L-1052", "new", "new", "inbox", "1 นอน ใกล้ MRT พระราม 9", "เพจ Facebook · งบประมาณ 16,000 ฿"],
+  ["L-1051", "new", "new", "inbox", "สตูดิโอ ใกล้ BTS อ่อนนุช", "LINE OA · งบประมาณ 12,000 ฿"],
+  ["L-1047", "screen", "hot", "screening", "1 นอน BTS อารีย์", "งบ 18,000 ฿ · ย้ายเข้า 1 พ.ย. · สัญญา 1 ปี"],
+  ["L-1046", "screen", "warm", "screening", "สตูดิโอ BTS อุดมสุข", "งบ 11,000 ฿ · ยังไม่แน่ใจวันย้าย"],
+  ["L-1045", "screen", "cold", "screening", "2 นอน ทองหล่อ", "งบต่ำกว่าตลาด · ร่างข้อความเสนอทางเลือก", true],
+  ["L-1044", "screen", "warm", "screening", "1 นอน MRT ห้วยขวาง", "ผู้ตัดสินใจคือคู่สมรส · ขอคุยพร้อมกัน"],
+  ["L-1040", "offer", "hot", "listings", "เสนอ 3 ห้อง มี 1 ห้อง Step +1", "งบ 25,000 ฿ · BTS พร้อมพงษ์"],
+  ["L-1039", "offer", "hot", "listings", "รอเจ้าของยืนยันราคา", "1 นอน BTS อโศก"],
+  ["L-1038", "offer", "warm", "listings", "เสนอ 2 ห้อง", "สตูดิโอ BTS สะพานควาย"],
+  ["L-1037", "offer", "warm", "listings", "หาห้องรับสัตว์เลี้ยงเพิ่ม", "2 นอน MRT ลาดพร้าว"],
+  ["L-1034", "call", "hot", "walkthrough", "วิดีโอคอลวอล์คทรู 14:00", "2 ห้อง สายสุขุมวิท"],
+  ["L-1033", "call", "hot", "walkthrough", "ส่งเช็กลิสต์ 8 จุดให้ทีมถ่าย", "1 นอน BTS เอกมัย"],
+  ["L-1032", "call", "warm", "walkthrough", "หลังคอล: ถามว่าชอบห้องไหน", "เหลือ 2 ห้องที่ลูกค้าสนใจ"],
+  ["L-1031", "call", "hot", "walkthrough", "คอลสดพร้อมเจ้าของห้อง", "1 นอน BTS ช่องนนทรี"],
+  ["L-1028", "view", "hot", "walkthrough", "ดูจริง 3 ห้อง เส้นทางเดียว", "เสาร์ 10:00 · BTS อ่อนนุช ถึง บางจาก"],
+  ["L-1027", "view", "hot", "walkthrough", "ยืนยันนัดล่วงหน้า 1 วัน", "อาทิตย์ 13:00"],
+  ["L-1026", "view", "hot", "walkthrough", "ดูจริง 1 ห้องที่เลือกแล้ว", "BTS พญาไท"],
+  ["L-1021", "close", "hot", "closing", "ร่างสัญญาเช่า 1 ปี", "รอคนตรวจก่อนส่งลูกค้า", true],
+  ["L-1020", "close", "hot", "closing", "รับเงินมัดจำ", "รอเจ้าของธุรกิจอนุมัติ", true],
+  ["L-1019", "close", "hot", "closing", "เช็กลิสต์ส่งมอบห้อง", "ย้ายเข้า 1 พ.ย."],
+].map(([id, stage, temp, team, title, meta, appr]) => ({ id, stage, temp, team, title, meta, appr: !!appr }));
+const TEMP = { hot: "HOT", warm: "WARM", cold: "COLD", new: "ยังไม่จัดระดับ" };
+
+function cardHTML(c) {
+  const t = T[c.team];
+  const nx = c.lead && NEXT_STAGE[c.lead.stage];
+  return '<article class="card" style="--c:' + t.color + '"><div class="c-top"><span class="c-id">' + esc(c.id) + (c.who ? " · " + esc(c.who) : "") + '</span><span class="temp ' + c.temp + '">' + TEMP[c.temp] + '</span></div>' +
+    '<p class="c-title">' + esc(c.title) + '</p><p class="c-meta">' + esc(c.meta) + '</p>' +
+    '<div class="c-foot"><span class="own"><i></i>ทีม' + esc(t.name) + "</span>" + (c.appr ? '<span class="appr">รอคนอนุมัติ</span>' : "") + (c.due ? '<span class="appr">ถึงกำหนดติดตาม</span>' : "") + "</div>" +
+    (nx && mcp ? '<button class="mv" type="button" data-row="' + c.lead.row + '">เลื่อนไป' + esc(nx) + " →</button>" : "") + "</article>";
+}
+function renderBoard() {
+  const cards = LIVE ? liveCards() : TASKS;
+  $("taskCount2").textContent = LIVE ? LIVE.leads.length + " ลีด" : TASKS.length;
+  $("tasksSub").textContent = LIVE ? "จากชีตลีดกลาง · อัปเดต " + hhmm(new Date(LIVE.at)) + (LIVE.k.lost ? " · ปิดไม่ได้ " + LIVE.k.lost + " ราย ไม่แสดงบนบอร์ด" : "")
+    : "เรียงตาม funnel ออนไลน์ 8 ขั้นของ Middle Property · การ์ดทั้งหมดเป็นตัวอย่างจำลอง";
+  $("sheetActs").hidden = !SHEET.id; $("addLeadBtn").hidden = !LIVE; if (SHEET.id) $("openSheetBtn").href = sheetUrl();
+  if (!LIVE) $("leadForm").hidden = true;
+  renderKpis();
+  $("board").innerHTML = STAGES.map(([k, label]) => {
+    const cs = cards.filter(c => c.stage === k);
+    return '<div class="col"><h3>' + label + "<span>" + cs.length + "</span></h3>" + (cs.length ? cs.map(cardHTML).join("") : LIVE && k === "new" ? '<p class="colEmpty">ยังไม่มีลีดใหม่ กด เพิ่มลีด หรือกรอกในชีต</p>' : "") + "</div>";
+  }).join("");
+}
+
+/* ---------- Calendar (this week, examples) ---------- */
+const TH_DAY = ["จันทร์", "อังคาร", "พุธ", "พฤหัสฯ", "ศุกร์", "เสาร์", "อาทิตย์"];
+const TH_MON = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+const CAL = [
+  [0, "09:00", "social", "โพสต์ห้องใหม่ประจำสัปดาห์"], [0, "09:30", "analytics", "รีวิว KPI สัปดาห์ก่อน"], [0, "15:00", "listings", "เช็กห้องว่างกับเจ้าของ"],
+  [1, "09:00", "social", "โพสต์เทียบห้องตรงงบกับ Step +1"], [1, "10:00", "creative", "ตัดคลิปทัวร์ห้อง 30 วิ"], [1, "14:00", "walkthrough", "วิดีโอคอลวอล์คทรู · L-1034"],
+  [2, "09:00", "social", "โพสต์ทางเดินจริงถึง BTS"], [2, "11:00", "creative", "ถ่ายวิดีโอห้องใหม่ 3 ห้อง"], [2, "16:00", "screening", "ติดตาม WARM +3 วัน"],
+  [3, "09:00", "social", "โพสต์รีวิวฟาซิลิตี้"], [3, "10:00", "listings", "ยืนยันราคา 2 ห้องกับเจ้าของ"], [3, "14:00", "walkthrough", "วิดีโอคอล · L-1031"],
+  [4, "09:00", "social", "โพสต์ห้องว่างพร้อมย้ายเข้าเดือนหน้า"], [4, "10:00", "screening", "ติดตาม HOT +1 วัน"], [4, "17:00", "walkthrough", "ยืนยันนัดดูจริงวันเสาร์"],
+  [5, "09:00", "social", "โพสต์เคล็ดลับดูห้องผ่านวิดีโอคอล"], [5, "10:00", "walkthrough", "ดูจริง 3 ห้อง สายอ่อนนุช ถึง บางจาก"], [5, "15:00", "closing", "นัดเซ็นสัญญาออนไลน์ · L-1021"],
+  [6, "09:00", "social", "โพสต์ห้องเลี้ยงสัตว์ได้"], [6, "13:00", "walkthrough", "ดูจริง · L-1027"], [6, "18:00", "analytics", "สรุปช่องทางที่ปิดได้จริง"],
+];
+function renderCalendar() {
+  const now = new Date(); const dow = (now.getDay() + 6) % 7;
+  const mon = new Date(now.getFullYear(), now.getMonth(), now.getDate() - dow);
+  const sun = new Date(mon.getFullYear(), mon.getMonth(), mon.getDate() + 6);
+  $("calTitle").textContent = "สัปดาห์ " + mon.getDate() + " " + TH_MON[mon.getMonth()] + " – " + sun.getDate() + " " + TH_MON[sun.getMonth()];
+  const items = LIVE ? liveCal(ymd(mon.getFullYear(), mon.getMonth() + 1, mon.getDate())) : CAL;
+  if (LIVE) {
+    const due = LIVE.k.due;
+    $("calSub").textContent = "จากวันที่ในชีตลีดกลาง: วิดีโอคอล ดูจริง เซ็นสัญญา ย้ายเข้า และวันติดตาม" + (due.length ? " · ติดตามถึงกำหนดหรือเลยกำหนด " + due.length + " ราย: " + due.slice(0, 6).map(l => l.id).join(", ") + (due.length > 6 ? " …" : "") : "");
+  } else $("calSub").textContent = "โพสต์ วิดีโอคอล นัดดูจริง และรอบติดตามลูกค้า · รายการเป็นตัวอย่างจำลอง";
+  let html = "";
+  for (let d = 0; d < 7; d++) {
+    const day = new Date(mon.getFullYear(), mon.getMonth(), mon.getDate() + d);
+    const evs = items.filter(e => e[0] === d);
+    html += '<div class="day' + (d === dow ? " today" : "") + '"><h3>' + TH_DAY[d] + "<span>" + (d === dow ? "วันนี้ · " : "") + day.getDate() + " " + TH_MON[day.getMonth()] + "</span></h3>" +
+      (evs.length ? evs.map(e => '<div class="ev" style="--c:' + T[e[2]].color + '"><time>' + esc(e[1]) + " · ทีม" + esc(T[e[2]].name) + "</time>" + esc(e[3]) + "</div>").join("") : LIVE ? '<p class="colEmpty">ไม่มีนัด</p>' : "") + "</div>";
+  }
+  $("week").innerHTML = html;
+}
+
+/* ---------- Brain (playbook) ---------- */
+function renderRules() {
+  $("rules").innerHTML = [
+    ['กฎเหล็ก', 'ทุกทีม', '<p><strong>ห้ามแต่งสเปคห้อง ราคา หรือเงื่อนไข</strong> ห้ามกดดันลูกค้าเกินจริง</p><p>ไม่แน่ใจเรื่องไหน ให้ถามเจ้าของทรัพย์ก่อนเสมอ</p>'],
+    ['Step +1', 'ทีมห้อง', '<p>ไม่เสนอห้องตามงบพอดี แต่หาห้องที่ดีกว่างบเล็กน้อยที่ลูกค้าควรได้</p><p>ตัวอย่างจากเจ้าของธุรกิจ: งบ ~$600 ได้ห้องระดับ ~$650–700 · งบ ~$1,000 ได้ 2 นอน 1 น้ำ เพดานสูง ฟาซิลิตี้ดี โปร่ง สวย</p><p>บอกความคุ้มเป็นข้อเท็จจริง ให้ลูกค้าเลือกเอง</p>'],
+    ['Funnel ออนไลน์ 8 ขั้น', 'ทุกทีม', '<ol class="funnel"><li>ลีดเข้า ตอบภายใน 5 นาที</li><li>คัดกรอง 3–5 คำถาม</li><li>จัดระดับ HOT / WARM / COLD</li><li>เสนอ 2–3 ห้อง มี 1 ห้อง Step +1</li><li>วิดีโอคอลวอล์คทรูแทนการไปดูรอบแรก</li><li>ถามว่าชอบห้องไหน คัดเหลือ 1–2 ห้อง</li><li>นัดดูจริงเฉพาะคนพร้อมตัดสินใจ ยืนยันก่อน 1 วัน</li><li>ปิดดีล เซ็นออนไลน์ ส่งมอบ</li></ol>', true],
+    ['วิดีโอคอล 8 จุด', 'ทีมวิดีโอคอล', '<p>ห้องนอน · ห้องน้ำ · ระเบียงและวิว · แสง · เฟอร์นิเจอร์จริง · สภาพแอร์และอ่างน้ำ · ฟาซิลิตี้ส่วนกลาง · ทางเดินไป BTS</p>'],
+    ['ค่าบริการ', 'ทีมปิดดีล', '<p>แผนคือเก็บค่าบริการ 1 เดือนแรกหลังปิดดีล แจ้งลูกค้าตั้งแต่ก่อนนัดดูห้อง ไม่บอกหลังจบดีล</p><p class="warnline">ต้องยืนยันเงื่อนไขนี้กับเจ้าของธุรกิจก่อนใช้จริง</p>'],
+    ['รอบติดตาม', 'ทีมคัดกรอง', '<p><strong>HOT</strong> +1, +3, +7 วัน<br><strong>WARM</strong> +3, +10, +21 วัน</p><p>ทุกครั้งต้องมีข้อมูลหรือห้องใหม่ไปให้</p>'],
+    ['ปฏิเสธอย่างสุภาพ', 'ทีมคัดกรอง', '<p>งบต่ำกว่าตลาด ทำเลที่ไม่มีห้อง หรือขอดูซ้ำโดยไม่ตัดสินใจ ให้บอกตรงๆ เสนอทางเลือก แล้วบันทึกเหตุผล</p>'],
+    ['KPI', 'ทีมวัดผล', '<p>ลีดใหม่ · เวลาตอบแรก · % คอลวอล์คทรู · % นัดดูจริง · win rate หลังดูจริง (เป้าเกิน 50%) · วันจากลีดถึงสัญญา · ต้นทุนต่อดีล</p>'],
+    ['คนอนุมัติก่อนเสมอ', 'HUMAN-IN-THE-LOOP', '<p>เอเจนต์ร่างข้อความ สัญญา และชุดนัดได้เต็มที่ แต่ <strong>การส่งจริง การยืนยันราคา และการรับมัดจำ</strong> ต้องมีคนอนุมัติ</p>', true],
+  ].map(([h, who, body, wide]) => '<div class="rule' + (wide ? " wide" : "") + '"><h3>' + h + "<small>" + who + "</small></h3>" + body + "</div>").join("");
+  if (SHEET.id) $("rules").insertAdjacentHTML("afterbegin", '<div class="rule wide"><h3>ชีตลีดกลาง<small>ทุกทีม</small></h3><p>ลีดทุกช่องทางอยู่ในชีตเดียว ลูกค้า 1 คนต่อ 1 แถว หน้านี้อ่านชีตทุก 1 นาทีขณะเปิดอยู่ · ' +
+    (LIVE ? "เชื่อมแล้ว " + LIVE.leads.length + " ลีด" : "ยังไม่ได้เชื่อมในหน้านี้") + ' · <a href="' + sheetUrl() + '" target="_blank" rel="noopener">เปิดชีต</a></p></div>');
+}
+const MEMORY = [];
+let notes = 0;
+const memHTML = m => '<div class="memItem" style="--c:' + T[m.team].color + '"><i></i><div><b>ทีม' + esc(T[m.team].name) + "</b><time>" + m.time + "</time><p>" + esc(m.text) + "</p></div></div>";
+function renderMemory() {
+  if (LIVE) {
+    const recent = LIVE.leads.slice(-8).reverse();
+    $("mem").innerHTML = "<h3><span>ความเคลื่อนไหวจากชีต</span><span>ตั้งแต่เปิดหน้านี้</span></h3>" +
+      (MEMORY.length ? MEMORY.slice(0, 10).map(memHTML).join("") : '<p class="colEmpty">ยังไม่มีการเปลี่ยนแปลง</p>') +
+      '<h3 class="memSub"><span>ลีดล่าสุดในชีต</span><span>' + LIVE.leads.length + " ลีด</span></h3>" +
+      (recent.length ? recent.map(l => '<div class="memItem" style="--c:' + T[teamOf(l)].color + '"><i></i><div><b>' + esc(l.id) + "</b><time>" + esc(l.stage) + "</time><p>" + esc([l.channel, l.type, l.loc, l.level].filter(Boolean).join(" · ") || "ยังไม่มีรายละเอียด") + "</p></div></div>").join("") : '<p class="colEmpty">ยังไม่มีลีดในชีต</p>');
+    return;
+  }
+  $("mem").innerHTML = '<h3><span>บันทึกล่าสุด</span><span>' + notes.toLocaleString("th-TH") + " รายการ (จำลอง)</span></h3>" +
+    MEMORY.slice(0, 14).map(m => '<div class="memItem" style="--c:' + T[m.team].color + '"><i></i><div><b>ทีม' + esc(T[m.team].name) + "</b><time>" + m.time + "</time><p>" + esc(m.text) + "</p></div></div>").join("");
+}
+
+/* ===================================================================== */
+/* ---------------------------- 3D office ------------------------------ */
+/* ===================================================================== */
+const canvas = $("scene");
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: "high-performance" });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+const scene = new THREE.Scene();
+const camera = new THREE.OrthographicCamera(-10, 10, 10, -10, -300, 600);
+
+scene.add(new THREE.HemisphereLight(0xc9d6ff, 0x1b1633, .78));
+scene.add(new THREE.AmbientLight(0xffffff, .12));
+const sun = new THREE.DirectionalLight(0xfff2de, .78);
+sun.position.set(22, 40, 14);
+sun.castShadow = true;
+sun.shadow.mapSize.set(2048, 2048);
+Object.assign(sun.shadow.camera, { left: -34, right: 34, top: 34, bottom: -34, near: 1, far: 120 });
+sun.shadow.bias = -0.0006;
+scene.add(sun);
+
+const ROOM = 9, WALL = 2.4, RING = 15;
+const matCache = new Map();
+function mat(color, extra) {
+  const key = color + (extra ? JSON.stringify(extra) : "");
+  if (!matCache.has(key)) matCache.set(key, new THREE.MeshStandardMaterial(Object.assign({ color, roughness: .84, metalness: 0 }, extra || {})));
+  return matCache.get(key);
+}
+const basic = (color, extra) => new THREE.MeshBasicMaterial(Object.assign({ color }, extra || {}));
+function mix(a, b, t) { return "#" + new THREE.Color(a).lerp(new THREE.Color(b), t).getHexString(); }
+function add(mesh, x, y, z, parent, shadow = true) { mesh.position.set(x, y, z); mesh.castShadow = shadow; mesh.receiveShadow = true; parent.add(mesh); return mesh; }
+const M = m => (typeof m === "string" ? mat(m) : m);
+const box = (w, h, d, m, x, y, z, p, s) => add(new THREE.Mesh(new THREE.BoxGeometry(w, h, d), M(m)), x, y, z, p, s);
+const cyl = (rt, rb, h, m, x, y, z, p, seg = 18, s) => add(new THREE.Mesh(new THREE.CylinderGeometry(rt, rb, h, seg), M(m)), x, y, z, p, s);
+const ball = (r, m, x, y, z, p, s) => add(new THREE.Mesh(new THREE.SphereGeometry(r, 18, 14), M(m)), x, y, z, p, s);
+
+const glowTex = (() => {
+  const c = document.createElement("canvas"); c.width = c.height = 64;
+  const g = c.getContext("2d"); const gr = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+  gr.addColorStop(0, "rgba(255,255,255,1)"); gr.addColorStop(.35, "rgba(255,255,255,.45)"); gr.addColorStop(1, "rgba(255,255,255,0)");
+  g.fillStyle = gr; g.fillRect(0, 0, 64, 64);
+  return new THREE.CanvasTexture(c);
+})();
+function glow(color, size, opacity, x, y, z, parent) {
+  const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex, color, transparent: true, opacity, depthWrite: false, blending: THREE.AdditiveBlending }));
+  s.scale.set(size, size, 1); s.position.set(x, y, z); parent.add(s); return s;
+}
+function texFrom(w, h, draw) { const c = document.createElement("canvas"); c.width = w; c.height = h; draw(c.getContext("2d"), w, h); const t = new THREE.CanvasTexture(c); t.anisotropy = 4; return t; }
+function chartTex(color, seed) {
+  return texFrom(256, 128, (g, w, h) => {
+    const r = rng(seed);
+    g.fillStyle = "#0d1428"; g.fillRect(0, 0, w, h);
+    g.fillStyle = color; g.globalAlpha = .9; g.fillRect(14, 12, 44, 6); g.globalAlpha = .3; g.fillRect(64, 12, 70, 6);
+    g.globalAlpha = .18; g.strokeStyle = "#ffffff"; g.lineWidth = 1;
+    for (let i = 0; i < 4; i++) { g.beginPath(); g.moveTo(14, 40 + i * 20); g.lineTo(170, 40 + i * 20); g.stroke(); }
+    g.globalAlpha = 1; g.strokeStyle = color; g.lineWidth = 3.5; g.beginPath();
+    let y = 100; for (let i = 0; i <= 10; i++) { y = clamp(y - (r() - .32) * 22, 34, 108); const x = 14 + i * 15.6; i ? g.lineTo(x, y) : g.moveTo(x, y); } g.stroke();
+    for (let i = 0; i < 5; i++) { const bh = 18 + r() * 70; g.globalAlpha = .6; g.fillStyle = color; g.fillRect(186 + i * 12, 116 - bh, 8, bh); }
+  });
+}
+
+const pickables = [];
+const rooms = {};
+const tagAnchors = {};
+const screenMats = [];
+const people = [];
+
+/* low-poly people */
+function person(a, seated) {
+  const p = new THREE.Group();
+  const base = seated ? .48 : .46;
+  const legs = [];
+  if (!seated) {
+    for (const s of [-1, 1]) {
+      const leg = new THREE.Group(); leg.position.set(s * .11, .46, 0); p.add(leg);
+      box(.13, .46, .15, "#2a3045", 0, -.23, 0, leg); legs.push(leg);
+    }
+  } else {
+    box(.42, .14, .5, "#2a3045", 0, .5, -.18, p);
+  }
+  const torso = cyl(.22, .29, .6, mat(a.shirt), 0, base + .3, 0, p);
+  const head = ball(.23, mat(a.skin), 0, base + .6 + .25, 0, p);
+  const hair = ball(.25, mat(a.hair), 0, base + .6 + .31, .04, p);
+  hair.scale.set(1, .78, 1);
+  const dot = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex, color: 0x45d49b, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
+  dot.scale.set(.55, .55, 1); dot.position.set(0, base + 1.5, 0); p.add(dot);
+  p.userData = { torso, head, legs, dot, base };
+  return p;
+}
+
+function chair(x, z, parent) {
+  box(.56, .08, .56, "#2b3149", x, .44, z, parent);
+  box(.56, .62, .08, "#2b3149", x, .78, z + .28, parent);
+  cyl(.04, .04, .4, "#1c2133", x, .22, z, parent, 8);
+  cyl(.28, .28, .04, "#1c2133", x, .03, z, parent, 14);
+}
+function desk(x, z, t, parent, seed) {
+  box(1.9, .07, .82, "#e8ebf2", x, .74, z, parent);
+  box(.06, .72, .74, "#c8cdd9", x - .88, .36, z, parent);
+  box(.06, .72, .74, "#c8cdd9", x + .88, .36, z, parent);
+  box(.08, .32, .08, "#1d2232", x, .93, z - .22, parent);
+  box(1.04, .62, .06, "#151a2a", x, 1.33, z - .24, parent);
+  const sm = basic(mix(t.color, "#0b1020", .35 + (seed % 3) * .12));
+  screenMats.push({ m: sm, base: sm.color.clone(), t: seed });
+  const sc = new THREE.Mesh(new THREE.PlaneGeometry(.94, .52), sm); sc.position.set(x, 1.33, z - .205); parent.add(sc);
+  box(.6, .03, .2, "#d6dae5", x, .79, z + .12, parent);
+}
+function plant(x, z, parent, s = 1) {
+  cyl(.24 * s, .19 * s, .42 * s, "#eef0f6", x, .21 * s, z, parent, 14);
+  const leaf = ["#3fae6a", "#2e9459", "#55c27c"];
+  for (let i = 0; i < 3; i++) add(new THREE.Mesh(new THREE.IcosahedronGeometry(.32 * s, 0), mat(leaf[i])), x + (i - 1) * .14 * s, (.62 + i * .2) * s, z + ((i % 2) - .5) * .16 * s, parent);
+}
+function lamp(x, z, parent) {
+  cyl(.03, .03, 2.1, "#2a2f40", x, 1.05, z, parent, 8);
+  cyl(.2, .2, .04, "#2a2f40", x, .02, z, parent, 12);
+  cyl(.18, .32, .3, mat("#fff3da", { emissive: "#ffd99a", emissiveIntensity: .9 }), x, 2.2, z, parent, 16, false);
+  glow("#ffcf7a", 2.6, .55, x, 2.1, z, parent);
+}
+
+/* signature prop per team, placed in the free front-right corner */
+const PROPS = {
+  inbox(g, t) {
+    const s = new THREE.Group(); s.position.set(2.7, 0, 2.7); s.rotation.y = Math.PI / 4; g.add(s);
+    box(2.1, .38, .85, "#ece6dc", 0, .24, 0, s); box(2.1, .55, .22, "#ece6dc", 0, .58, -.34, s);
+    box(.95, .14, .6, mat(t.color), -.5, .48, .05, s); box(.95, .14, .6, mat(mix(t.color, "#fff", .3)), .5, .48, .05, s);
+    cyl(.38, .38, .05, "#f5f6fa", 0, .42, .95, s); cyl(.04, .04, .4, "#c8cdd9", 0, .2, .95, s, 8);
+  },
+  screening(g, t) {
+    const s = new THREE.Group(); s.position.set(2.8, 0, 2.6); s.rotation.y = Math.PI / 4; g.add(s);
+    box(2.1, 1.3, .08, "#f4f6fb", 0, 1.35, 0, s); box(.06, .7, .06, "#9aa3b8", -.9, .35, 0, s); box(.06, .7, .06, "#9aa3b8", .9, .35, 0, s);
+    const cols = ["#ff6b78", "#f2b33d", "#7ea6ff"];
+    cols.forEach((c, i) => { for (let k = 0; k < 3 - (i === 2 ? 1 : 0); k++) box(.42, .26, .02, c, -.62 + i * .62, 1.72 - k * .32, .055, s, false); });
+  },
+  listings(g, t) {
+    const s = new THREE.Group(); s.position.set(2.8, 0, 2.6); g.add(s);
+    cyl(.75, .75, .06, "#f3f1ec", 0, .72, 0, s); cyl(.06, .06, .7, "#c8cdd9", 0, .36, 0, s, 8); cyl(.35, .35, .04, "#c8cdd9", 0, .02, 0, s);
+    box(.7, 1.3, .7, "#f2f4f8", 0, 1.4, 0, s); box(.5, .55, .5, "#e6e9f1", 0, 2.32, 0, s);
+    const win = basic("#ffd37a");
+    for (let k = 0; k < 5; k++) { box(.72, .06, .6, win, 0, .95 + k * .24, 0, s, false); box(.6, .06, .72, win, 0, .95 + k * .24, 0, s, false); }
+    glow("#ffd37a", 2.4, .35, 0, 1.6, 0, s);
+  },
+  walkthrough(g, t) {
+    const s = new THREE.Group(); s.position.set(2.9, 0, 2.5); s.rotation.y = Math.PI / 4; g.add(s);
+    box(1.9, 1.15, .07, "#151a2a", 0, 1.45, 0, s); box(.06, .9, .06, "#9aa3b8", 0, .45, 0, s); box(.9, .04, .4, "#9aa3b8", 0, .02, 0, s);
+    const tex = texFrom(256, 156, (c, w, h) => {
+      c.fillStyle = "#0d1428"; c.fillRect(0, 0, w, h);
+      const tiles = ["#3b4f86", "#5b4a7a", "#3f6a63", "#7a5a3d"];
+      tiles.forEach((col, i) => { const x = 8 + (i % 2) * 122, y = 8 + Math.floor(i / 2) * 72; c.fillStyle = col; c.fillRect(x, y, 116, 66); c.fillStyle = "#f3cba9"; c.beginPath(); c.arc(x + 58, y + 30, 13, 0, Math.PI * 2); c.fill(); c.fillStyle = "#ffffff"; c.globalAlpha = .7; c.fillRect(x + 36, y + 47, 44, 16); c.globalAlpha = 1; });
+      c.fillStyle = t.color; c.fillRect(8, 8, 30, 5);
+    });
+    const pl = new THREE.Mesh(new THREE.PlaneGeometry(1.8, 1.06), basic("#ffffff", { map: tex })); pl.position.set(0, 1.45, .04); s.add(pl);
+  },
+  closing(g, t) {
+    const s = new THREE.Group(); s.position.set(2.6, 0, 2.6); g.add(s);
+    cyl(.78, .78, .06, "#f3f1ec", 0, .72, 0, s); cyl(.06, .06, .7, "#c8cdd9", 0, .36, 0, s, 8);
+    box(.5, .012, .36, "#ffffff", -.1, .76, .05, s); box(.3, .02, .03, "#1d2232", .2, .77, .1, s);
+    const key = new THREE.Mesh(new THREE.TorusGeometry(.09, .025, 8, 20), mat("#f0c35c", { metalness: .6, roughness: .3 })); key.rotation.x = Math.PI / 2; add(key, .3, .77, -.25, s);
+    chair(-1.1, 0, s); chair(1.1, 0, s);
+  },
+  analytics(g, t) {
+    const s = new THREE.Group(); s.position.set(2.7, 0, 2.6); s.rotation.y = Math.PI / 4; g.add(s);
+    box(2, .1, .8, "#20263b", 0, .05, 0, s);
+    [.6, 1.0, 1.45, 1.95].forEach((h, i) => box(.34, h, .34, mat(i === 3 ? t.color : mix(t.color, "#ffffff", .45 - i * .1)), -.69 + i * .46, .1 + h / 2, 0, s));
+  },
+  creative(g, t) {
+    const s = new THREE.Group(); s.position.set(2.8, 0, 2.6); g.add(s);
+    cyl(.025, .025, 1.7, "#2a2f40", 0, .85, 0, s, 8);
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(.48, .05, 10, 40), basic("#fff7e8")); add(ring, 0, 1.85, 0, s, false); ring.rotation.y = Math.PI / 4;
+    glow("#fff1d0", 2.4, .5, 0, 1.85, 0, s);
+    const tri = new THREE.Group(); tri.position.set(-1.1, 0, -.4); s.add(tri);
+    for (let k = 0; k < 3; k++) { const leg = box(.03, 1.3, .03, "#2a2f40", Math.cos(k * 2.1) * .2, .62, Math.sin(k * 2.1) * .2, tri); leg.rotation.z = Math.cos(k * 2.1) * .15; leg.rotation.x = -Math.sin(k * 2.1) * .15; }
+    box(.36, .24, .2, "#151a2a", 0, 1.32, 0, tri); cyl(.07, .07, .2, "#151a2a", 0, 1.32, -.18, tri, 12).rotation.x = Math.PI / 2;
+  },
+  social(g, t) {
+    const s = new THREE.Group(); s.position.set(2.9, 0, 2.5); s.rotation.y = Math.PI / 4; g.add(s);
+    box(.85, 1.55, .07, "#151a2a", 0, 1.3, 0, s); box(.05, .55, .05, "#9aa3b8", 0, .27, 0, s); box(.6, .04, .4, "#9aa3b8", 0, .02, 0, s);
+    const tex = texFrom(120, 220, (c, w, h) => {
+      c.fillStyle = "#ffffff"; c.fillRect(0, 0, w, h);
+      const gr = c.createLinearGradient(0, 30, 0, 140); gr.addColorStop(0, t.color); gr.addColorStop(1, "#4C84F5");
+      c.fillStyle = gr; c.fillRect(8, 30, w - 16, 112);
+      c.fillStyle = "#c9cede"; c.fillRect(8, 10, 40, 10); c.fillRect(8, 152, w - 16, 8); c.fillRect(8, 166, w - 40, 8);
+      c.fillStyle = t.color; c.beginPath(); c.arc(20, 196, 8, 0, 7); c.fill();
+    });
+    const pl = new THREE.Mesh(new THREE.PlaneGeometry(.76, 1.44), basic("#ffffff", { map: tex })); pl.position.set(0, 1.3, .04); s.add(pl);
+    glow(t.color, 2, .3, 0, 1.3, .1, s);
+  },
+};
+
+const SEATS = [[-2.3, -1.0], [0, -1.0], [2.3, -1.0], [-2.3, 1.9], [0, 1.9]];
+function buildRoom(t, idx) {
+  const a = t.slot * Math.PI / 180;
+  const u = new THREE.Vector3(-1, 0, -1).normalize(), rr = new THREE.Vector3(1, 0, -1).normalize();
+  const pos = u.clone().multiplyScalar(Math.cos(a) * RING).add(rr.clone().multiplyScalar(Math.sin(a) * RING));
+  t.x = pos.x; t.z = pos.z;
+  const g = new THREE.Group(); g.position.set(t.x, 0, t.z); scene.add(g);
+  const top = mix(t.color, "#ffffff", .5), side = mix(t.color, "#0a0f1f", .5);
+  const slab = new THREE.Mesh(new THREE.BoxGeometry(ROOM, .5, ROOM), [mat(side), mat(side), mat(top), mat(side), mat(side), mat(side)]);
+  add(slab, 0, -.25, 0, g, false); slab.userData.team = t.id; pickables.push(slab);
+  box(5.8, .03, 5.4, mix(t.color, "#ffffff", .8), .3, .016, .45, g, false);
+  const wallM = mat(mix(t.color, "#1a1f35", .12));
+  box(ROOM, WALL, .3, wallM, 0, WALL / 2, -ROOM / 2 + .15, g);
+  box(.3, WALL, ROOM, wallM, -ROOM / 2 + .15, WALL / 2, 0, g);
+  const cap = mat(mix(t.color, "#ffffff", .3));
+  box(ROOM, .07, .34, cap, 0, WALL + .035, -ROOM / 2 + .15, g); box(.34, .07, ROOM, cap, -ROOM / 2 + .15, WALL + .035, 0, g);
+  const edge = basic(mix(t.color, "#ffffff", .15));
+  box(ROOM, .05, .05, edge, 0, .01, ROOM / 2, g, false); box(.05, .05, ROOM, edge, ROOM / 2, .01, 0, g, false);
+  // wall screen + shelf
+  box(3.5, 1.8, .06, "#151a2a", -.9, 1.45, -ROOM / 2 + .33, g);
+  const sc = new THREE.Mesh(new THREE.PlaneGeometry(3.3, 1.6), basic("#ffffff", { map: chartTex(t.color, 77 + idx * 13) })); sc.position.set(-.9, 1.45, -ROOM / 2 + .37); g.add(sc);
+  box(.26, .06, 2.4, "#e9ecf3", -ROOM / 2 + .43, 1.35, 1.6, g);
+  const books = ["#f0c35c", t.color, "#e9ecf3", "#ff6b78", "#7ea6ff", mix(t.color, "#000", .3)];
+  books.forEach((c, i) => box(.2, .3 + (i % 3) * .06, .14, c, -ROOM / 2 + .43, 1.55 + (i % 3) * .03, .7 + i * .3, g));
+  // seats
+  t.list.forEach((ag, i) => {
+    const [sx, sz] = SEATS[i];
+    desk(sx, sz - .85, t, g, idx * 7 + i);
+    chair(sx, sz, g);
+    const p = person(ag, true); p.position.set(sx, 0, sz); p.rotation.y = 0; g.add(p);
+    ag.mesh = p; ag.phase = Math.random() * 6; people.push(ag);
+  });
+  plant(-3.7, 3.7, g, 1.1); plant(3.75, -3.7, g, .9);
+  lamp(-3.6, -3.6, g);
+  PROPS[t.id](g, t);
+  rooms[t.id] = g;
+  tagAnchors[t.id] = new THREE.Vector3(t.x - 1.2, WALL + 1.2, t.z - ROOM / 2 + .2);
+}
+TEAMS.forEach(buildRoom);
+
+/* the Brain */
+const brain = new THREE.Group(); scene.add(brain);
+const brainBase = cyl(5.3, 5.7, .5, "#141b36", 0, -.25, 0, brain, 64, false);
+brainBase.userData.brain = true; pickables.push(brainBase);
+cyl(5.25, 5.25, .02, "#1b2448", 0, .01, 0, brain, 64, false);
+const rings = [1.9, 3.0, 4.15, 5.05].map((r, i) => {
+  const m = new THREE.Mesh(new THREE.TorusGeometry(r, i === 3 ? .05 : .035, 8, 120), basic("#ffe3a3", { transparent: true, opacity: .75 - i * .1 }));
+  m.rotation.x = -Math.PI / 2; m.position.y = .05; brain.add(m); return m;
+});
+const ticks = new THREE.Group(); brain.add(ticks);
+for (let i = 0; i < 48; i++) { const a = i / 48 * Math.PI * 2; const b = box(.05, .02, i % 4 ? .18 : .36, basic("#ffe3a3", { transparent: true, opacity: .55 }), Math.cos(a) * 3.55, .05, Math.sin(a) * 3.55, ticks, false); b.rotation.y = -a; }
+const pillar = cyl(.16, .16, 16, basic("#ffe8b0", { transparent: true, opacity: .55, blending: THREE.AdditiveBlending, depthWrite: false }), 0, 8, 0, brain, 16, false);
+cyl(.55, .55, 16, basic("#ffd27a", { transparent: true, opacity: .07, blending: THREE.AdditiveBlending, depthWrite: false }), 0, 8, 0, brain, 24, false);
+const orb = ball(.85, basic("#fff4d8"), 0, 1.7, 0, brain, false);
+const cage = new THREE.Mesh(new THREE.IcosahedronGeometry(1.45, 1), basic("#ffd27a", { wireframe: true, transparent: true, opacity: .45 }));
+cage.position.y = 1.7; brain.add(cage);
+const orbGlow = glow("#ffcf70", 7, .55, 0, 1.7, 0, brain);
+glow("#ffcf70", 12, .18, 0, .2, 0, brain);
+const brainAnchor = new THREE.Vector3(0, 4.6, 0);
+
+/* roads + data particles + couriers */
+const roads = [];
+const roadMat = mat("#19223f");
+for (const t of TEAMS) {
+  const d = new THREE.Vector3(-t.x, 0, -t.z).normalize();
+  const edgeDist = (ROOM / 2) / Math.max(Math.abs(d.x), Math.abs(d.z));
+  const outer = new THREE.Vector3(t.x, 0, t.z).addScaledVector(d, edgeDist - .2);
+  const inner = d.clone().multiplyScalar(-5.7);
+  const len = outer.distanceTo(inner);
+  const mid = outer.clone().add(inner).multiplyScalar(.5);
+  const road = box(1.2, .06, len, roadMat, mid.x, -.03, mid.z, scene, false);
+  road.rotation.y = Math.atan2(d.x, d.z);
+  const line = box(.06, .02, len - .4, basic(mix(t.color, "#19223f", .55)), mid.x, .01, mid.z, scene, false);
+  line.rotation.y = road.rotation.y;
+  const parts = [0, .33, .66].map(o => ({ o, s: glow(t.color, .9, .9, 0, .25, 0, scene) }));
+  const ag = { team: t.id, name: "courier", shirt: t.color, skin: pick(SKIN), hair: pick(HAIR) };
+  const c = person(ag, false); c.visible = false; scene.add(c);
+  roads.push({ t, outer, inner, len, parts, courier: { mesh: c, k: 0, dir: 0, wait: 0 } });
+}
+const roadOf = Object.fromEntries(roads.map(r => [r.t.id, r]));
+
+/* ground + stars */
+const groundTex = texFrom(256, 256, (g, w) => {
+  const gr = g.createRadialGradient(w / 2, w / 2, 0, w / 2, w / 2, w / 2);
+  gr.addColorStop(0, "rgba(40,54,104,.9)"); gr.addColorStop(.6, "rgba(22,31,64,.6)"); gr.addColorStop(1, "rgba(10,15,31,0)");
+  g.fillStyle = gr; g.fillRect(0, 0, w, w);
+});
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(84, 84), new THREE.MeshBasicMaterial({ map: groundTex, transparent: true, depthWrite: false }));
+ground.rotation.x = -Math.PI / 2; ground.position.y = -.62; scene.add(ground);
+{
+  const r = rng(7); const n = 1400; const pos = new Float32Array(n * 3);
+  for (let i = 0; i < n; i++) { pos[i * 3] = (r() - .5) * 320; pos[i * 3 + 1] = -30 - r() * 60; pos[i * 3 + 2] = (r() - .5) * 320; }
+  const geo = new THREE.BufferGeometry(); geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+  scene.add(new THREE.Points(geo, new THREE.PointsMaterial({ color: 0xa9b8ec, size: 1.6, sizeAttenuation: false, transparent: true, opacity: .55 })));
+}
+
+/* ---------- camera rig ---------- */
+const ELEV = 33 * Math.PI / 180;
+const cam = { target: new THREE.Vector3(), az: Math.PI / 4, zoom: 1, ox: 0, oy: 0 };
+const goal = { target: new THREE.Vector3(), az: Math.PI / 4, zoom: 1, ox: 0, oy: 0 };
+let W = 1, H = 1;
+const isPhone = () => innerWidth < 720;
+function axes(az) {
+  const x = new THREE.Vector3(Math.cos(az), 0, -Math.sin(az));
+  const y = new THREE.Vector3(-Math.sin(ELEV) * Math.sin(az), Math.cos(ELEV), -Math.sin(ELEV) * Math.cos(az));
+  const fwd = new THREE.Vector3(-Math.sin(az), 0, -Math.cos(az));
+  return { x, y, fwd };
+}
+function upp(zoom) { return (camera.top - camera.bottom) / zoom / H; }
+function placeCamera() {
+  const { x, y } = axes(cam.az);
+  const u = upp(cam.zoom);
+  const look = cam.target.clone().addScaledVector(x, -cam.ox * u).addScaledVector(y, cam.oy * u);
+  const dir = new THREE.Vector3(Math.cos(ELEV) * Math.sin(cam.az), Math.sin(ELEV), Math.cos(ELEV) * Math.cos(cam.az));
+  camera.position.copy(look).addScaledVector(dir, 150);
+  camera.up.set(0, 1, 0);
+  camera.lookAt(look);
+  camera.zoom = cam.zoom;
+  camera.updateProjectionMatrix();
+}
+function resize() {
+  W = innerWidth; H = innerHeight;
+  renderer.setSize(W, H, false);
+  const a = W / H; const half = Math.max(19.5, 25 / a);
+  camera.left = -half * a; camera.right = half * a; camera.top = half; camera.bottom = -half;
+  const bar = $("bar").getBoundingClientRect();
+  document.documentElement.style.setProperty("--bar-bottom", Math.round(bar.bottom) + "px");
+  frameGoal();
+}
+function freeRect() {
+  let x0 = 0, x1 = W, y0 = $("bar").getBoundingClientRect().bottom + 8, y1 = H - (isPhone() ? 96 : 64);
+  if (openTeam) { const p = $("panel"); if (isPhone()) y1 = H - p.offsetHeight; else x1 = W - p.offsetWidth - 28; }
+  return { x0, x1, y0, y1 };
+}
+function frameGoal() {
+  const f = freeRect();
+  goal.ox = (f.x0 + f.x1) / 2 - W / 2; goal.oy = (f.y0 + f.y1) / 2 - H / 2;
+  if (openTeam) {
+    const u1 = (camera.top - camera.bottom) / H;
+    goal.zoom = clamp(Math.min((f.x1 - f.x0) * .78 * u1 / 13.5, (f.y1 - f.y0) * .74 * u1 / 10.5), 1, 4.2);
+  }
+}
+function home() { goal.target.set(0, 0, 0); goal.zoom = isPhone() ? 1.06 : 1; frameGoal(); }
+function focusTeam(id) { const t = T[id]; goal.target.set(t.x, 0, t.z); frameGoal(); }
+
+/* ---------- input: pan / zoom / rotate / tap ---------- */
+const ray = new THREE.Raycaster();
+const ptr = new Map();
+let drag = null, pinch = null;
+function ndc(cx, cy) { return new THREE.Vector2(cx / W * 2 - 1, -(cy / H) * 2 + 1); }
+function hitAt(cx, cy) { ray.setFromCamera(ndc(cx, cy), camera); const h = ray.intersectObjects(pickables, false)[0]; return h ? h.object.userData : null; }
+function panBy(dx, dy) {
+  const { x, fwd } = axes(cam.az); const u = upp(cam.zoom);
+  goal.target.addScaledVector(x, -dx * u).addScaledVector(fwd, dy * u / Math.sin(ELEV));
+  goal.target.x = clamp(goal.target.x, -26, 26); goal.target.z = clamp(goal.target.z, -26, 26);
+  cam.target.copy(goal.target);
+}
+canvas.addEventListener("pointerdown", e => {
+  canvas.setPointerCapture(e.pointerId);
+  ptr.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (ptr.size === 1) drag = { x: e.clientX, y: e.clientY, sx: e.clientX, sy: e.clientY, moved: false, rot: e.button === 2 || e.shiftKey };
+  if (ptr.size === 2) { const [a, b] = [...ptr.values()]; pinch = { d: Math.hypot(a.x - b.x, a.y - b.y), ang: Math.atan2(b.y - a.y, b.x - a.x), z: goal.zoom, az: goal.az }; drag = null; }
+});
+canvas.addEventListener("pointermove", e => {
+  if (!ptr.has(e.pointerId)) { if (e.pointerType === "mouse") { const h = hitAt(e.clientX, e.clientY); canvas.classList.toggle("point", !!h); } return; }
+  ptr.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (pinch && ptr.size === 2) {
+    const [a, b] = [...ptr.values()];
+    goal.zoom = clamp(pinch.z * Math.hypot(a.x - b.x, a.y - b.y) / pinch.d, .55, 4.5);
+    goal.az = pinch.az - (Math.atan2(b.y - a.y, b.x - a.x) - pinch.ang);
+    return;
+  }
+  if (!drag) return;
+  const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+  if (!drag.moved && Math.hypot(e.clientX - drag.sx, e.clientY - drag.sy) > 6) { drag.moved = true; canvas.classList.add("grab"); }
+  if (drag.moved) { if (drag.rot) goal.az -= dx * .006; else panBy(dx, dy); }
+  drag.x = e.clientX; drag.y = e.clientY;
+});
+function endPtr(e) {
+  if (drag && !drag.moved && ptr.size === 1 && e.type === "pointerup") {
+    const h = hitAt(e.clientX, e.clientY);
+    if (h && h.team) openPanel(h.team); else if (h && h.brain) openView("brain");
+  }
+  ptr.delete(e.pointerId);
+  if (ptr.size < 2) pinch = null;
+  if (ptr.size === 0) { drag = null; canvas.classList.remove("grab"); }
+}
+canvas.addEventListener("pointerup", endPtr);
+canvas.addEventListener("pointercancel", endPtr);
+canvas.addEventListener("contextmenu", e => e.preventDefault());
+canvas.addEventListener("wheel", e => { e.preventDefault(); goal.zoom = clamp(goal.zoom * Math.exp(-e.deltaY * .0015), .55, 4.5); }, { passive: false });
+canvas.addEventListener("keydown", e => {
+  const k = e.key;
+  if (k === "ArrowLeft") panBy(40, 0); else if (k === "ArrowRight") panBy(-40, 0);
+  else if (k === "ArrowUp") panBy(0, 40); else if (k === "ArrowDown") panBy(0, -40);
+  else if (k === "+" || k === "=") goal.zoom = clamp(goal.zoom * 1.2, .55, 4.5);
+  else if (k === "-") goal.zoom = clamp(goal.zoom / 1.2, .55, 4.5);
+  else return;
+  e.preventDefault();
+});
+$("zoomIn").onclick = () => { goal.zoom = clamp(goal.zoom * 1.25, .55, 4.5); };
+$("zoomOut").onclick = () => { goal.zoom = clamp(goal.zoom / 1.25, .55, 4.5); };
+$("spin").onclick = () => { goal.az += Math.PI / 2; };
+$("home").onclick = () => { closePanel(); closeViews(); goal.az = Math.round((goal.az - Math.PI / 4) / (Math.PI * 2)) * Math.PI * 2 + Math.PI / 4; home(); };
+
+/* ---------- tags (HTML over 3D) ---------- */
+const tagEls = {};
+for (const t of TEAMS) {
+  const b = document.createElement("button");
+  b.className = "tag"; b.style.setProperty("--c", t.color);
+  b.setAttribute("aria-label", "เปิดทีม" + t.name);
+  b.innerHTML = '<span class="ic">' + svg(t.id) + '</span><span class="tx"><span class="nm">' + esc(t.name) + '</span><span class="sb"><i></i><span class="n"></span></span></span><span class="heads">' +
+    t.list.slice(0, 3).map(a => '<span style="--h:' + a.hair + '"></span>').join("") + "</span>";
+  b.onclick = () => openPanel(t.id);
+  $("tags").append(b); tagEls[t.id] = b;
+}
+const brainTag = document.createElement("button");
+brainTag.className = "brainTag"; brainTag.setAttribute("aria-label", "เปิด The Brain");
+brainTag.innerHTML = '<b>THE BRAIN</b><span id="brainNotes">บันทึก 0 · ความจำร่วม</span>';
+brainTag.onclick = () => openView("brain");
+$("tags").append(brainTag);
+const tmpV = new THREE.Vector3();
+function project(v) { tmpV.copy(v).project(camera); return [(tmpV.x + 1) / 2 * W, (1 - tmpV.y) / 2 * H]; }
+function updateTags() {
+  const roomPx = 13 * cam.zoom / ((camera.top - camera.bottom) / H);
+  const compact = roomPx < 175;
+  for (const t of TEAMS) {
+    const [x, y] = project(tagAnchors[t.id]);
+    const el = tagEls[t.id];
+    el.style.transform = "translate(" + x.toFixed(1) + "px," + y.toFixed(1) + "px) translate(-50%,-100%)";
+    el.classList.toggle("compact", compact);
+    el.classList.toggle("on", openTeam === t.id);
+    el.classList.toggle("dim", !!openTeam && openTeam !== t.id);
+  }
+  const [bx, by] = project(brainAnchor);
+  brainTag.classList.toggle("compact", roomPx < 120);
+  brainTag.style.transform = "translate(" + bx.toFixed(1) + "px," + by.toFixed(1) + "px) translate(-50%,-100%)";
+}
+function updateCounts() {
+  let run = 0;
+  for (const t of TEAMS) {
+    const n = t.list.filter(a => a.state === "work").length; run += n;
+    const load = teamLoad(t.id);
+    tagEls[t.id].querySelector(".n").textContent = t.list.length + " เอเจนต์ · " + (load == null ? n + " ทำงาน" : load + " ลีดในมือ");
+  }
+  $("runCount").textContent = run;
+  $("taskCount").textContent = LIVE ? LIVE.leads.filter(OPEN).length : TASKS.length;
+  $("brainNotes").textContent = LIVE ? "ลีด " + LIVE.leads.length + " · ชีตลีดกลาง" : "บันทึก " + notes.toLocaleString("th-TH") + " · ความจำร่วม";
+}
+
+/* ---------- minimap ---------- */
+const mini = $("mini"), mg = mini.getContext("2d");
+const MS = 2.55;
+function drawMini() {
+  const ax = axes(cam.az); const w = mini.width, h = mini.height, cx = w / 2, cy = h / 2, s = MS * (w / 150) * .95;
+  const m = p => [cx + (p.x * ax.x.x + p.z * ax.x.z) * s, cy - (p.x * ax.fwd.x + p.z * ax.fwd.z) * s];
+  mg.clearRect(0, 0, w, h);
+  mg.strokeStyle = "rgba(255,227,163,.6)"; mg.lineWidth = 2;
+  mg.beginPath(); const c0 = m(new THREE.Vector3()); mg.arc(c0[0], c0[1], 5.3 * s, 0, Math.PI * 2); mg.stroke();
+  for (const t of TEAMS) {
+    const hs = ROOM / 2; const cs = [[-hs, -hs], [hs, -hs], [hs, hs], [-hs, hs]].map(([a, b]) => m(new THREE.Vector3(t.x + a, 0, t.z + b)));
+    mg.beginPath(); cs.forEach(([x, y], i) => (i ? mg.lineTo(x, y) : mg.moveTo(x, y))); mg.closePath();
+    mg.fillStyle = t.color; mg.globalAlpha = openTeam && openTeam !== t.id ? .35 : .9; mg.fill(); mg.globalAlpha = 1;
+  }
+  // visible area
+  const pts = [[0, 0], [W, 0], [W, H], [0, H]].map(([x, y]) => { ray.setFromCamera(ndc(x, y), camera); const o = ray.ray.origin, d = ray.ray.direction; const k = -o.y / d.y; return m(new THREE.Vector3(o.x + d.x * k, 0, o.z + d.z * k)); });
+  mg.beginPath(); pts.forEach(([x, y], i) => (i ? mg.lineTo(x, y) : mg.moveTo(x, y))); mg.closePath();
+  mg.strokeStyle = "rgba(238,241,251,.85)"; mg.lineWidth = 2; mg.stroke(); mg.fillStyle = "rgba(238,241,251,.06)"; mg.fill();
+  $("mapZoom").textContent = Math.round(cam.zoom * 100) + "%";
+}
+mini.addEventListener("click", e => {
+  const r = mini.getBoundingClientRect(); const ax = axes(cam.az);
+  const s = MS * (mini.width / 150) * .95;
+  const mx = ((e.clientX - r.left) / r.width * mini.width - mini.width / 2) / s;
+  const my = -((e.clientY - r.top) / r.height * mini.height - mini.height / 2) / s;
+  goal.target.set(0, 0, 0).addScaledVector(ax.x, mx).addScaledVector(ax.fwd, my);
+  goal.target.x = clamp(goal.target.x, -26, 26); goal.target.z = clamp(goal.target.z, -26, 26);
+});
+
+/* ---------- render loop ---------- */
+let last = performance.now(), clock = 0;
+function frame(now) {
+  const dt = Math.min(.05, (now - last) / 1000); last = now; clock += dt;
+  const k = REDUCE ? 1 : 1 - Math.exp(-dt * 6);
+  cam.target.lerp(goal.target, k);
+  cam.zoom += (goal.zoom - cam.zoom) * k;
+  cam.az += (goal.az - cam.az) * k;
+  cam.ox += (goal.ox - cam.ox) * k; cam.oy += (goal.oy - cam.oy) * k;
+  placeCamera();
+
+  const anim = REDUCE ? 0 : 1;
+  for (const a of people) {
+    const ud = a.mesh.userData, working = a.state === "work";
+    ud.torso.position.y = ud.base + .3 + (working ? Math.abs(Math.sin(clock * 9 + a.phase)) * .025 * anim : 0);
+    ud.head.position.y = ud.base + .85 + (working ? Math.sin(clock * 4.5 + a.phase) * .03 * anim : 0);
+    ud.head.rotation.y = working ? 0 : Math.sin(clock * .7 + a.phase) * .6 * anim;
+    ud.dot.material.color.set(a.state === "work" ? 0x45d49b : a.state === "wait" ? 0xf2b33d : 0x6f7ca3);
+    ud.dot.material.opacity = a.state === "work" ? .75 + Math.sin(clock * 3 + a.phase) * .25 * anim : .6;
+  }
+  for (const s of screenMats) { const f = .85 + .15 * Math.sin(clock * 2 + s.t * 1.7) * anim; s.m.color.copy(s.base).multiplyScalar(f); }
+  rings.forEach((r, i) => { r.rotation.z = clock * (i % 2 ? -.12 : .08) * anim; });
+  ticks.rotation.y = -clock * .1 * anim;
+  cage.rotation.y = clock * .35 * anim; cage.rotation.x = clock * .18 * anim;
+  orb.scale.setScalar(1 + Math.sin(clock * 2.2) * .04 * anim);
+  orbGlow.material.opacity = .5 + Math.sin(clock * 2.2) * .1 * anim;
+  pillar.material.opacity = .45 + Math.sin(clock * 3) * .1 * anim;
+
+  for (const r of roads) {
+    for (const p of r.parts) {
+      const f = ((clock * .16 + p.o) % 1);
+      p.s.position.lerpVectors(r.outer, r.inner, REDUCE ? p.o : f); p.s.position.y = .25;
+      p.s.material.opacity = Math.sin(f * Math.PI) * .9;
+    }
+    const c = r.courier;
+    if (c.dir !== 0) {
+      if (c.wait > 0) { c.wait -= dt; if (c.wait <= 0) c.dir = -1; }
+      else {
+        c.k = clamp(c.k + c.dir * dt * 2.2 / r.len, 0, 1);
+        c.mesh.position.lerpVectors(r.outer, r.inner, c.k);
+        const fwdv = (c.dir > 0 ? r.inner.clone().sub(r.outer) : r.outer.clone().sub(r.inner));
+        c.mesh.rotation.y = Math.atan2(-fwdv.x, -fwdv.z);
+        const ud = c.mesh.userData, sw = Math.sin(clock * 11) * anim;
+        ud.legs[0].rotation.x = sw * .6; ud.legs[1].rotation.x = -sw * .6;
+        c.mesh.position.y = Math.abs(Math.sin(clock * 11)) * .05 * anim;
+        if (c.dir > 0 && c.k >= 1) { c.wait = .7; }
+        if (c.dir < 0 && c.k <= 0) { c.dir = 0; c.mesh.visible = false; }
+      }
+    }
+  }
+  renderer.render(scene, camera);
+  updateTags();
+  if ((frameCount++ & 3) === 0) drawMini();
+  requestAnimationFrame(frame);
+}
+let frameCount = 0;
+function sendCourier(id) {
+  const c = roadOf[id].courier;
+  if (c.dir !== 0) return;
+  c.k = 0; c.dir = 1; c.wait = 0; c.mesh.visible = true;
+}
+
+/* ===================================================================== */
+/* ----------------------------- UI logic ------------------------------ */
+/* ===================================================================== */
+let openTeam = null, pTab = "overview", openViewId = null, lastTag = null;
+
+function spark(vals, color) {
+  const w = 100, h = 24, mx = Math.max(...vals), mn = Math.min(...vals);
+  const pts = vals.map((v, i) => (i * w / (vals.length - 1)).toFixed(1) + "," + (h - 3 - (v - mn) / (mx - mn || 1) * (h - 7)).toFixed(1)).join(" ");
+  return '<svg viewBox="0 0 ' + w + " " + h + '" preserveAspectRatio="none" aria-hidden="true"><polygon points="0,' + h + " " + pts + " " + w + "," + h + '" fill="' + color + '" opacity=".16"/><polyline points="' + pts + '" fill="none" stroke="' + color + '" stroke-width="1.6" vector-effect="non-scaling-stroke"/></svg>';
+}
+function statsHTML(t, run) {
+  if (LIVE && LIVE_STATS[t.id]) {
+    return '<div class="stats">' + LIVE_STATS[t.id](LIVE).map(([k, v, ser]) => '<div class="stat"><span>' + esc(k) + "</span><b" + (String(v).length > 8 ? ' class="tx"' : "") + ">" + esc(v) + "</b>" + (ser ? spark(ser, t.color) : '<svg aria-hidden="true"></svg>') + "</div>").join("") + "</div>" +
+      '<p class="fine">ตัวเลขจากชีตลีดกลาง · อัปเดต ' + hhmm(new Date(LIVE.at)) + "</p>";
+  }
+  return '<div class="stats"><div class="stat"><span>งานวันนี้</span><b id="sToday">' + t.today + "</b>" + spark(t.series, t.color) + '</div>' +
+    '<div class="stat"><span>กำลังทำ</span><b id="sRun">' + run + "</b>" + spark(t.runSeries, t.color) + '</div>' +
+    '<div class="stat"><span>เวลาเฉลี่ยต่องาน</span><b>' + t.turn + "</b>" + spark(t.turnSeries, t.color) + "</div></div>" +
+    '<p class="fine">' + (LIVE ? "ทีมนี้ยังไม่มีข้อมูลในชีตลีด ตัวเลขด้านบนเป็นตัวเลขจำลอง" : "ตัวเลขจำลองเพื่อดูภาพการทำงาน ต่อระบบจริงแล้วจะแสดงตัวเลขจริง") + "</p>";
+}
+function stateLabel(s) { return s === "work" ? "ทำงาน" : s === "wait" ? "รออนุมัติ" : "ว่าง"; }
+function renderOverview(t) {
+  const run = t.list.filter(a => a.state === "work").length;
+  $("pt-overview").innerHTML =
+    '<p class="goal">' + t.goal + "</p>" +
+    statsHTML(t, run) +
+    '<h3 class="sec">เครื่องมือที่ทีมใช้<span>' + t.tools.length + " ช่องทาง</span></h3>" +
+    '<div class="tools">' + t.tools.map(([n, g, c]) => '<div class="tool"><span class="g" style="--g:' + c + '">' + esc(g) + "</span><div><b>" + esc(n) + "</b><small>ต่อผ่าน MCP ได้</small></div></div>").join("") + "</div>" +
+    '<h3 class="sec">สกิล<span id="sPar"></span></h3><ul class="skills" id="skillList">' +
+    t.skillState.map((s, i) => '<li class="skill" data-i="' + i + '"><span class="d"></span><span>' + s.name + '</span><span class="bar"><i></i></span><span class="pc"></span></li>').join("") + "</ul>" +
+    '<h3 class="sec">เอเจนต์ในทีม<span>' + t.list.length + " ตัว</span></h3><ul class=\"agents\" id=\"agentList\"></ul>";
+  updateSkills(t); updateAgents(t);
+}
+function updateSkills(t) {
+  const list = $("skillList"); if (!list) return;
+  let n = 0;
+  t.skillState.forEach((s, i) => {
+    const li = list.children[i]; if (!li) return;
+    li.classList.toggle("idle", !s.run); if (s.run) n++;
+    li.querySelector("i").style.width = (s.run ? s.p : 0) + "%";
+    li.querySelector(".pc").textContent = s.run ? Math.round(s.p) + "%" : "ว่าง";
+  });
+  $("sPar").textContent = n + " ทำงานพร้อมกัน";
+}
+function updateAgents(t) {
+  const ul = $("agentList"); if (!ul) return;
+  ul.innerHTML = t.list.map(a => '<li class="agent"><span class="av" style="--h:' + a.shirt + ";--s:" + a.hair + '"></span><span class="who"><b>' + esc(a.name) + (a.lead ? '<span class="lead">หัวหน้า</span>' : "") + "</b><small>" + esc(a.role) + '</small></span><span class="pill ' + a.state + '">' + stateLabel(a.state) + "</span></li>").join("");
+  const sr = $("sRun"); if (sr) sr.textContent = t.list.filter(a => a.state === "work").length;
+  const st = $("sToday"); if (st) st.textContent = t.today;
+}
+function renderTeamTasks(t) {
+  const funnel = FUNNEL.includes(t.id);
+  const cs = LIVE ? (funnel ? liveCards().filter(c => c.team === t.id) : []) : TASKS.filter(c => c.team === t.id);
+  const evs = MEMORY.filter(m => m.team === t.id).slice(0, 6);
+  $("pt-tasks").innerHTML = '<h3 class="sec" style="margin-top:0">' + (LIVE ? "ลีดในขั้นของทีม" : "การ์ดในท่อ") + "<span>" + cs.length + (LIVE ? " ลีด" : " งาน") + "</span></h3>" +
+    '<div style="display:grid;gap:8px">' + (cs.length ? cs.map(cardHTML).join("") : '<p class="chatEmpty">' + (LIVE && funnel ? "ยังไม่มีลีดในขั้นของทีมนี้" : "ทีมนี้ไม่มีการ์ดลูกค้าโดยตรง ทำงานสนับสนุนทุกขั้น") + "</p>") + "</div>" +
+    '<h3 class="sec">ทำล่าสุด<span>' + (LIVE ? "จากชีต" : "จำลอง") + '</span></h3><div class="mem">' +
+    (evs.length ? evs.map(m => '<div class="memItem" style="--c:' + t.color + '"><i></i><div><time style="margin:0">' + m.time + "</time><p>" + esc(m.text) + "</p></div></div>").join("") : '<p class="chatEmpty">ยังไม่มีบันทึกจากทีมนี้</p>') + "</div>";
+}
+function setPTab(tab) {
+  pTab = tab;
+  document.querySelectorAll("[data-ptab]").forEach(b => b.setAttribute("aria-selected", String(b.dataset.ptab === tab)));
+  ["overview", "tasks", "chat"].forEach(k => { $("pt-" + k).hidden = k !== tab; });
+  $("composer").hidden = tab !== "chat";
+  const t = T[openTeam];
+  if (tab === "tasks") renderTeamTasks(t);
+  if (tab === "chat") { mountChat(t); updateComposer(); }
+}
+document.querySelectorAll("[data-ptab]").forEach(b => { b.onclick = () => setPTab(b.dataset.ptab); });
+
+function openPanel(id, tab) {
+  closeViews();
+  const t = T[id];
+  openTeam = id; lastTag = tagEls[id];
+  const p = $("panel"); p.style.setProperty("--c", t.color); p.hidden = false;
+  document.body.classList.add("panel-open");
+  $("pIc").innerHTML = svg(id);
+  $("pName").textContent = "ทีม" + t.name;
+  $("pSub").innerHTML = "<i></i>" + t.list.length + " เอเจนต์ · หัวหน้าทีม: " + esc(t.lead) + ' · <span class="mono" style="font-size:11px">' + t.en + "</span>";
+  renderOverview(t);
+  setPTab(tab || "overview");
+  quick(t);
+  focusTeam(id);
+  $("pName").focus({ preventScroll: true });
+}
+function closePanel() {
+  if (!openTeam) return;
+  openTeam = null; $("panel").hidden = true;
+  document.body.classList.remove("panel-open");
+  home();
+  if (lastTag) lastTag.focus({ preventScroll: true });
+}
+$("pClose").onclick = closePanel;
+
+/* views: tasks / calendar / brain */
+function openView(v) {
+  document.querySelectorAll("[data-view]").forEach(b => b.setAttribute("aria-selected", String(b.dataset.view === v)));
+  ["tasks", "calendar", "brain"].forEach(k => { $("view-" + k).hidden = k !== v; });
+  document.body.classList.toggle("sheet-open", v !== "office");
+  if (v === "office") { openViewId = null; return; }
+  if (openTeam) { openTeam = null; $("panel").hidden = true; document.body.classList.remove("panel-open"); home(); }
+  openViewId = v;
+  if (v === "tasks") renderBoard();
+  if (v === "calendar") { renderCalendar(); const td = $("week").querySelector(".today"); if (td && isPhone()) td.scrollIntoView({ block: "start" }); }
+  if (v === "brain") { renderRules(); renderMemory(); }
+  const h = $("view-" + v).querySelector("h2"); if (h) h.focus({ preventScroll: true });
+}
+function closeViews() { if (openViewId) openView("office"); }
+document.querySelectorAll("[data-view]").forEach(b => { b.onclick = () => openView(b.dataset.view); });
+document.querySelectorAll("[data-close]").forEach(b => { b.onclick = () => openView("office"); });
+
+/* ---------- toasts, caption, memory ---------- */
+function toast(t, text) {
+  const wrap = $("toasts");
+  const el = document.createElement("button");
+  el.className = "toast"; el.style.setProperty("--c", t.color);
+  el.innerHTML = '<span class="t-ic">' + svg(t.id) + '</span><span style="flex:1;min-width:0"><span class="t-h"><b>ทีม' + esc(t.name) + "</b><time>เมื่อสักครู่</time></span><span class=\"t-b\" style=\"display:block\">" + esc(text) + "</span></span>";
+  el.onclick = () => openPanel(t.id, "tasks");
+  wrap.prepend(el);
+  while (wrap.children.length > 3) wrap.lastChild.remove();
+  setTimeout(() => { el.classList.add("out"); setTimeout(() => el.remove(), 450); }, 6500);
+}
+function caption(t, text) {
+  const n = $("now"); n.style.setProperty("--c", t.color);
+  $("nowText").innerHTML = "<b>ทีม" + esc(t.name) + "</b> · " + esc(text);
+}
+function remember(t, text, when) {
+  MEMORY.unshift({ team: t.id, text, time: hhmm(when || new Date()) });
+  if (MEMORY.length > 60) MEMORY.pop();
+  notes++;
+  if (openViewId === "brain") renderMemory();
+  if (openTeam === t.id && pTab === "tasks") renderTeamTasks(t);
+}
+
+/* ---------- simulation ---------- */
+const WEIGHT = { inbox: 3, screening: 2, listings: 3, walkthrough: 2, closing: 1, analytics: 1, creative: 2, social: 2 };
+const BAG = TEAMS.flatMap(t => Array(WEIGHT[t.id]).fill(t.id));
+let simTimer = null;
+function simEvent() {
+  const t = T[pick(BAG)];
+  const text = pick(t.events);
+  toast(t, text); caption(t, text); remember(t, text);
+  sendCourier(t.id);
+  const idle = t.list.filter(a => a.state === "idle");
+  if (idle.length) pick(idle).state = "work";
+  t.today++;
+  t.series.push(t.series.pop() + 1);
+  updateCounts();
+  if (openTeam === t.id) updateAgents(t);
+}
+function schedule() { clearTimeout(simTimer); simTimer = setTimeout(() => { if (!document.hidden && !LIVE) simEvent(); schedule(); }, 3800 + Math.random() * 3200); }
+setInterval(() => {
+  if (document.hidden) return;
+  const pool = AGENTS.filter(a => a.state !== "wait" && !(LIVE && FUNNEL.includes(a.team)));
+  for (let i = 0; i < 2; i++) { const a = pick(pool); a.state = a.state === "work" ? "idle" : "work"; }
+  for (const t of TEAMS) for (const s of t.skillState) {
+    if (s.run) { s.p += 3 + Math.random() * 9; if (s.p >= 100) { s.p = 4; s.run = Math.random() < .55; } }
+    else if (Math.random() < .12) { s.run = true; s.p = 2; }
+  }
+  updateCounts();
+  if (openTeam && pTab === "overview") { updateSkills(T[openTeam]); updateAgents(T[openTeam]); }
+}, 1600);
+{
+  const r = rng(99), base = Date.now();
+  for (let i = 8; i > 0; i--) { const t = T[pick(BAG, r)]; remember(t, pick(t.events, r), new Date(base - i * 7 * 60000)); }
+  notes += 40;
+}
+
+/* ===================================================================== */
+/* ------------------- Chat with a team (Claude) ----------------------- */
+/* ===================================================================== */
+let sample = null, aiState = "connecting", busy = false, ctl = null;
+const AI = {
+  connecting: "กำลังเชื่อม Claude…",
+  live: "คุยสดกับ Claude ได้ · ร่างเท่านั้น การส่งจริงต้องให้คนกด",
+  offline: "โหมดคำตอบสำเร็จรูป · คุยสดได้เมื่อเปิดหน้านี้ใน Claude",
+  denied: "ยังไม่ได้อนุญาตให้หน้านี้ใช้ Claude · ปุ่มลัดยังใช้ได้",
+};
+function setAI(s) { aiState = s; $("aiText").textContent = AI[s]; $("aiNote").classList.toggle("live", s === "live"); updateComposer(); }
+(async () => {
+  try { if (window.claude && typeof window.claude.use === "function") sample = await window.claude.use("sample"); } catch (e) { sample = null; }
+  setAI(sample ? "live" : "offline");
+})();
+
+function md(src) {
+  const lines = esc(src).split(/\r?\n/);
+  let html = "", list = null;
+  const close = () => { if (list) { html += "</" + list + ">"; list = null; } };
+  const inline = s => s.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>").replace(/`([^`]+)`/g, "<code>$1</code>");
+  for (const raw of lines) {
+    const line = raw.replace(/\s+$/, ""); let m;
+    if ((m = line.match(/^\s*[-*•]\s+(.*)$/))) { if (list !== "ul") { close(); html += "<ul>"; list = "ul"; } html += "<li>" + inline(m[1]) + "</li>"; continue; }
+    if ((m = line.match(/^\s*\d+[.)]\s+(.*)$/))) { if (list !== "ol") { close(); html += "<ol>"; list = "ol"; } html += "<li>" + inline(m[1]) + "</li>"; continue; }
+    close();
+    if (!line.trim()) continue;
+    if ((m = line.match(/^#{1,6}\s+(.*)$/))) { html += "<h4>" + inline(m[1]) + "</h4>"; continue; }
+    if ((m = line.match(/^&gt;\s?(.*)$/))) { html += "<blockquote>" + inline(m[1]) + "</blockquote>"; continue; }
+    if (/^[-|]{3,}$/.test(line.trim())) continue;
+    html += "<p>" + inline(line) + "</p>";
+  }
+  close();
+  return html;
+}
+const logs = {}, turns = {};
+function logFor(t) {
+  if (logs[t.id]) return logs[t.id];
+  const el = document.createElement("div"); el.className = "log";
+  el.innerHTML = '<p class="chatEmpty">คุยกับหัวหน้าทีม' + esc(t.name) + " (" + esc(t.lead) + ") ได้ที่นี่ กดปุ่มลัดด้านล่าง หรือพิมพ์รายละเอียดลูกค้าแล้วส่ง</p>";
+  logs[t.id] = el; return el;
+}
+function mountChat(t) { const box = $("pt-chat"); if (box.firstChild !== logFor(t)) { box.innerHTML = ""; box.append(logFor(t)); } scrollLog(); }
+function scrollLog() { const b = $("pBody"); b.scrollTop = b.scrollHeight; }
+function addMsg(t, who, html, src) {
+  const el = document.createElement("div");
+  el.className = "msg " + (who === "me" ? "me" : "ag"); el.style.setProperty("--c", t.color);
+  el.innerHTML = who === "me" ? '<div class="body">' + html + "</div>" : '<div class="who"><span>' + esc(t.lead) + " · ทีม" + esc(t.name) + '</span><span class="src">' + esc(src || "") + '</span></div><div class="body">' + html + "</div>";
+  logFor(t).append(el); scrollLog();
+  return el.querySelector(".body");
+}
+function quick(t) {
+  $("quick").innerHTML = "";
+  t.actions.forEach((a, i) => { const b = document.createElement("button"); b.textContent = a.label; b.onclick = () => runAction(t.id, i); $("quick").append(b); });
+}
+function updateComposer() {
+  const live = aiState === "live" && !!sample;
+  $("sendBtn").disabled = !live || busy || !$("msg").value.trim();
+  $("stopBtn").hidden = !busy;
+  document.querySelectorAll("#quick button").forEach(b => { b.disabled = busy; });
+}
+function rulesFor(t) {
+  return [
+    "คุณคือ \"" + t.lead + "\" หัวหน้าทีม" + t.name + " (" + t.en + ") ใน Middle Property Agent HQ ออฟฟิศ AI ของธุรกิจเอเจนต์อสังหาออนไลน์ (เช่าและขายคอนโดในกรุงเทพ ลูกค้ามาจากออนไลน์ทั้งหมด) เจ้าของธุรกิจต้องการโตเป็นธุรกิจเอเจนต์ออนไลน์ที่ทำกำไรสูง",
+    "หน้าที่ทีม: " + t.goal.replace(/<[^>]+>/g, ""),
+    "ลูกทีม: " + t.list.map(a => a.name + " (" + a.role + ")").join(", "),
+    "",
+    "Playbook ของบริษัท:",
+    PLAYBOOK,
+    liveContext(),
+    "",
+    "กติกาการตอบ:",
+    "- ถ้ามีข้อมูลจากชีตลีดกลาง ให้อ้างรหัสลีดและใช้ข้อมูลตามที่มีเท่านั้น อย่าเดาส่วนที่ไม่มี",
+    "- ตอบภาษาไทย สั้น ตรง ใช้หัวข้อย่อยหรือรายการลำดับได้ ห้ามใช้ตาราง",
+    "- ห้ามแต่งสเปคห้อง ชื่อโครงการ ราคา หรือเงื่อนไข ถ้าต้องใช้ ให้เว้นช่องหรือบอกว่าต้องถามเจ้าของทรัพย์",
+    "- ห้ามกดดันลูกค้าเกินจริง",
+    "- ตัวเลขที่สมมติขึ้น ให้บอกว่าเป็นสมมติฐาน",
+    "- การส่งข้อความจริง การยืนยันราคา และการรับมัดจำ ต้องบอกว่ารอคนอนุมัติ",
+    "- คุณเปิดเว็บ ลิงก์ หรือระบบภายนอกไม่ได้",
+    '- ปิดท้ายด้วยบรรทัด "ขั้นต่อไป:" 1 บรรทัด',
+  ].join("\n");
+}
+const ERR = {
+  rate_limited: "ใช้งาน Claude ถี่เกินไป ลองใหม่อีกครั้งในอีกสักครู่",
+  session_expired: "ต้องเข้าสู่ระบบ Claude ใหม่ แล้วลองอีกครั้ง",
+  refused: "Claude ไม่ตอบคำถามนี้ ลองเปลี่ยนวิธีถาม",
+  empty_completion: "ไม่ได้คำตอบ ลองถามให้แคบลง",
+  prompt_too_large: "ข้อความยาวเกินไป ลองตัดให้สั้นลง",
+  upstream_error: "การเชื่อมต่อขัดข้อง กดส่งใหม่ได้",
+};
+const DENY = ["not_granted", "sampling_disabled", "not_declared", "capability_disabled", "capability_removed"];
+async function askLive(t, content, display) {
+  if (!sample || busy) return;
+  const hist = turns[t.id] || (turns[t.id] = []);
+  hist.push({ role: "user", content });
+  addMsg(t, "me", esc(display));
+  const out = addMsg(t, "ag", '<span class="thinking">กำลังคิด</span>', "Claude สด");
+  busy = true; updateComposer();
+  ctl = new AbortController();
+  let recent = hist.slice(-10);
+  while (recent.length && recent[0].role !== "user") recent = recent.slice(1);
+  try {
+    const res = await sample([{ role: "user", content: rulesFor(t) + "\n\n---\n\n" + recent[0].content }, ...recent.slice(1)], {
+      cache: false, signal: ctl.signal,
+      onText: ({ text }) => { out.innerHTML = md(text); scrollLog(); },
+    });
+    hist.push({ role: "assistant", content: res.text });
+    out.innerHTML = md(res.text) + (res.truncated ? '<p class="note">คำตอบถูกตัดกลางทาง ลองถามทีละเรื่อง</p>' : "");
+    remember(t, "ตอบคำถามเจ้าของ: " + (display.length > 40 ? display.slice(0, 40) + "…" : display));
+  } catch (e) {
+    hist.pop();
+    const code = e && e.code;
+    if (code === "cancelled") out.innerHTML = (e.text ? md(e.text) : "") + '<p class="note">หยุดแล้ว</p>';
+    else if (DENY.includes(code)) { sample = null; setAI(code === "not_granted" ? "denied" : "offline"); out.innerHTML = md("ยังใช้ Claude ในหน้านี้ไม่ได้ ใช้ปุ่มลัดเพื่อดูคำตอบสำเร็จรูปแทน"); }
+    else out.innerHTML = (e && e.text && code !== "refused" ? md(e.text) : "") + '<p class="note">' + esc(ERR[code] || ERR.upstream_error) + "</p>";
+  } finally { busy = false; ctl = null; updateComposer(); scrollLog(); }
+}
+function runAction(id, i) {
+  if (busy) return;
+  const t = T[id], act = t.actions[i];
+  const txt = $("msg").value.trim();
+  if (aiState === "live" && sample) {
+    if (act.needs && !txt) { addMsg(t, "ag", "<p>" + esc(act.needs) + "</p>", "ระบบ"); $("msg").focus(); return; }
+    $("msg").value = ""; autosize();
+    askLive(t, act.prompt(txt), act.label + (txt ? " · " + (txt.length > 60 ? txt.slice(0, 60) + "…" : txt) : ""));
+  } else {
+    addMsg(t, "me", esc(act.label));
+    addMsg(t, "ag", md(act.fallback), "คำตอบสำเร็จรูป");
+  }
+}
+function send() {
+  const t = T[openTeam]; const txt = $("msg").value.trim();
+  if (!t || !txt || busy) return;
+  if (aiState === "live" && sample) { $("msg").value = ""; autosize(); askLive(t, txt, txt); }
+  else { addMsg(t, "me", esc(txt)); addMsg(t, "ag", "<p>ตอนนี้ยังคุยสดไม่ได้ เปิดหน้านี้ใน Claude เพื่อคุยกับทีมได้จริง ระหว่างนี้กดปุ่มลัดด้านบนเพื่อดูแนวทางสำเร็จรูป</p>", "ระบบ"); $("msg").value = ""; autosize(); }
+}
+function autosize() { const m = $("msg"); m.style.height = "auto"; m.style.height = Math.min(120, m.scrollHeight) + "px"; updateComposer(); }
+$("msg").addEventListener("input", autosize);
+$("msg").addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); send(); } });
+$("sendBtn").onclick = send;
+$("stopBtn").onclick = () => { if (ctl) ctl.abort(); };
+
+/* ---------- ask any agent: route the question to a team ---------- */
+const ROUTE = [
+  ["closing", /สัญญา|มัดจำ|ค่าบริการ|ค่าคอม|เซ็น|ส่งมอบ|ปิดดีล|contract|deposit|fee/i],
+  ["walkthrough", /คอล|วอล์ค|นัด|ดูห้อง|ดูจริง|เส้นทาง|call|viewing|tour/i],
+  ["analytics", /kpi|ยอด|วัดผล|win rate|ต้นทุน|สถิติ|รายงาน|ช่องทางไหน|report/i],
+  ["creative", /วิดีโอ|คลิป|ตัดต่อ|ปก|ถ่าย|canva|capcut|video|reel/i],
+  ["social", /โพสต์|โฆษณา|แคปชัน|เพจ|tiktok|ads|ประกาศ|คอมเมนต์|post/i],
+  ["screening", /คัดกรอง|hot|warm|cold|ปฏิเสธ|ติดตาม|follow/i],
+  ["inbox", /ลีด|ทักมา|ตอบแชต|ไลน์|line|lead|inbox/i],
+  ["listings", /ห้อง|งบ|step|เจ้าของ|คอนโด|bts|mrt|ทำเล|room|condo|budget/i],
+];
+$("askForm").addEventListener("submit", e => {
+  e.preventDefault();
+  const q = $("askInput").value.trim(); if (!q) return;
+  const hit = ROUTE.find(([, re]) => re.test(q));
+  const id = hit ? hit[0] : "listings";
+  $("askInput").value = ""; $("bar").classList.remove("asking");
+  openPanel(id, "chat");
+  const t = T[id];
+  if (aiState === "live" && sample) askLive(t, q, q);
+  else { addMsg(t, "me", esc(q)); addMsg(t, "ag", "<p>คำถามนี้ส่งมาที่ทีม" + esc(t.name) + " ตอนนี้ยังคุยสดไม่ได้ เปิดหน้านี้ใน Claude เพื่อให้ทีมตอบจริง ระหว่างนี้ลองปุ่มลัดด้านล่าง</p>", "ระบบ"); }
+});
+$("askToggle").onclick = () => { const b = $("bar"); b.classList.toggle("asking"); resize(); if (b.classList.contains("asking")) $("askInput").focus(); };
+
+document.addEventListener("keydown", e => {
+  const typing = /INPUT|TEXTAREA/.test(document.activeElement && document.activeElement.tagName);
+  if (e.key === "Escape") { if (openViewId) openView("office"); else if (openTeam) closePanel(); else if (typing) document.activeElement.blur(); return; }
+  if (e.key === "/" && !typing) { e.preventDefault(); if (isPhone()) { $("bar").classList.add("asking"); resize(); } $("askInput").focus(); }
+});
+
+/* ===================================================================== */
+/* ---------- Central lead sheet (Google Sheets connector) ------------- */
+/* ===================================================================== */
+// The artifact build fills in the spreadsheet id; the repo copy stays a demo.
+const SHEET = { id: "", server: "Google Sheets", tab: "ลีด", range: "ลีด!A1:X1000" };
+const sheetUrl = () => "https://docs.google.com/spreadsheets/d/" + SHEET.id + "/edit";
+const COLS = {
+  id: "รหัสลีด", date: "วันที่เข้า", time: "เวลาเข้า", channel: "ช่องทาง", name: "ชื่อลูกค้า", contact: "ติดต่อ (LINE/เบอร์)",
+  budget: "งบต่อเดือน (฿)", type: "ประเภทห้อง", loc: "ทำเล / สถานี", movein: "วันย้ายเข้า", level: "ระดับ", stage: "ขั้น",
+  resp: "ตอบแรก (นาที)", call: "วันวิดีโอคอล", view: "วันดูจริง", sign: "วันเซ็นสัญญา", rent: "ค่าเช่าที่ปิดได้ (฿)",
+  follow: "ติดตามครั้งถัดไป", note: "หมายเหตุ / เหตุผลปิดไม่ได้",
+};
+const STAGE_OF = { "ลีดใหม่": "new", "คัดกรอง": "screen", "เสนอห้อง": "offer", "วิดีโอคอล": "call", "นัดดูจริง": "view", "ปิดดีล": "close", "ปิดไม่ได้": "lost" };
+const STAGE_TEAM = { new: "inbox", screen: "screening", offer: "listings", call: "walkthrough", view: "walkthrough", close: "closing", lost: "closing" };
+const NEXT_STAGE = { "ลีดใหม่": "คัดกรอง", "คัดกรอง": "เสนอห้อง", "เสนอห้อง": "วิดีโอคอล", "วิดีโอคอล": "นัดดูจริง", "นัดดูจริง": "ปิดดีล" };
+const FUNNEL = ["inbox", "screening", "listings", "walkthrough", "closing"];
+const SOCIAL = ["Facebook", "Instagram", "TikTok"];
+const OPEN = l => l.stage !== "ปิดดีล" && l.stage !== "ปิดไม่ได้";
+const teamOf = l => STAGE_TEAM[STAGE_OF[l.stage] || "new"];
+let mcp = null, perms = null, LIVE = null, prevStages = null, sheetUnsub = null;
+
+const ymd = (y, m, d) => y + "-" + String(m).padStart(2, "0") + "-" + String(d).padStart(2, "0");
+const todayStr = () => { const d = new Date(); return ymd(d.getFullYear(), d.getMonth() + 1, d.getDate()); };
+const addDays = (s, n) => { const [y, m, d] = s.split("-").map(Number); const t = new Date(y, m - 1, d + n); return ymd(t.getFullYear(), t.getMonth() + 1, t.getDate()); };
+const dayDiff = (a, b) => Math.round((Date.parse(b) - Date.parse(a)) / 864e5);
+const thShort = s => +s.slice(8, 10) + " " + TH_MON[+s.slice(5, 7) - 1];
+const avg = a => a.reduce((x, v) => x + v, 0) / a.length;
+const pct = v => (v == null ? "–" : Math.round(v * 100) + "%");
+const n1 = v => (v == null ? "–" : (Math.round(v * 10) / 10).toLocaleString("th-TH"));
+const baht = v => (v == null ? "–" : Math.round(v).toLocaleString("th-TH"));
+const norm = s => String(s || "").replace(/[\s()（）]/g, "").toLowerCase();
+const colA1 = i => String.fromCharCode(65 + i);
+function dateOf(s) {
+  let m = /^(\d{4})-(\d{1,2})-(\d{1,2})/.exec(s);
+  if (m) { let y = +m[1]; if (y > 2400) y -= 543; return ymd(y, +m[2], +m[3]); }
+  m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})/.exec(s);
+  if (m) { let y = +m[3]; if (y > 2400) y -= 543; return ymd(y, +m[2], +m[1]); }
+  return "";
+}
+function numOf(s) { const n = parseFloat(String(s).replace(/[,฿\s]/g, "")); return isFinite(n) ? n : null; }
+
+/* the connector answers {range, values}; Sheets leaves out `values` for an empty range */
+function valuesOf(p) {
+  if (typeof p === "string") { try { p = JSON.parse(p); } catch (e) { return null; } }
+  if (!p || typeof p !== "object") return null;
+  if (Array.isArray(p.values)) return p.values;
+  if (p.content && Array.isArray(p.content.values)) return p.content.values;
+  if ("range" in p || (p.content && "range" in p.content)) return [];
+  return null;
+}
+function parseSheet(values) {
+  const head = (values[0] || []).map(h => String(h == null ? "" : h).trim());
+  const nh = head.map(norm), ix = {};
+  for (const k in COLS) ix[k] = nh.indexOf(norm(COLS[k]));
+  const leads = [];
+  for (let r = 1; r < values.length; r++) {
+    const row = values[r] || [];
+    const g = k => (ix[k] >= 0 && row[ix[k]] != null ? String(row[ix[k]]).trim() : "");
+    if (!g("id") && !g("name") && !g("contact") && !g("date") && !g("channel")) continue;
+    const rawId = g("id");
+    leads.push({
+      row: r + 1, rawId, id: rawId || "แถว " + (r + 1), date: dateOf(g("date")), channel: g("channel"), name: g("name"),
+      budget: numOf(g("budget")), type: g("type"), loc: g("loc"), movein: dateOf(g("movein")), level: g("level").toUpperCase(),
+      stage: STAGE_OF[g("stage")] ? g("stage") : "ลีดใหม่", resp: numOf(g("resp")), call: dateOf(g("call")), view: dateOf(g("view")),
+      sign: dateOf(g("sign")), rent: numOf(g("rent")), follow: dateOf(g("follow")),
+    });
+  }
+  return { head, ix, leads, ok: ix.id >= 0 && ix.stage >= 0 };
+}
+function kpis(L) {
+  const t = todayStr(), wk = addDays(t, -6);
+  const viewed = L.filter(l => l.view), resp = L.map(l => l.resp).filter(v => v != null);
+  const signDays = L.filter(l => l.sign && l.date).map(l => dayDiff(l.date, l.sign));
+  const by = {};
+  for (const l of L) { const c = l.channel || "ไม่ระบุ"; if (!by[c]) by[c] = { leads: 0, won: 0 }; by[c].leads++; if (l.stage === "ปิดดีล") by[c].won++; }
+  return {
+    n: L.length, today: L.filter(l => l.date === t).length, week: L.filter(l => l.date && l.date >= wk).length,
+    respAvg: resp.length ? avg(resp) : null, callPct: L.length ? L.filter(l => l.call).length / L.length : null,
+    viewPct: L.length ? viewed.length / L.length : null, win: viewed.length ? viewed.filter(l => l.stage === "ปิดดีล").length / viewed.length : null,
+    days: signDays.length ? avg(signDays) : null, won: L.filter(l => l.stage === "ปิดดีล").length, lost: L.filter(l => l.stage === "ปิดไม่ได้").length,
+    due: L.filter(l => OPEN(l) && l.follow && l.follow <= t), stage: s => L.filter(l => l.stage === s).length, by,
+    perDay: Array.from({ length: 12 }, (_, i) => { const d = addDays(t, i - 11); return L.filter(l => l.date === d).length; }),
+  };
+}
+function topChannel(by, key) { let best = null; for (const c in by) if (by[c][key] > 0 && (!best || by[c][key] > by[best][key])) best = c; return best || "–"; }
+const LIVE_STATS = {
+  inbox: L => [["ลีดวันนี้", L.k.today, L.k.perDay], ["ยังไม่คัดกรอง", L.k.stage("ลีดใหม่")], ["ตอบแรกเฉลี่ย", L.k.respAvg == null ? "–" : n1(L.k.respAvg) + " นาที"]],
+  screening: L => [["ในขั้นคัดกรอง", L.k.stage("คัดกรอง")], ["HOT ที่ยังเปิด", L.leads.filter(l => OPEN(l) && l.level === "HOT").length], ["ติดตามถึงกำหนด", L.k.due.length]],
+  listings: L => {
+    const o = L.leads.filter(l => l.stage === "เสนอห้อง"), b = L.leads.filter(l => OPEN(l) && l.budget).map(l => l.budget);
+    return [["รอเสนอห้อง", o.length], ["HOT ในขั้นนี้", o.filter(l => l.level === "HOT").length], ["งบเฉลี่ย (฿)", b.length ? baht(avg(b)) : "–"]];
+  },
+  walkthrough: L => [["รอวิดีโอคอล", L.k.stage("วิดีโอคอล")], ["รอดูจริง", L.k.stage("นัดดูจริง")], ["% ได้วิดีโอคอล", pct(L.k.callPct)]],
+  closing: L => [["ปิดดีลแล้ว", L.k.won], ["ปิดไม่ได้", L.k.lost], ["Win rate หลังดูจริง", pct(L.k.win)]],
+  analytics: L => [["ลีดทั้งหมด", L.k.n], ["ช่องทางปิดได้มากสุด", topChannel(L.k.by, "won")], ["วันเฉลี่ย ลีด→สัญญา", n1(L.k.days)]],
+  social: L => {
+    const wk = addDays(todayStr(), -6);
+    return [["ลีดโซเชียล 7 วัน", L.leads.filter(l => SOCIAL.includes(l.channel) && l.date >= wk).length], ["ช่องทางลีดเยอะสุด", topChannel(L.k.by, "leads")], ["ลีดจากพอร์ทัล", (L.k.by["พอร์ทัลประกาศ"] || { leads: 0 }).leads]];
+  },
+};
+function teamLoad(id) {
+  if (!LIVE || !FUNNEL.includes(id)) return null;
+  if (id === "closing") return LIVE.leads.filter(l => l.stage === "ปิดดีล" && !l.sign).length;
+  return LIVE.leads.filter(l => OPEN(l) && teamOf(l) === id).length;
+}
+function syncLiveAgents() {
+  if (!LIVE) return;
+  for (const id of FUNNEL) {
+    const load = teamLoad(id); let k = 0;
+    for (const a of T[id].list) { if (a.state === "wait") continue; a.state = k < load ? "work" : "idle"; k++; }
+  }
+}
+function liveCards() {
+  const t = todayStr();
+  return LIVE.leads.filter(l => l.stage !== "ปิดไม่ได้").map(l => {
+    const st = STAGE_OF[l.stage] || "new";
+    return {
+      id: l.id, who: l.name, stage: st, team: STAGE_TEAM[st], lead: l,
+      temp: l.level === "HOT" ? "hot" : l.level === "WARM" ? "warm" : l.level === "COLD" ? "cold" : "new",
+      title: [l.type, l.loc].filter(Boolean).join(" · ") || "ยังไม่มีรายละเอียดห้อง",
+      meta: [l.budget ? "งบ " + baht(l.budget) + " ฿" : "", l.movein ? "ย้ายเข้า " + thShort(l.movein) : "", l.channel].filter(Boolean).join(" · ") || (l.date ? "เข้ามา " + thShort(l.date) : "ยังไม่มีข้อมูล"),
+      due: OPEN(l) && l.follow && l.follow <= t,
+    };
+  }).reverse();
+}
+function liveCal(monStr) {
+  const items = [];
+  const put = (d, team, label, l) => { if (!d) return; const i = dayDiff(monStr, d); if (i >= 0 && i < 7) items.push([i, label, team, l.id + " · " + ([l.type, l.loc].filter(Boolean).join(" ") || l.name || "ยังไม่มีรายละเอียด")]); };
+  for (const l of LIVE.leads) {
+    put(l.call, "walkthrough", "วิดีโอคอล", l); put(l.view, "walkthrough", "ดูห้องจริง", l);
+    put(l.sign, "closing", "เซ็นสัญญา", l); put(l.movein, "closing", "ย้ายเข้า", l);
+    if (OPEN(l)) put(l.follow, "screening", "ติดตาม" + (l.level ? " " + l.level : ""), l);
+  }
+  return items;
+}
+function renderKpis() {
+  const el = $("kpis");
+  if (!LIVE) { el.hidden = true; return; }
+  const k = LIVE.k; el.hidden = false;
+  const tile = (label, val, sub, cls) => '<div class="kpi' + (cls ? " " + cls : "") + '"><span>' + label + "</span><b>" + val + "</b><small>" + sub + "</small></div>";
+  el.innerHTML = tile("ลีดใหม่ 7 วัน", k.week, "ทั้งหมด " + k.n + " ลีด") +
+    tile("ตอบแรกเฉลี่ย", k.respAvg == null ? "–" : n1(k.respAvg) + " นาที", "เป้า ไม่เกิน 5 นาที", k.respAvg == null ? "" : k.respAvg <= 5 ? "good" : "bad") +
+    tile("ได้วิดีโอคอล", pct(k.callPct), "ของลีดทั้งหมด") +
+    tile("ไปดูจริง", pct(k.viewPct), "ของลีดทั้งหมด") +
+    tile("Win rate หลังดูจริง", pct(k.win), "เป้า มากกว่า 50%", k.win == null ? "" : k.win > .5 ? "good" : "bad") +
+    tile("ลีด → สัญญา", k.days == null ? "–" : n1(k.days) + " วัน", "ค่าเฉลี่ย");
+}
+function liveContext() {
+  if (!LIVE) return "";
+  const k = LIVE.k;
+  const rows = LIVE.leads.slice(-60).map(l => "- " + [l.id, l.stage, l.level || "ยังไม่จัดระดับ", l.channel, l.type, l.loc, l.budget ? "งบ " + l.budget + " บาท" : "",
+    l.movein ? "ย้ายเข้า " + l.movein : "", l.date ? "เข้า " + l.date : "", l.call ? "วิดีโอคอล " + l.call : "", l.view ? "ดูจริง " + l.view : "", l.follow ? "ติดตาม " + l.follow : ""].filter(Boolean).join(" | "));
+  return ["", "ข้อมูลจริงจากชีตลีดกลาง (วันนี้ " + todayStr() + "):",
+    "ลีดทั้งหมด " + k.n + " · 7 วันล่าสุด " + k.week + " · ตอบแรกเฉลี่ย " + (k.respAvg == null ? "ไม่มีข้อมูล" : n1(k.respAvg) + " นาที") + " · % วิดีโอคอล " + pct(k.callPct) + " · % ดูจริง " + pct(k.viewPct) + " · win rate หลังดูจริง " + pct(k.win),
+    "จำนวนต่อขั้น: " + Object.keys(STAGE_OF).map(s => s + " " + k.stage(s)).join(", "),
+    "ติดตามถึงกำหนดหรือเลยกำหนด: " + (k.due.map(l => l.id).join(", ") || "ไม่มี"),
+    "รายการลีด (ไม่มีชื่อและช่องทางติดต่อของลูกค้า):", ...(rows.length ? rows : ["- ยังไม่มีลีดในชีต"])].join("\n");
+}
+
+/* status chip + message inside the tasks view */
+const SHEET_MSG = {
+  needs_reauth: "ต้องเชื่อม Google Sheets ใหม่ที่ claude.ai › Settings › Connectors",
+  server_not_connected: "ยังไม่ได้เพิ่ม Google Sheets ที่ claude.ai › Settings › Connectors",
+  selection_required: "มีบัญชี Google Sheets มากกว่าหนึ่งบัญชี เลือกบัญชีที่จะใช้ในหน้าต่างที่ Claude ถาม",
+  server_not_found: "ไม่พบตัวเชื่อม Google Sheets แล้ว เพิ่มใหม่ที่ claude.ai › Settings › Connectors",
+  not_in_manifest: "หน้านี้ยังไม่ได้รับอนุญาตให้ใช้ Google Sheets",
+  consent_required: "หน้านี้ยังไม่ได้รับอนุญาตให้ใช้ Google Sheets",
+  approval_required: "ต้องกดอนุญาตก่อน หน้านี้จึงจะอ่านชีตได้",
+  blocked_by_policy: "องค์กรของคุณปิดการใช้ Google Sheets ในหน้านี้",
+};
+const DENIALS = Object.keys(SHEET_MSG).concat(["not_granted", "capability_disabled", "capability_removed", "bad_request", "transform_error"]);
+function setSheet(k, msg, act) {
+  const d = $("demo"), tx = $("demoText"), ln = $("demoLink"), ab = $("demoAct");
+  d.classList.toggle("live", k === "live"); d.classList.toggle("warn", k === "error" || k === "stale");
+  tx.textContent = k === "live" ? "ชีตลีดกลาง · " + LIVE.leads.length + " ลีด · อัปเดต " + hhmm(new Date(LIVE.at)) + " · คนในออฟฟิศเป็นภาพประกอบ"
+    : k === "connecting" ? "กำลังอ่านชีตลีดกลาง… ระหว่างนี้แสดงข้อมูลตัวอย่าง"
+    : k === "stale" ? msg + " · แสดงข้อมูลล่าสุดเมื่อ " + hhmm(new Date(LIVE.at))
+    : k === "error" ? msg + " · ตอนนี้แสดงข้อมูลตัวอย่าง"
+    : "โหมดจำลอง · ข้อมูลในหน้านี้เป็นตัวอย่าง ยังไม่ต่อระบบจริง";
+  ln.hidden = !SHEET.id; if (SHEET.id) ln.href = sheetUrl();
+  ab.hidden = !act; if (act) { ab.textContent = act.label; ab.onclick = act.run; }
+  const m = $("sheetMsg");
+  m.hidden = !(k === "error" || k === "stale");
+  if (!m.hidden) {
+    m.innerHTML = "<span>" + esc(tx.textContent) + "</span>";
+    if (act) { const b = document.createElement("button"); b.className = "btn"; b.type = "button"; b.textContent = act.label; b.onclick = act.run; m.append(b); }
+  }
+}
+function rerenderAll() {
+  syncLiveAgents(); updateCounts();
+  if (openViewId === "tasks") renderBoard();
+  if (openViewId === "calendar") renderCalendar();
+  if (openViewId === "brain") { renderRules(); renderMemory(); }
+  if (openTeam) { const t = T[openTeam]; if (pTab === "overview") renderOverview(t); else if (pTab === "tasks") renderTeamTasks(t); }
+}
+function liveEvent(t, text) { toast(t, text); caption(t, text); remember(t, text); sendCourier(t.id); }
+function applySheet(values, at) {
+  const s = parseSheet(values);
+  if (!s.ok) { if (LIVE) setSheet("stale", "หัวคอลัมน์ในแท็บ ลีด ไม่ตรง (ต้องมี รหัสลีด และ ขั้น)"); else setSheet("error", "หัวคอลัมน์ในแท็บ ลีด ไม่ตรง (ต้องมี รหัสลีด และ ขั้น)"); return; }
+  const firstLoad = !LIVE;
+  LIVE = Object.assign(s, { k: kpis(s.leads), at });
+  const evs = [];
+  if (prevStages) {
+    for (const l of s.leads) {
+      const was = prevStages.get(l.id);
+      if (was === undefined) evs.push([T.inbox, "ลีดใหม่ " + l.id + (l.channel ? " จาก " + l.channel : "") + (l.type || l.loc ? " · " + [l.type, l.loc].filter(Boolean).join(" ") : "")]);
+      else if (was !== l.stage) evs.push([T[teamOf(l)], l.id + " ย้ายจาก" + was + "ไป" + l.stage]);
+    }
+  }
+  prevStages = new Map(s.leads.map(l => [l.id, l.stage]));
+  if (firstLoad) {
+    clearTimeout(simTimer); schedule();
+    MEMORY.length = 0; $("toasts").innerHTML = "";
+    remember(T.analytics, "เชื่อมชีตลีดกลางแล้ว · " + s.leads.length + " ลีด");
+    caption(T.analytics, "เชื่อมชีตลีดกลางแล้ว · " + s.leads.length + " ลีด");
+    sendCourier("analytics");
+  }
+  evs.slice(0, 3).forEach(([t, text]) => liveEvent(t, text));
+  if (evs.length > 3) remember(T.analytics, "อัปเดตจากชีตอีก " + (evs.length - 3) + " รายการ");
+  setSheet("live");
+  rerenderAll();
+}
+function retract() { if (!LIVE) return; LIVE = null; prevStages = null; rerenderAll(); }
+function onSheet(ev) {
+  if (ev.type === "data") {
+    const vals = valuesOf(ev.result && ev.result.payload);
+    if (!vals) { if (LIVE) setSheet("stale", "อ่านข้อมูลจาก Google Sheets ไม่ออก"); else setSheet("error", "อ่านข้อมูลจาก Google Sheets ไม่ออก"); return; }
+    applySheet(vals, ev.result.cache ? ev.result.cache.storedAt : Date.now());
+    return;
+  }
+  const e = ev.error || {}, code = e.code;
+  if (code === "user_changed") { if (sheetUnsub) sheetUnsub(); return; }
+  if (DENIALS.includes(code)) {
+    retract();
+    let act = null;
+    if (code === "approval_required") act = { label: "อนุญาตให้อ่านชีต", run: approveRead };
+    else if ((code === "not_in_manifest" || code === "consent_required") && perms) act = { label: "ตั้งค่าสิทธิ์", run: () => perms.manage().catch(() => setSheet("error", "เปิดหน้าตั้งค่าไม่ได้ ใช้เมนู Permissions ของหน้านี้แทน")) };
+    setSheet("error", SHEET_MSG[code] || "เปิดหน้านี้ใน Claude เพื่อเชื่อมชีตลีดกลาง", act);
+    return;
+  }
+  const msg = code === "tool_error" ? "Google Sheets ตอบว่าอ่านชีตไม่ได้: " + String(e.message || "").slice(0, 120) : "Google Sheets ไม่ตอบชั่วคราว หน้านี้จะลองใหม่เอง";
+  if (LIVE) setSheet("stale", msg); else setSheet("error", msg);
+}
+async function approveRead() {
+  try {
+    const r = await mcp.callTool(SHEET.server, "get_values", { spreadsheetId: SHEET.id, range: SHEET.range }, { cache: { refresh: true } });
+    const v = valuesOf(r.payload);
+    if (v) applySheet(v, Date.now());
+  } catch (e) { onSheet({ type: "error", error: e }); }
+}
+async function startSheet() {
+  if (!SHEET.id || !window.claude || typeof window.claude.use !== "function") { setSheet("off"); return; }
+  try { mcp = await window.claude.use("mcp"); } catch (e) { mcp = null; }
+  try { perms = await window.claude.use("permissions"); } catch (e) { perms = null; }
+  if (!mcp) { setSheet("off"); return; }
+  setSheet("connecting");
+  sheetUnsub = mcp.watchTool(SHEET.server, "get_values", { spreadsheetId: SHEET.id, range: SHEET.range }, onSheet, { refetchInterval: 60000, cache: { staleTime: 30000 } });
+}
+
+/* writes: always from a tap, never retried on their own */
+function writeErr(e) {
+  const c = e && e.code;
+  if (c === "tool_error") return "Google Sheets ไม่รับคำสั่ง: " + String(e.message || "").slice(0, 140);
+  return ({
+    row_moved: "แถวในชีตเปลี่ยนตำแหน่ง (อาจมีคนเรียงหรือลบแถว) ยังไม่ได้บันทึก รอหน้านี้อ่านชีตใหม่แล้วลองอีกครั้ง",
+    bad_header: "หัวคอลัมน์ในแท็บ ลีด ไม่ตรง ยังไม่ได้บันทึก",
+    approval_required: "ยังไม่ได้อนุญาตให้หน้านี้เขียนชีต กดอีกครั้งแล้วเลือกอนุญาต",
+  })[c] || SHEET_MSG[c] || "ไม่แน่ใจว่าบันทึกสำเร็จหรือไม่ หน้านี้จะอ่านชีตใหม่ ตรวจในชีตก่อนกดซ้ำ";
+}
+const SURE = ["row_moved", "bad_header", "tool_error"].concat(DENIALS);
+function rereadAfter(e) { if (!SURE.includes(e && e.code)) mcp.invalidate(SHEET.server, "get_values").catch(() => {}); }
+async function addLead(f) {
+  const fresh = await mcp.callTool(SHEET.server, "get_values", { spreadsheetId: SHEET.id, range: SHEET.range }, { cache: { refresh: true } });
+  const s = parseSheet(valuesOf(fresh.payload) || []);
+  if (!s.ok) throw { code: "bad_header" };
+  let max = 0;
+  for (const l of s.leads) { const m = /^L-(\d+)$/i.exec(l.rawId); if (m) max = Math.max(max, +m[1]); }
+  const id = "L-" + String(max + 1).padStart(4, "0");
+  const row = new Array(s.head.length).fill("");
+  const put = (k, v) => { if (s.ix[k] >= 0 && v !== "" && v != null) row[s.ix[k]] = v; };
+  put("id", id); put("date", todayStr()); put("time", hhmm(new Date())); put("channel", f.channel); put("name", f.name); put("contact", f.contact);
+  put("budget", f.budget ? Number(f.budget) : ""); put("type", f.type); put("loc", f.loc); put("movein", f.movein); put("level", f.level);
+  put("stage", "ลีดใหม่"); put("resp", f.resp !== "" ? Number(f.resp) : ""); put("note", f.note);
+  await mcp.callTool(SHEET.server, "append_values", { spreadsheetId: SHEET.id, range: SHEET.tab + "!A1", values: [row] });
+  mcp.invalidate(SHEET.server, "get_values").catch(() => {});
+  return id;
+}
+async function moveStage(l, nx) {
+  const ix = LIVE.ix;
+  const chk = await mcp.callTool(SHEET.server, "get_values", { spreadsheetId: SHEET.id, range: SHEET.tab + "!" + colA1(ix.id) + l.row }, { cache: false });
+  const v = valuesOf(chk.payload) || [];
+  if (String((v[0] && v[0][0]) || "").trim() !== l.rawId) throw { code: "row_moved" };
+  await mcp.callTool(SHEET.server, "update_values", { spreadsheetId: SHEET.id, range: SHEET.tab + "!" + colA1(ix.stage) + l.row, values: [[nx]] });
+  mcp.invalidate(SHEET.server, "get_values").catch(() => {});
+}
+function onMove(b) {
+  if (!LIVE || !mcp) return;
+  const l = LIVE.leads.find(x => x.row === +b.dataset.row);
+  const nx = l && NEXT_STAGE[l.stage];
+  if (!nx) return;
+  const label = "เลื่อนไป" + nx + " →";
+  if (!b.classList.contains("confirm")) {
+    b.classList.add("confirm"); b.textContent = "แตะอีกครั้งเพื่อยืนยัน: " + nx;
+    clearTimeout(b._t); b._t = setTimeout(() => { b.classList.remove("confirm"); b.textContent = label; }, 4000);
+    return;
+  }
+  clearTimeout(b._t); b.disabled = true; b.textContent = "กำลังบันทึก…";
+  const old = b.parentNode.querySelector(".fstat"); if (old) old.remove();
+  moveStage(l, nx).then(() => { b.textContent = "บันทึกแล้ว · กำลังอ่านชีตใหม่"; })
+    .catch(e => {
+      b.disabled = false; b.classList.remove("confirm"); b.textContent = label;
+      b.insertAdjacentHTML("afterend", '<p class="fstat err" style="margin:4px 0 0">' + esc(writeErr(e)) + "</p>");
+      rereadAfter(e);
+    });
+}
+["board", "pt-tasks"].forEach(id => $(id).addEventListener("click", e => { const b = e.target.closest(".mv"); if (b && !b.disabled) onMove(b); }));
+$("addLeadBtn").onclick = () => { const f = $("leadForm"); f.hidden = !f.hidden; if (!f.hidden) $("fChannel").focus(); };
+$("fCancel").onclick = () => { $("leadForm").hidden = true; };
+$("leadForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const st = $("fStat"), val = id => $(id).value.trim();
+  if (!val("fChannel")) { st.className = "fstat err"; st.textContent = "เลือกช่องทางที่ลีดเข้ามาก่อน"; $("fChannel").focus(); return; }
+  if (!mcp || !LIVE) { st.className = "fstat err"; st.textContent = "ยังไม่ได้เชื่อมชีตลีดกลาง"; return; }
+  $("fSave").disabled = true; st.className = "fstat"; st.textContent = "กำลังบันทึกลงชีต…";
+  try {
+    const id = await addLead({ channel: val("fChannel"), name: val("fName"), contact: val("fContact"), budget: val("fBudget"), type: val("fType"), loc: val("fLoc"), movein: val("fMovein"), level: val("fLevel"), resp: val("fResp"), note: val("fNote") });
+    $("leadForm").reset(); st.className = "fstat ok"; st.textContent = "บันทึก " + id + " ลงชีตแล้ว";
+  } catch (err) {
+    st.className = "fstat err"; st.textContent = writeErr(err); rereadAfter(err);
+  } finally { $("fSave").disabled = false; }
+});
+
+/* ---------- boot ---------- */
+addEventListener("resize", resize);
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(resize);
+resize(); home();
+Object.assign(cam, { zoom: goal.zoom * .82, ox: goal.ox, oy: goal.oy }); cam.target.copy(goal.target);
+renderBoard(); updateCounts();
+const first = MEMORY[0]; caption(T[first.team], first.text);
+setTimeout(() => { if (!LIVE) simEvent(); }, 1400);
+schedule();
+requestAnimationFrame(frame);
+startSheet();
+</script>
+</body>
+</html>
