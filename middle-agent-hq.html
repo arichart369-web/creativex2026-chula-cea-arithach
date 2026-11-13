@@ -676,10 +676,10 @@ function cardHTML(c) {
     (nx && mcp ? '<button class="mv" type="button" data-row="' + c.lead.row + '">เลื่อนไป' + esc(nx) + " →</button>" : "") + "</article>";
 }
 function renderBoard() {
-  const cards = LIVE ? liveCards() : TASKS;
-  $("taskCount2").textContent = LIVE ? LIVE.leads.length + " ลีด" : TASKS.length;
+  const cards = LIVE ? liveCards() : USE_DEMO ? TASKS : [];
+  $("taskCount2").textContent = LIVE ? LIVE.leads.length + " ลีด" : USE_DEMO ? TASKS.length : "–";
   $("tasksSub").textContent = LIVE ? "จากชีตลีดกลาง · อัปเดต " + hhmm(new Date(LIVE.at)) + (LIVE.k.lost ? " · ปิดไม่ได้ " + LIVE.k.lost + " ราย ไม่แสดงบนบอร์ด" : "")
-    : "เรียงตาม funnel ออนไลน์ 8 ขั้นของ Middle Property · การ์ดทั้งหมดเป็นตัวอย่างจำลอง";
+    : USE_DEMO ? "เรียงตาม funnel ออนไลน์ 8 ขั้นของ Middle Property · การ์ดทั้งหมดเป็นตัวอย่างจำลอง" : sheetStatusMessage;
   $("sheetActs").hidden = !SHEET.id; $("addLeadBtn").hidden = !LIVE || !mcp; if (SHEET.id) $("openSheetBtn").href = sheetUrl();
   if (!LIVE) $("leadForm").hidden = true;
   renderKpis();
@@ -706,7 +706,7 @@ function renderCalendar() {
   const mon = new Date(now.getFullYear(), now.getMonth(), now.getDate() - dow);
   const sun = new Date(mon.getFullYear(), mon.getMonth(), mon.getDate() + 6);
   $("calTitle").textContent = "สัปดาห์ " + mon.getDate() + " " + TH_MON[mon.getMonth()] + " – " + sun.getDate() + " " + TH_MON[sun.getMonth()];
-  const items = LIVE ? liveCal(ymd(mon.getFullYear(), mon.getMonth() + 1, mon.getDate())) : CAL;
+  const items = LIVE ? liveCal(ymd(mon.getFullYear(), mon.getMonth() + 1, mon.getDate())) : USE_DEMO ? CAL : [];
   if (LIVE) {
     const due = LIVE.k.due;
     $("calSub").textContent = "จากวันที่ในชีตลีดกลาง: วิดีโอคอล ดูจริง เซ็นสัญญา ย้ายเข้า และวันติดตาม" + (due.length ? " · ติดตามถึงกำหนดหรือเลยกำหนด " + due.length + " ราย: " + due.slice(0, 6).map(l => l.id).join(", ") + (due.length > 6 ? " …" : "") : "");
@@ -1187,7 +1187,7 @@ function updateCounts() {
     tagEls[t.id].querySelector(".n").textContent = t.list.length + " เอเจนต์ · " + (load == null ? n + " ทำงาน" : load + " ลีดในมือ");
   }
   $("runCount").textContent = run;
-  $("taskCount").textContent = LIVE ? LIVE.leads.filter(OPEN).length : TASKS.length;
+  $("taskCount").textContent = LIVE ? LIVE.leads.filter(OPEN).length : USE_DEMO ? TASKS.length : "–";
   $("brainNotes").textContent = LIVE ? "ลีด " + LIVE.leads.length + " · ชีตลีดกลาง" : "บันทึก " + notes.toLocaleString("th-TH") + " · ความจำร่วม";
 }
 
@@ -1333,8 +1333,9 @@ function updateAgents(t) {
   const st = $("sToday"); if (st) st.textContent = t.today;
 }
 function renderTeamTasks(t) {
+  if (!LIVE && !USE_DEMO) { $("pt-tasks").innerHTML = '<p class="chatEmpty">' + esc(sheetStatusMessage) + "</p>"; return; }
   const funnel = FUNNEL.includes(t.id);
-  const cs = LIVE ? (funnel ? liveCards().filter(c => c.team === t.id) : []) : TASKS.filter(c => c.team === t.id);
+  const cs = LIVE ? (funnel ? liveCards().filter(c => c.team === t.id) : []) : USE_DEMO ? TASKS.filter(c => c.team === t.id) : [];
   const evs = MEMORY.filter(m => m.team === t.id).slice(0, 6);
   $("pt-tasks").innerHTML = '<h3 class="sec" style="margin-top:0">' + (LIVE ? "ลีดในขั้นของทีม" : "การ์ดในท่อ") + "<span>" + cs.length + (LIVE ? " ลีด" : " งาน") + "</span></h3>" +
     '<div style="display:grid;gap:8px">' + (cs.length ? cs.map(cardHTML).join("") : '<p class="chatEmpty">' + (LIVE && funnel ? "ยังไม่มีลีดในขั้นของทีมนี้" : "ทีมนี้ไม่มีการ์ดลูกค้าโดยตรง ทำงานสนับสนุนทุกขั้น") + "</p>") + "</div>" +
@@ -1432,7 +1433,7 @@ function simEvent() {
   updateCounts();
   if (openTeam === t.id) updateAgents(t);
 }
-function schedule() { clearTimeout(simTimer); simTimer = setTimeout(() => { if (!document.hidden && !LIVE) simEvent(); schedule(); }, 3800 + Math.random() * 3200); }
+function schedule() { clearTimeout(simTimer); simTimer = setTimeout(() => { if (!document.hidden && !LIVE && USE_DEMO) simEvent(); schedule(); }, 3800 + Math.random() * 3200); }
 setInterval(() => {
   if (document.hidden) return;
   const pool = AGENTS.filter(a => a.state !== "wait" && !(LIVE && FUNNEL.includes(a.team)));
@@ -1628,6 +1629,8 @@ document.addEventListener("keydown", e => {
 // Public OAuth client identifier; never put a client secret here.
 const GOOGLE_CLIENT_ID = "191373388886-1f3cda13nh9g22jkka5pj7u61hsm17u5.apps.googleusercontent.com";
 const SHEET = { id: "1iC59avLNuMXYmRho50X2m1-AmyIcxB5TH-pId9pjWtA", server: "Google Sheets", tab: "ลีด", range: "'ลีด'!A1:X1000" };
+const USE_DEMO = !SHEET.id;
+let sheetStatusMessage = "ยังไม่ได้เชื่อม Google กรุณาเชื่อมต่อเพื่อแสดงลีด";
 const sheetUrl = () => "https://docs.google.com/spreadsheets/d/" + SHEET.id + "/edit";
 const COLS = {
   id: "รหัสลีด", date: "วันที่เข้า", time: "เวลาเข้า", channel: "ช่องทาง", name: "ชื่อลูกค้า", contact: "ติดต่อ (LINE/เบอร์)",
@@ -1795,13 +1798,14 @@ const SHEET_MSG = {
 };
 const DENIALS = Object.keys(SHEET_MSG).concat(["not_granted", "capability_disabled", "capability_removed", "bad_request", "transform_error"]);
 function setSheet(k, msg, act) {
+  sheetStatusMessage = k === "connecting" ? "กำลังอ่านชีตลีดกลาง…" : msg || "ยังไม่ได้เชื่อม Google กรุณาเชื่อมต่อเพื่อแสดงลีด";
   const d = $("demo"), tx = $("demoText"), ln = $("demoLink"), ab = $("demoAct");
   d.classList.toggle("live", k === "live"); d.classList.toggle("warn", k === "error" || k === "stale");
   tx.textContent = k === "live" ? "ชีตลีดกลาง · " + LIVE.leads.length + " ลีด · อัปเดต " + hhmm(new Date(LIVE.at)) + " · คนในออฟฟิศเป็นภาพประกอบ"
-    : k === "connecting" ? "กำลังอ่านชีตลีดกลาง… ระหว่างนี้แสดงข้อมูลตัวอย่าง"
+    : k === "connecting" ? "กำลังอ่านชีตลีดกลาง…" + (USE_DEMO ? " ระหว่างนี้แสดงข้อมูลตัวอย่าง" : "")
     : k === "stale" ? msg + " · แสดงข้อมูลล่าสุดเมื่อ " + hhmm(new Date(LIVE.at))
-    : k === "error" ? msg + " · ตอนนี้แสดงข้อมูลตัวอย่าง"
-    : "โหมดจำลอง · ข้อมูลในหน้านี้เป็นตัวอย่าง ยังไม่ต่อระบบจริง";
+    : k === "error" ? msg + (USE_DEMO ? " · ตอนนี้แสดงข้อมูลตัวอย่าง" : "")
+    : USE_DEMO ? "โหมดจำลอง · ข้อมูลในหน้านี้เป็นตัวอย่าง ยังไม่ต่อระบบจริง" : sheetStatusMessage;
   ln.hidden = !SHEET.id; if (SHEET.id) ln.href = sheetUrl();
   if (!act && webReader && LIVE) act = { label: "ตัดการเชื่อมต่อ", run: webReader.disconnect };
   ab.hidden = !act; if (act) { ab.textContent = act.label; ab.onclick = act.run; }
@@ -1811,6 +1815,7 @@ function setSheet(k, msg, act) {
     m.innerHTML = "<span>" + esc(tx.textContent) + "</span>";
     if (act) { const b = document.createElement("button"); b.className = "btn"; b.type = "button"; b.textContent = act.label; b.onclick = act.run; m.append(b); }
   }
+  rerenderAll();
 }
 function rerenderAll() {
   syncLiveAgents(); updateCounts();
@@ -1977,7 +1982,7 @@ resize(); home();
 Object.assign(cam, { zoom: goal.zoom * .82, ox: goal.ox, oy: goal.oy }); cam.target.copy(goal.target);
 renderBoard(); updateCounts();
 const first = MEMORY[0]; caption(T[first.team], first.text);
-setTimeout(() => { if (!LIVE) simEvent(); }, 1400);
+setTimeout(() => { if (!LIVE && USE_DEMO) simEvent(); }, 1400);
 schedule();
 requestAnimationFrame(frame);
 startSheet();
