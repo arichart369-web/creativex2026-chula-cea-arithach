@@ -77,7 +77,10 @@ button { cursor: pointer; }
 .status .narrow { display: none; }
 .askToggle { display: none; border: 1px solid var(--line); border-radius: 12px; width: 40px; height: 40px; place-items: center; }
 .askToggle svg { width: 17px; height: 17px; }
-.demo { position: fixed; z-index: 29; left: max(16px, env(safe-area-inset-left, 0px)); top: calc(var(--bar-bottom) + 8px); font-size: 11.5px; color: #ffe2a0; background: rgba(240, 195, 92, .12); border: 1px solid rgba(240, 195, 92, .38); border-radius: 8px; padding: 3px 9px; pointer-events: none; }
+.demo { position: fixed; z-index: 29; left: max(16px, env(safe-area-inset-left, 0px)); top: calc(var(--bar-bottom) + 8px); font-size: 11.5px; color: #ffe2a0; background: rgba(240, 195, 92, .12); border: 1px solid rgba(240, 195, 92, .38); border-radius: 8px; padding: 3px 9px; pointer-events: auto; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; max-width: calc(100% - 32px); }
+.demo.live { color: #c6f3df; background: rgba(69, 212, 155, .12); border-color: rgba(69, 212, 155, .45); }
+.demo.warn { color: #ffd6da; background: rgba(255, 107, 120, .12); border-color: rgba(255, 107, 120, .45); }
+.demo a, .demo button { color: inherit; font: 600 11.5px var(--body); text-decoration: underline; background: none; border: 0; padding: 0; }
 
 /* ---------- Room tags (projected from 3D) ---------- */
 #tags { position: fixed; inset: 0; z-index: 12; pointer-events: none; overflow: hidden; }
@@ -236,7 +239,7 @@ button { cursor: pointer; }
 .s-head h2 { margin: 0; font: 700 20px/1.25 var(--display); text-wrap: balance; outline: none; }
 .s-head p { margin: 3px 0 0; color: var(--muted); font-size: 13px; }
 .s-body { flex: 1; overflow: auto; padding: 16px 18px 20px; overscroll-behavior: contain; }
-.board { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(172px, 1fr); gap: 12px; min-height: 100%; }
+.board { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(172px, 1fr); gap: 12px; }
 .col { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
 .col h3 { margin: 0 0 2px; display: flex; justify-content: space-between; font: 600 13px var(--display); color: var(--muted); }
 .col h3 span { font: 600 11px var(--mono); color: var(--dim); }
@@ -282,6 +285,35 @@ button { cursor: pointer; }
 .memItem b { font: 600 12.5px var(--display); }
 .memItem time { font: 500 10.5px var(--mono); color: var(--dim); margin-left: 6px; }
 .memItem p { margin: 1px 0 0; color: var(--muted); }
+.memSub { margin-top: 10px !important; }
+.rule a { color: var(--gold); font-weight: 600; }
+.s-act { display: flex; gap: 8px; align-items: center; flex: none; }
+.s-act .btn { text-decoration: none; display: inline-flex; align-items: center; }
+.sheetMsg { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; margin: 0 0 14px; padding: 10px 12px; border-radius: 10px; border: 1px solid rgba(255, 107, 120, .45); background: rgba(255, 107, 120, .08); color: #ffd6da; font-size: 13px; }
+.kpis { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; margin: 0 0 16px; }
+.kpi { border: 1px solid var(--line); border-radius: 11px; padding: 9px 11px; background: rgba(255, 255, 255, .02); min-width: 0; }
+.kpi span { display: block; font-size: 11.5px; color: var(--muted); }
+.kpi b { display: block; font: 600 20px/1.3 var(--mono); font-variant-numeric: tabular-nums; }
+.kpi small { display: block; font-size: 11px; color: var(--dim); }
+.kpi.good b { color: var(--ok); }
+.kpi.bad b { color: var(--crit); }
+.leadForm { border: 1px solid var(--line-2); border-radius: 12px; padding: 12px 14px; margin: 0 0 16px; background: rgba(255, 255, 255, .025); }
+.leadForm h3 { margin: 0 0 10px; font: 600 15px var(--display); }
+.fgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; }
+.fgrid label { display: grid; gap: 4px; font-size: 12px; color: var(--muted); min-width: 0; }
+.fgrid .wide { grid-column: 1 / -1; }
+.fgrid input, .fgrid select { width: 100%; min-width: 0; border: 1px solid var(--line-2); border-radius: 9px; background: rgba(5, 9, 22, .6); padding: 8px 10px; font-size: 14px; color: var(--text); }
+.fgrid input:focus, .fgrid select:focus { outline: none; border-color: var(--gold); }
+.frow { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 12px; }
+.fstat { font-size: 12.5px; color: var(--muted); }
+.fstat.err { color: #ff9aa4; }
+.fstat.ok { color: var(--ok); }
+.mv { justify-self: start; margin-top: 4px; border: 1px solid var(--line-2); background: transparent; border-radius: 8px; padding: 4px 9px; font-size: 12px; color: var(--text); }
+.mv:hover { border-color: var(--c); }
+.mv.confirm { border-color: var(--gold); color: var(--gold); }
+.mv:disabled { opacity: .55; cursor: default; }
+.colEmpty { font-size: 12.5px; color: var(--dim); border: 1px dashed var(--line); border-radius: 10px; padding: 10px; margin: 0; }
+.stat b.tx { font: 600 14px/1.35 var(--display); padding: 3px 0 2px; overflow-wrap: anywhere; }
 
 @media (min-width: 721px) {
   body.panel-open .map { right: calc(max(16px, env(safe-area-inset-right, 0px)) + 408px); }
@@ -325,6 +357,9 @@ body.sheet-open #tags, body.sheet-open #toasts, body.sheet-open .now, body.sheet
   .rules { grid-template-columns: 1fr; }
   .funnel { columns: 1; }
   .board { grid-auto-columns: minmax(78%, 1fr); }
+  .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .s-head { flex-wrap: wrap; }
+  .s-act { order: 3; width: 100%; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
@@ -355,7 +390,7 @@ body.sheet-open #tags, body.sheet-open #toasts, body.sheet-open .now, body.sheet
     <div class="status glass"><span class="live"></span><span><span class="wide"><b id="agentCount">31</b> เอเจนต์ · </span><b id="runCount">0</b><span class="narrow">/31</span> ทำงานอยู่</span></div>
   </div>
 </header>
-<div class="demo" id="demo">โหมดจำลอง · ข้อมูลในหน้านี้เป็นตัวอย่าง ยังไม่ต่อระบบจริง</div>
+<div class="demo" id="demo"><span id="demoText">โหมดจำลอง · ข้อมูลในหน้านี้เป็นตัวอย่าง ยังไม่ต่อระบบจริง</span><a id="demoLink" target="_blank" rel="noopener" hidden>เปิดชีต</a><button id="demoAct" type="button" hidden></button></div>
 
 <div id="toasts" aria-live="polite"></div>
 <div class="now" id="now"><span class="k">ตอนนี้</span><span id="nowText">ทุกทีมกำลังเริ่มงาน</span></div>
@@ -399,8 +434,28 @@ body.sheet-open #tags, body.sheet-open #toasts, body.sheet-open .now, body.sheet
 </aside>
 
 <section class="sheet" id="view-tasks" hidden aria-labelledby="tasksTitle">
-  <div class="s-head"><div><h2 id="tasksTitle" tabindex="-1">งานในท่อ <span class="count" id="taskCount2"></span></h2><p>เรียงตาม funnel ออนไลน์ 8 ขั้นของ Middle Property · การ์ดทั้งหมดเป็นตัวอย่างจำลอง</p></div><button class="x" data-close aria-label="ปิด">×</button></div>
-  <div class="s-body"><div class="board" id="board"></div></div>
+  <div class="s-head"><div style="flex:1;min-width:0"><h2 id="tasksTitle" tabindex="-1">งานในท่อ <span class="count" id="taskCount2"></span></h2><p id="tasksSub">เรียงตาม funnel ออนไลน์ 8 ขั้นของ Middle Property · การ์ดทั้งหมดเป็นตัวอย่างจำลอง</p></div><div class="s-act" id="sheetActs" hidden><button class="btn" id="addLeadBtn" type="button" hidden>เพิ่มลีด</button><a class="btn ghost" id="openSheetBtn" target="_blank" rel="noopener">เปิดชีต</a></div><button class="x" data-close aria-label="ปิด">×</button></div>
+  <div class="s-body">
+    <div class="sheetMsg" id="sheetMsg" hidden></div>
+    <form class="leadForm" id="leadForm" hidden novalidate>
+      <h3>เพิ่มลีดใหม่ลงชีตลีดกลาง</h3>
+      <div class="fgrid">
+        <label>ช่องทาง *<select id="fChannel"><option value="">เลือกช่องทาง</option><option>LINE OA</option><option>Facebook</option><option>Instagram</option><option>TikTok</option><option>เว็บไซต์</option><option>พอร์ทัลประกาศ</option><option>พาร์ตเนอร์</option><option>อื่นๆ</option></select></label>
+        <label>ชื่อลูกค้า<input id="fName" autocomplete="off"></label>
+        <label>ติดต่อ (LINE/เบอร์)<input id="fContact" autocomplete="off"></label>
+        <label>งบต่อเดือน (฿)<input id="fBudget" type="number" inputmode="numeric" min="0" step="500"></label>
+        <label>ประเภทห้อง<select id="fType"><option value="">ไม่ระบุ</option><option>สตูดิโอ</option><option>1 นอน</option><option>2 นอน</option><option>3 นอนขึ้นไป</option><option>อื่นๆ</option></select></label>
+        <label>ทำเล / สถานี<input id="fLoc" autocomplete="off"></label>
+        <label>วันย้ายเข้า<input id="fMovein" type="date"></label>
+        <label>ระดับ<select id="fLevel"><option value="">ยังไม่จัดระดับ</option><option>HOT</option><option>WARM</option><option>COLD</option></select></label>
+        <label>ตอบแรก (นาที)<input id="fResp" type="number" inputmode="numeric" min="0"></label>
+        <label class="wide">หมายเหตุ<input id="fNote" autocomplete="off"></label>
+      </div>
+      <div class="frow"><button class="btn" id="fSave" type="submit">บันทึกลงชีต</button><button class="btn ghost" type="button" id="fCancel">ปิดฟอร์ม</button><span class="fstat" id="fStat" role="status"></span></div>
+    </form>
+    <div class="kpis" id="kpis" hidden></div>
+    <div class="board" id="board"></div>
+  </div>
 </section>
 <section class="sheet" id="view-calendar" hidden aria-labelledby="calTitle">
   <div class="s-head"><div><h2 id="calTitle" tabindex="-1">ปฏิทินสัปดาห์นี้</h2><p id="calSub">โพสต์ วิดีโอคอล นัดดูจริง และรอบติดตามลูกค้า · รายการเป็นตัวอย่างจำลอง</p></div><button class="x" data-close aria-label="ปิด">×</button></div>
@@ -608,19 +663,27 @@ const TASKS = [
   ["L-1020", "close", "hot", "closing", "รับเงินมัดจำ", "รอเจ้าของธุรกิจอนุมัติ", true],
   ["L-1019", "close", "hot", "closing", "เช็กลิสต์ส่งมอบห้อง", "ย้ายเข้า 1 พ.ย."],
 ].map(([id, stage, temp, team, title, meta, appr]) => ({ id, stage, temp, team, title, meta, appr: !!appr }));
-const TEMP = { hot: "HOT", warm: "WARM", cold: "COLD", new: "ยังไม่คัดกรอง" };
+const TEMP = { hot: "HOT", warm: "WARM", cold: "COLD", new: "ยังไม่จัดระดับ" };
 
 function cardHTML(c) {
   const t = T[c.team];
-  return '<article class="card" style="--c:' + t.color + '"><div class="c-top"><span class="c-id">' + c.id + '</span><span class="temp ' + c.temp + '">' + TEMP[c.temp] + '</span></div>' +
+  const nx = c.lead && NEXT_STAGE[c.lead.stage];
+  return '<article class="card" style="--c:' + t.color + '"><div class="c-top"><span class="c-id">' + esc(c.id) + (c.who ? " · " + esc(c.who) : "") + '</span><span class="temp ' + c.temp + '">' + TEMP[c.temp] + '</span></div>' +
     '<p class="c-title">' + esc(c.title) + '</p><p class="c-meta">' + esc(c.meta) + '</p>' +
-    '<div class="c-foot"><span class="own"><i></i>ทีม' + esc(t.name) + "</span>" + (c.appr ? '<span class="appr">รอคนอนุมัติ</span>' : "") + "</div></article>";
+    '<div class="c-foot"><span class="own"><i></i>ทีม' + esc(t.name) + "</span>" + (c.appr ? '<span class="appr">รอคนอนุมัติ</span>' : "") + (c.due ? '<span class="appr">ถึงกำหนดติดตาม</span>' : "") + "</div>" +
+    (nx && mcp ? '<button class="mv" type="button" data-row="' + c.lead.row + '">เลื่อนไป' + esc(nx) + " →</button>" : "") + "</article>";
 }
 function renderBoard() {
-  $("taskCount").textContent = TASKS.length; $("taskCount2").textContent = TASKS.length;
+  const cards = LIVE ? liveCards() : TASKS;
+  $("taskCount2").textContent = LIVE ? LIVE.leads.length + " ลีด" : TASKS.length;
+  $("tasksSub").textContent = LIVE ? "จากชีตลีดกลาง · อัปเดต " + hhmm(new Date(LIVE.at)) + (LIVE.k.lost ? " · ปิดไม่ได้ " + LIVE.k.lost + " ราย ไม่แสดงบนบอร์ด" : "")
+    : "เรียงตาม funnel ออนไลน์ 8 ขั้นของ Middle Property · การ์ดทั้งหมดเป็นตัวอย่างจำลอง";
+  $("sheetActs").hidden = !SHEET.id; $("addLeadBtn").hidden = !LIVE; if (SHEET.id) $("openSheetBtn").href = sheetUrl();
+  if (!LIVE) $("leadForm").hidden = true;
+  renderKpis();
   $("board").innerHTML = STAGES.map(([k, label]) => {
-    const cs = TASKS.filter(c => c.stage === k);
-    return '<div class="col"><h3>' + label + "<span>" + cs.length + "</span></h3>" + cs.map(cardHTML).join("") + "</div>";
+    const cs = cards.filter(c => c.stage === k);
+    return '<div class="col"><h3>' + label + "<span>" + cs.length + "</span></h3>" + (cs.length ? cs.map(cardHTML).join("") : LIVE && k === "new" ? '<p class="colEmpty">ยังไม่มีลีดใหม่ กด เพิ่มลีด หรือกรอกในชีต</p>' : "") + "</div>";
   }).join("");
 }
 
@@ -641,12 +704,17 @@ function renderCalendar() {
   const mon = new Date(now.getFullYear(), now.getMonth(), now.getDate() - dow);
   const sun = new Date(mon.getFullYear(), mon.getMonth(), mon.getDate() + 6);
   $("calTitle").textContent = "สัปดาห์ " + mon.getDate() + " " + TH_MON[mon.getMonth()] + " – " + sun.getDate() + " " + TH_MON[sun.getMonth()];
+  const items = LIVE ? liveCal(ymd(mon.getFullYear(), mon.getMonth() + 1, mon.getDate())) : CAL;
+  if (LIVE) {
+    const due = LIVE.k.due;
+    $("calSub").textContent = "จากวันที่ในชีตลีดกลาง: วิดีโอคอล ดูจริง เซ็นสัญญา ย้ายเข้า และวันติดตาม" + (due.length ? " · ติดตามถึงกำหนดหรือเลยกำหนด " + due.length + " ราย: " + due.slice(0, 6).map(l => l.id).join(", ") + (due.length > 6 ? " …" : "") : "");
+  } else $("calSub").textContent = "โพสต์ วิดีโอคอล นัดดูจริง และรอบติดตามลูกค้า · รายการเป็นตัวอย่างจำลอง";
   let html = "";
   for (let d = 0; d < 7; d++) {
     const day = new Date(mon.getFullYear(), mon.getMonth(), mon.getDate() + d);
-    const evs = CAL.filter(e => e[0] === d);
+    const evs = items.filter(e => e[0] === d);
     html += '<div class="day' + (d === dow ? " today" : "") + '"><h3>' + TH_DAY[d] + "<span>" + (d === dow ? "วันนี้ · " : "") + day.getDate() + " " + TH_MON[day.getMonth()] + "</span></h3>" +
-      evs.map(e => '<div class="ev" style="--c:' + T[e[2]].color + '"><time>' + e[1] + " · ทีม" + esc(T[e[2]].name) + "</time>" + esc(e[3]) + "</div>").join("") + "</div>";
+      (evs.length ? evs.map(e => '<div class="ev" style="--c:' + T[e[2]].color + '"><time>' + esc(e[1]) + " · ทีม" + esc(T[e[2]].name) + "</time>" + esc(e[3]) + "</div>").join("") : LIVE ? '<p class="colEmpty">ไม่มีนัด</p>' : "") + "</div>";
   }
   $("week").innerHTML = html;
 }
@@ -664,10 +732,21 @@ function renderRules() {
     ['KPI', 'ทีมวัดผล', '<p>ลีดใหม่ · เวลาตอบแรก · % คอลวอล์คทรู · % นัดดูจริง · win rate หลังดูจริง (เป้าเกิน 50%) · วันจากลีดถึงสัญญา · ต้นทุนต่อดีล</p>'],
     ['คนอนุมัติก่อนเสมอ', 'HUMAN-IN-THE-LOOP', '<p>เอเจนต์ร่างข้อความ สัญญา และชุดนัดได้เต็มที่ แต่ <strong>การส่งจริง การยืนยันราคา และการรับมัดจำ</strong> ต้องมีคนอนุมัติ</p>', true],
   ].map(([h, who, body, wide]) => '<div class="rule' + (wide ? " wide" : "") + '"><h3>' + h + "<small>" + who + "</small></h3>" + body + "</div>").join("");
+  if (SHEET.id) $("rules").insertAdjacentHTML("afterbegin", '<div class="rule wide"><h3>ชีตลีดกลาง<small>ทุกทีม</small></h3><p>ลีดทุกช่องทางอยู่ในชีตเดียว ลูกค้า 1 คนต่อ 1 แถว หน้านี้อ่านชีตทุก 1 นาทีขณะเปิดอยู่ · ' +
+    (LIVE ? "เชื่อมแล้ว " + LIVE.leads.length + " ลีด" : "ยังไม่ได้เชื่อมในหน้านี้") + ' · <a href="' + sheetUrl() + '" target="_blank" rel="noopener">เปิดชีต</a></p></div>');
 }
 const MEMORY = [];
 let notes = 0;
+const memHTML = m => '<div class="memItem" style="--c:' + T[m.team].color + '"><i></i><div><b>ทีม' + esc(T[m.team].name) + "</b><time>" + m.time + "</time><p>" + esc(m.text) + "</p></div></div>";
 function renderMemory() {
+  if (LIVE) {
+    const recent = LIVE.leads.slice(-8).reverse();
+    $("mem").innerHTML = "<h3><span>ความเคลื่อนไหวจากชีต</span><span>ตั้งแต่เปิดหน้านี้</span></h3>" +
+      (MEMORY.length ? MEMORY.slice(0, 10).map(memHTML).join("") : '<p class="colEmpty">ยังไม่มีการเปลี่ยนแปลง</p>') +
+      '<h3 class="memSub"><span>ลีดล่าสุดในชีต</span><span>' + LIVE.leads.length + " ลีด</span></h3>" +
+      (recent.length ? recent.map(l => '<div class="memItem" style="--c:' + T[teamOf(l)].color + '"><i></i><div><b>' + esc(l.id) + "</b><time>" + esc(l.stage) + "</time><p>" + esc([l.channel, l.type, l.loc, l.level].filter(Boolean).join(" · ") || "ยังไม่มีรายละเอียด") + "</p></div></div>").join("") : '<p class="colEmpty">ยังไม่มีลีดในชีต</p>');
+    return;
+  }
   $("mem").innerHTML = '<h3><span>บันทึกล่าสุด</span><span>' + notes.toLocaleString("th-TH") + " รายการ (จำลอง)</span></h3>" +
     MEMORY.slice(0, 14).map(m => '<div class="memItem" style="--c:' + T[m.team].color + '"><i></i><div><b>ทีม' + esc(T[m.team].name) + "</b><time>" + m.time + "</time><p>" + esc(m.text) + "</p></div></div>").join("");
 }
@@ -1102,10 +1181,12 @@ function updateCounts() {
   let run = 0;
   for (const t of TEAMS) {
     const n = t.list.filter(a => a.state === "work").length; run += n;
-    tagEls[t.id].querySelector(".n").textContent = t.list.length + " เอเจนต์ · " + n + " ทำงาน";
+    const load = teamLoad(t.id);
+    tagEls[t.id].querySelector(".n").textContent = t.list.length + " เอเจนต์ · " + (load == null ? n + " ทำงาน" : load + " ลีดในมือ");
   }
   $("runCount").textContent = run;
-  $("brainNotes").textContent = "บันทึก " + notes.toLocaleString("th-TH") + " · ความจำร่วม";
+  $("taskCount").textContent = LIVE ? LIVE.leads.filter(OPEN).length : TASKS.length;
+  $("brainNotes").textContent = LIVE ? "ลีด " + LIVE.leads.length + " · ชีตลีดกลาง" : "บันทึก " + notes.toLocaleString("th-TH") + " · ความจำร่วม";
 }
 
 /* ---------- minimap ---------- */
@@ -1209,15 +1290,22 @@ function spark(vals, color) {
   const pts = vals.map((v, i) => (i * w / (vals.length - 1)).toFixed(1) + "," + (h - 3 - (v - mn) / (mx - mn || 1) * (h - 7)).toFixed(1)).join(" ");
   return '<svg viewBox="0 0 ' + w + " " + h + '" preserveAspectRatio="none" aria-hidden="true"><polygon points="0,' + h + " " + pts + " " + w + "," + h + '" fill="' + color + '" opacity=".16"/><polyline points="' + pts + '" fill="none" stroke="' + color + '" stroke-width="1.6" vector-effect="non-scaling-stroke"/></svg>';
 }
+function statsHTML(t, run) {
+  if (LIVE && LIVE_STATS[t.id]) {
+    return '<div class="stats">' + LIVE_STATS[t.id](LIVE).map(([k, v, ser]) => '<div class="stat"><span>' + esc(k) + "</span><b" + (String(v).length > 8 ? ' class="tx"' : "") + ">" + esc(v) + "</b>" + (ser ? spark(ser, t.color) : '<svg aria-hidden="true"></svg>') + "</div>").join("") + "</div>" +
+      '<p class="fine">ตัวเลขจากชีตลีดกลาง · อัปเดต ' + hhmm(new Date(LIVE.at)) + "</p>";
+  }
+  return '<div class="stats"><div class="stat"><span>งานวันนี้</span><b id="sToday">' + t.today + "</b>" + spark(t.series, t.color) + '</div>' +
+    '<div class="stat"><span>กำลังทำ</span><b id="sRun">' + run + "</b>" + spark(t.runSeries, t.color) + '</div>' +
+    '<div class="stat"><span>เวลาเฉลี่ยต่องาน</span><b>' + t.turn + "</b>" + spark(t.turnSeries, t.color) + "</div></div>" +
+    '<p class="fine">' + (LIVE ? "ทีมนี้ยังไม่มีข้อมูลในชีตลีด ตัวเลขด้านบนเป็นตัวเลขจำลอง" : "ตัวเลขจำลองเพื่อดูภาพการทำงาน ต่อระบบจริงแล้วจะแสดงตัวเลขจริง") + "</p>";
+}
 function stateLabel(s) { return s === "work" ? "ทำงาน" : s === "wait" ? "รออนุมัติ" : "ว่าง"; }
 function renderOverview(t) {
   const run = t.list.filter(a => a.state === "work").length;
   $("pt-overview").innerHTML =
     '<p class="goal">' + t.goal + "</p>" +
-    '<div class="stats"><div class="stat"><span>งานวันนี้</span><b id="sToday">' + t.today + "</b>" + spark(t.series, t.color) + '</div>' +
-    '<div class="stat"><span>กำลังทำ</span><b id="sRun">' + run + "</b>" + spark(t.runSeries, t.color) + '</div>' +
-    '<div class="stat"><span>เวลาเฉลี่ยต่องาน</span><b>' + t.turn + "</b>" + spark(t.turnSeries, t.color) + "</div></div>" +
-    '<p class="fine">ตัวเลขจำลองเพื่อดูภาพการทำงาน ต่อระบบจริงแล้วจะแสดงตัวเลขจริง</p>' +
+    statsHTML(t, run) +
     '<h3 class="sec">เครื่องมือที่ทีมใช้<span>' + t.tools.length + " ช่องทาง</span></h3>" +
     '<div class="tools">' + t.tools.map(([n, g, c]) => '<div class="tool"><span class="g" style="--g:' + c + '">' + esc(g) + "</span><div><b>" + esc(n) + "</b><small>ต่อผ่าน MCP ได้</small></div></div>").join("") + "</div>" +
     '<h3 class="sec">สกิล<span id="sPar"></span></h3><ul class="skills" id="skillList">' +
@@ -1243,11 +1331,12 @@ function updateAgents(t) {
   const st = $("sToday"); if (st) st.textContent = t.today;
 }
 function renderTeamTasks(t) {
-  const cs = TASKS.filter(c => c.team === t.id);
+  const funnel = FUNNEL.includes(t.id);
+  const cs = LIVE ? (funnel ? liveCards().filter(c => c.team === t.id) : []) : TASKS.filter(c => c.team === t.id);
   const evs = MEMORY.filter(m => m.team === t.id).slice(0, 6);
-  $("pt-tasks").innerHTML = '<h3 class="sec" style="margin-top:0">การ์ดในท่อ<span>' + cs.length + " งาน</span></h3>" +
-    '<div style="display:grid;gap:8px">' + (cs.length ? cs.map(cardHTML).join("") : '<p class="chatEmpty">ทีมนี้ไม่มีการ์ดลูกค้าโดยตรง ทำงานสนับสนุนทุกขั้น</p>') + "</div>" +
-    '<h3 class="sec">ทำล่าสุด<span>จำลอง</span></h3><div class="mem">' +
+  $("pt-tasks").innerHTML = '<h3 class="sec" style="margin-top:0">' + (LIVE ? "ลีดในขั้นของทีม" : "การ์ดในท่อ") + "<span>" + cs.length + (LIVE ? " ลีด" : " งาน") + "</span></h3>" +
+    '<div style="display:grid;gap:8px">' + (cs.length ? cs.map(cardHTML).join("") : '<p class="chatEmpty">' + (LIVE && funnel ? "ยังไม่มีลีดในขั้นของทีมนี้" : "ทีมนี้ไม่มีการ์ดลูกค้าโดยตรง ทำงานสนับสนุนทุกขั้น") + "</p>") + "</div>" +
+    '<h3 class="sec">ทำล่าสุด<span>' + (LIVE ? "จากชีต" : "จำลอง") + '</span></h3><div class="mem">' +
     (evs.length ? evs.map(m => '<div class="memItem" style="--c:' + t.color + '"><i></i><div><time style="margin:0">' + m.time + "</time><p>" + esc(m.text) + "</p></div></div>").join("") : '<p class="chatEmpty">ยังไม่มีบันทึกจากทีมนี้</p>') + "</div>";
 }
 function setPTab(tab) {
@@ -1341,10 +1430,10 @@ function simEvent() {
   updateCounts();
   if (openTeam === t.id) updateAgents(t);
 }
-function schedule() { clearTimeout(simTimer); simTimer = setTimeout(() => { if (!document.hidden) simEvent(); schedule(); }, 3800 + Math.random() * 3200); }
+function schedule() { clearTimeout(simTimer); simTimer = setTimeout(() => { if (!document.hidden && !LIVE) simEvent(); schedule(); }, 3800 + Math.random() * 3200); }
 setInterval(() => {
   if (document.hidden) return;
-  const pool = AGENTS.filter(a => a.state !== "wait");
+  const pool = AGENTS.filter(a => a.state !== "wait" && !(LIVE && FUNNEL.includes(a.team)));
   for (let i = 0; i < 2; i++) { const a = pick(pool); a.state = a.state === "work" ? "idle" : "work"; }
   for (const t of TEAMS) for (const s of t.skillState) {
     if (s.run) { s.p += 3 + Math.random() * 9; if (s.p >= 100) { s.p = 4; s.run = Math.random() < .55; } }
@@ -1428,8 +1517,10 @@ function rulesFor(t) {
     "",
     "Playbook ของบริษัท:",
     PLAYBOOK,
+    liveContext(),
     "",
     "กติกาการตอบ:",
+    "- ถ้ามีข้อมูลจากชีตลีดกลาง ให้อ้างรหัสลีดและใช้ข้อมูลตามที่มีเท่านั้น อย่าเดาส่วนที่ไม่มี",
     "- ตอบภาษาไทย สั้น ตรง ใช้หัวข้อย่อยหรือรายการลำดับได้ ห้ามใช้ตาราง",
     "- ห้ามแต่งสเปคห้อง ชื่อโครงการ ราคา หรือเงื่อนไข ถ้าต้องใช้ ให้เว้นช่องหรือบอกว่าต้องถามเจ้าของทรัพย์",
     "- ห้ามกดดันลูกค้าเกินจริง",
@@ -1529,6 +1620,338 @@ document.addEventListener("keydown", e => {
   if (e.key === "/" && !typing) { e.preventDefault(); if (isPhone()) { $("bar").classList.add("asking"); resize(); } $("askInput").focus(); }
 });
 
+/* ===================================================================== */
+/* ---------- Central lead sheet (Google Sheets connector) ------------- */
+/* ===================================================================== */
+// The artifact build fills in the spreadsheet id; the repo copy stays a demo.
+const SHEET = { id: "", server: "Google Sheets", tab: "ลีด", range: "ลีด!A1:X1000" };
+const sheetUrl = () => "https://docs.google.com/spreadsheets/d/" + SHEET.id + "/edit";
+const COLS = {
+  id: "รหัสลีด", date: "วันที่เข้า", time: "เวลาเข้า", channel: "ช่องทาง", name: "ชื่อลูกค้า", contact: "ติดต่อ (LINE/เบอร์)",
+  budget: "งบต่อเดือน (฿)", type: "ประเภทห้อง", loc: "ทำเล / สถานี", movein: "วันย้ายเข้า", level: "ระดับ", stage: "ขั้น",
+  resp: "ตอบแรก (นาที)", call: "วันวิดีโอคอล", view: "วันดูจริง", sign: "วันเซ็นสัญญา", rent: "ค่าเช่าที่ปิดได้ (฿)",
+  follow: "ติดตามครั้งถัดไป", note: "หมายเหตุ / เหตุผลปิดไม่ได้",
+};
+const STAGE_OF = { "ลีดใหม่": "new", "คัดกรอง": "screen", "เสนอห้อง": "offer", "วิดีโอคอล": "call", "นัดดูจริง": "view", "ปิดดีล": "close", "ปิดไม่ได้": "lost" };
+const STAGE_TEAM = { new: "inbox", screen: "screening", offer: "listings", call: "walkthrough", view: "walkthrough", close: "closing", lost: "closing" };
+const NEXT_STAGE = { "ลีดใหม่": "คัดกรอง", "คัดกรอง": "เสนอห้อง", "เสนอห้อง": "วิดีโอคอล", "วิดีโอคอล": "นัดดูจริง", "นัดดูจริง": "ปิดดีล" };
+const FUNNEL = ["inbox", "screening", "listings", "walkthrough", "closing"];
+const SOCIAL = ["Facebook", "Instagram", "TikTok"];
+const OPEN = l => l.stage !== "ปิดดีล" && l.stage !== "ปิดไม่ได้";
+const teamOf = l => STAGE_TEAM[STAGE_OF[l.stage] || "new"];
+let mcp = null, perms = null, LIVE = null, prevStages = null, sheetUnsub = null;
+
+const ymd = (y, m, d) => y + "-" + String(m).padStart(2, "0") + "-" + String(d).padStart(2, "0");
+const todayStr = () => { const d = new Date(); return ymd(d.getFullYear(), d.getMonth() + 1, d.getDate()); };
+const addDays = (s, n) => { const [y, m, d] = s.split("-").map(Number); const t = new Date(y, m - 1, d + n); return ymd(t.getFullYear(), t.getMonth() + 1, t.getDate()); };
+const dayDiff = (a, b) => Math.round((Date.parse(b) - Date.parse(a)) / 864e5);
+const thShort = s => +s.slice(8, 10) + " " + TH_MON[+s.slice(5, 7) - 1];
+const avg = a => a.reduce((x, v) => x + v, 0) / a.length;
+const pct = v => (v == null ? "–" : Math.round(v * 100) + "%");
+const n1 = v => (v == null ? "–" : (Math.round(v * 10) / 10).toLocaleString("th-TH"));
+const baht = v => (v == null ? "–" : Math.round(v).toLocaleString("th-TH"));
+const norm = s => String(s || "").replace(/[\s()（）]/g, "").toLowerCase();
+const colA1 = i => String.fromCharCode(65 + i);
+function dateOf(s) {
+  let m = /^(\d{4})-(\d{1,2})-(\d{1,2})/.exec(s);
+  if (m) { let y = +m[1]; if (y > 2400) y -= 543; return ymd(y, +m[2], +m[3]); }
+  m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})/.exec(s);
+  if (m) { let y = +m[3]; if (y > 2400) y -= 543; return ymd(y, +m[2], +m[1]); }
+  return "";
+}
+function numOf(s) { const n = parseFloat(String(s).replace(/[,฿\s]/g, "")); return isFinite(n) ? n : null; }
+
+/* the connector answers {range, values}; Sheets leaves out `values` for an empty range */
+function valuesOf(p) {
+  if (typeof p === "string") { try { p = JSON.parse(p); } catch (e) { return null; } }
+  if (!p || typeof p !== "object") return null;
+  if (Array.isArray(p.values)) return p.values;
+  if (p.content && Array.isArray(p.content.values)) return p.content.values;
+  if ("range" in p || (p.content && "range" in p.content)) return [];
+  return null;
+}
+function parseSheet(values) {
+  const head = (values[0] || []).map(h => String(h == null ? "" : h).trim());
+  const nh = head.map(norm), ix = {};
+  for (const k in COLS) ix[k] = nh.indexOf(norm(COLS[k]));
+  const leads = [];
+  for (let r = 1; r < values.length; r++) {
+    const row = values[r] || [];
+    const g = k => (ix[k] >= 0 && row[ix[k]] != null ? String(row[ix[k]]).trim() : "");
+    if (!g("id") && !g("name") && !g("contact") && !g("date") && !g("channel")) continue;
+    const rawId = g("id");
+    leads.push({
+      row: r + 1, rawId, id: rawId || "แถว " + (r + 1), date: dateOf(g("date")), channel: g("channel"), name: g("name"),
+      budget: numOf(g("budget")), type: g("type"), loc: g("loc"), movein: dateOf(g("movein")), level: g("level").toUpperCase(),
+      stage: STAGE_OF[g("stage")] ? g("stage") : "ลีดใหม่", resp: numOf(g("resp")), call: dateOf(g("call")), view: dateOf(g("view")),
+      sign: dateOf(g("sign")), rent: numOf(g("rent")), follow: dateOf(g("follow")),
+    });
+  }
+  return { head, ix, leads, ok: ix.id >= 0 && ix.stage >= 0 };
+}
+function kpis(L) {
+  const t = todayStr(), wk = addDays(t, -6);
+  const viewed = L.filter(l => l.view), resp = L.map(l => l.resp).filter(v => v != null);
+  const signDays = L.filter(l => l.sign && l.date).map(l => dayDiff(l.date, l.sign));
+  const by = {};
+  for (const l of L) { const c = l.channel || "ไม่ระบุ"; if (!by[c]) by[c] = { leads: 0, won: 0 }; by[c].leads++; if (l.stage === "ปิดดีล") by[c].won++; }
+  return {
+    n: L.length, today: L.filter(l => l.date === t).length, week: L.filter(l => l.date && l.date >= wk).length,
+    respAvg: resp.length ? avg(resp) : null, callPct: L.length ? L.filter(l => l.call).length / L.length : null,
+    viewPct: L.length ? viewed.length / L.length : null, win: viewed.length ? viewed.filter(l => l.stage === "ปิดดีล").length / viewed.length : null,
+    days: signDays.length ? avg(signDays) : null, won: L.filter(l => l.stage === "ปิดดีล").length, lost: L.filter(l => l.stage === "ปิดไม่ได้").length,
+    due: L.filter(l => OPEN(l) && l.follow && l.follow <= t), stage: s => L.filter(l => l.stage === s).length, by,
+    perDay: Array.from({ length: 12 }, (_, i) => { const d = addDays(t, i - 11); return L.filter(l => l.date === d).length; }),
+  };
+}
+function topChannel(by, key) { let best = null; for (const c in by) if (by[c][key] > 0 && (!best || by[c][key] > by[best][key])) best = c; return best || "–"; }
+const LIVE_STATS = {
+  inbox: L => [["ลีดวันนี้", L.k.today, L.k.perDay], ["ยังไม่คัดกรอง", L.k.stage("ลีดใหม่")], ["ตอบแรกเฉลี่ย", L.k.respAvg == null ? "–" : n1(L.k.respAvg) + " นาที"]],
+  screening: L => [["ในขั้นคัดกรอง", L.k.stage("คัดกรอง")], ["HOT ที่ยังเปิด", L.leads.filter(l => OPEN(l) && l.level === "HOT").length], ["ติดตามถึงกำหนด", L.k.due.length]],
+  listings: L => {
+    const o = L.leads.filter(l => l.stage === "เสนอห้อง"), b = L.leads.filter(l => OPEN(l) && l.budget).map(l => l.budget);
+    return [["รอเสนอห้อง", o.length], ["HOT ในขั้นนี้", o.filter(l => l.level === "HOT").length], ["งบเฉลี่ย (฿)", b.length ? baht(avg(b)) : "–"]];
+  },
+  walkthrough: L => [["รอวิดีโอคอล", L.k.stage("วิดีโอคอล")], ["รอดูจริง", L.k.stage("นัดดูจริง")], ["% ได้วิดีโอคอล", pct(L.k.callPct)]],
+  closing: L => [["ปิดดีลแล้ว", L.k.won], ["ปิดไม่ได้", L.k.lost], ["Win rate หลังดูจริง", pct(L.k.win)]],
+  analytics: L => [["ลีดทั้งหมด", L.k.n], ["ช่องทางปิดได้มากสุด", topChannel(L.k.by, "won")], ["วันเฉลี่ย ลีด→สัญญา", n1(L.k.days)]],
+  social: L => {
+    const wk = addDays(todayStr(), -6);
+    return [["ลีดโซเชียล 7 วัน", L.leads.filter(l => SOCIAL.includes(l.channel) && l.date >= wk).length], ["ช่องทางลีดเยอะสุด", topChannel(L.k.by, "leads")], ["ลีดจากพอร์ทัล", (L.k.by["พอร์ทัลประกาศ"] || { leads: 0 }).leads]];
+  },
+};
+function teamLoad(id) {
+  if (!LIVE || !FUNNEL.includes(id)) return null;
+  if (id === "closing") return LIVE.leads.filter(l => l.stage === "ปิดดีล" && !l.sign).length;
+  return LIVE.leads.filter(l => OPEN(l) && teamOf(l) === id).length;
+}
+function syncLiveAgents() {
+  if (!LIVE) return;
+  for (const id of FUNNEL) {
+    const load = teamLoad(id); let k = 0;
+    for (const a of T[id].list) { if (a.state === "wait") continue; a.state = k < load ? "work" : "idle"; k++; }
+  }
+}
+function liveCards() {
+  const t = todayStr();
+  return LIVE.leads.filter(l => l.stage !== "ปิดไม่ได้").map(l => {
+    const st = STAGE_OF[l.stage] || "new";
+    return {
+      id: l.id, who: l.name, stage: st, team: STAGE_TEAM[st], lead: l,
+      temp: l.level === "HOT" ? "hot" : l.level === "WARM" ? "warm" : l.level === "COLD" ? "cold" : "new",
+      title: [l.type, l.loc].filter(Boolean).join(" · ") || "ยังไม่มีรายละเอียดห้อง",
+      meta: [l.budget ? "งบ " + baht(l.budget) + " ฿" : "", l.movein ? "ย้ายเข้า " + thShort(l.movein) : "", l.channel].filter(Boolean).join(" · ") || (l.date ? "เข้ามา " + thShort(l.date) : "ยังไม่มีข้อมูล"),
+      due: OPEN(l) && l.follow && l.follow <= t,
+    };
+  }).reverse();
+}
+function liveCal(monStr) {
+  const items = [];
+  const put = (d, team, label, l) => { if (!d) return; const i = dayDiff(monStr, d); if (i >= 0 && i < 7) items.push([i, label, team, l.id + " · " + ([l.type, l.loc].filter(Boolean).join(" ") || l.name || "ยังไม่มีรายละเอียด")]); };
+  for (const l of LIVE.leads) {
+    put(l.call, "walkthrough", "วิดีโอคอล", l); put(l.view, "walkthrough", "ดูห้องจริง", l);
+    put(l.sign, "closing", "เซ็นสัญญา", l); put(l.movein, "closing", "ย้ายเข้า", l);
+    if (OPEN(l)) put(l.follow, "screening", "ติดตาม" + (l.level ? " " + l.level : ""), l);
+  }
+  return items;
+}
+function renderKpis() {
+  const el = $("kpis");
+  if (!LIVE) { el.hidden = true; return; }
+  const k = LIVE.k; el.hidden = false;
+  const tile = (label, val, sub, cls) => '<div class="kpi' + (cls ? " " + cls : "") + '"><span>' + label + "</span><b>" + val + "</b><small>" + sub + "</small></div>";
+  el.innerHTML = tile("ลีดใหม่ 7 วัน", k.week, "ทั้งหมด " + k.n + " ลีด") +
+    tile("ตอบแรกเฉลี่ย", k.respAvg == null ? "–" : n1(k.respAvg) + " นาที", "เป้า ไม่เกิน 5 นาที", k.respAvg == null ? "" : k.respAvg <= 5 ? "good" : "bad") +
+    tile("ได้วิดีโอคอล", pct(k.callPct), "ของลีดทั้งหมด") +
+    tile("ไปดูจริง", pct(k.viewPct), "ของลีดทั้งหมด") +
+    tile("Win rate หลังดูจริง", pct(k.win), "เป้า มากกว่า 50%", k.win == null ? "" : k.win > .5 ? "good" : "bad") +
+    tile("ลีด → สัญญา", k.days == null ? "–" : n1(k.days) + " วัน", "ค่าเฉลี่ย");
+}
+function liveContext() {
+  if (!LIVE) return "";
+  const k = LIVE.k;
+  const rows = LIVE.leads.slice(-60).map(l => "- " + [l.id, l.stage, l.level || "ยังไม่จัดระดับ", l.channel, l.type, l.loc, l.budget ? "งบ " + l.budget + " บาท" : "",
+    l.movein ? "ย้ายเข้า " + l.movein : "", l.date ? "เข้า " + l.date : "", l.call ? "วิดีโอคอล " + l.call : "", l.view ? "ดูจริง " + l.view : "", l.follow ? "ติดตาม " + l.follow : ""].filter(Boolean).join(" | "));
+  return ["", "ข้อมูลจริงจากชีตลีดกลาง (วันนี้ " + todayStr() + "):",
+    "ลีดทั้งหมด " + k.n + " · 7 วันล่าสุด " + k.week + " · ตอบแรกเฉลี่ย " + (k.respAvg == null ? "ไม่มีข้อมูล" : n1(k.respAvg) + " นาที") + " · % วิดีโอคอล " + pct(k.callPct) + " · % ดูจริง " + pct(k.viewPct) + " · win rate หลังดูจริง " + pct(k.win),
+    "จำนวนต่อขั้น: " + Object.keys(STAGE_OF).map(s => s + " " + k.stage(s)).join(", "),
+    "ติดตามถึงกำหนดหรือเลยกำหนด: " + (k.due.map(l => l.id).join(", ") || "ไม่มี"),
+    "รายการลีด (ไม่มีชื่อและช่องทางติดต่อของลูกค้า):", ...(rows.length ? rows : ["- ยังไม่มีลีดในชีต"])].join("\n");
+}
+
+/* status chip + message inside the tasks view */
+const SHEET_MSG = {
+  needs_reauth: "ต้องเชื่อม Google Sheets ใหม่ที่ claude.ai › Settings › Connectors",
+  server_not_connected: "ยังไม่ได้เพิ่ม Google Sheets ที่ claude.ai › Settings › Connectors",
+  selection_required: "มีบัญชี Google Sheets มากกว่าหนึ่งบัญชี เลือกบัญชีที่จะใช้ในหน้าต่างที่ Claude ถาม",
+  server_not_found: "ไม่พบตัวเชื่อม Google Sheets แล้ว เพิ่มใหม่ที่ claude.ai › Settings › Connectors",
+  not_in_manifest: "หน้านี้ยังไม่ได้รับอนุญาตให้ใช้ Google Sheets",
+  consent_required: "หน้านี้ยังไม่ได้รับอนุญาตให้ใช้ Google Sheets",
+  approval_required: "ต้องกดอนุญาตก่อน หน้านี้จึงจะอ่านชีตได้",
+  blocked_by_policy: "องค์กรของคุณปิดการใช้ Google Sheets ในหน้านี้",
+};
+const DENIALS = Object.keys(SHEET_MSG).concat(["not_granted", "capability_disabled", "capability_removed", "bad_request", "transform_error"]);
+function setSheet(k, msg, act) {
+  const d = $("demo"), tx = $("demoText"), ln = $("demoLink"), ab = $("demoAct");
+  d.classList.toggle("live", k === "live"); d.classList.toggle("warn", k === "error" || k === "stale");
+  tx.textContent = k === "live" ? "ชีตลีดกลาง · " + LIVE.leads.length + " ลีด · อัปเดต " + hhmm(new Date(LIVE.at)) + " · คนในออฟฟิศเป็นภาพประกอบ"
+    : k === "connecting" ? "กำลังอ่านชีตลีดกลาง… ระหว่างนี้แสดงข้อมูลตัวอย่าง"
+    : k === "stale" ? msg + " · แสดงข้อมูลล่าสุดเมื่อ " + hhmm(new Date(LIVE.at))
+    : k === "error" ? msg + " · ตอนนี้แสดงข้อมูลตัวอย่าง"
+    : "โหมดจำลอง · ข้อมูลในหน้านี้เป็นตัวอย่าง ยังไม่ต่อระบบจริง";
+  ln.hidden = !SHEET.id; if (SHEET.id) ln.href = sheetUrl();
+  ab.hidden = !act; if (act) { ab.textContent = act.label; ab.onclick = act.run; }
+  const m = $("sheetMsg");
+  m.hidden = !(k === "error" || k === "stale");
+  if (!m.hidden) {
+    m.innerHTML = "<span>" + esc(tx.textContent) + "</span>";
+    if (act) { const b = document.createElement("button"); b.className = "btn"; b.type = "button"; b.textContent = act.label; b.onclick = act.run; m.append(b); }
+  }
+}
+function rerenderAll() {
+  syncLiveAgents(); updateCounts();
+  if (openViewId === "tasks") renderBoard();
+  if (openViewId === "calendar") renderCalendar();
+  if (openViewId === "brain") { renderRules(); renderMemory(); }
+  if (openTeam) { const t = T[openTeam]; if (pTab === "overview") renderOverview(t); else if (pTab === "tasks") renderTeamTasks(t); }
+}
+function liveEvent(t, text) { toast(t, text); caption(t, text); remember(t, text); sendCourier(t.id); }
+function applySheet(values, at) {
+  const s = parseSheet(values);
+  if (!s.ok) { if (LIVE) setSheet("stale", "หัวคอลัมน์ในแท็บ ลีด ไม่ตรง (ต้องมี รหัสลีด และ ขั้น)"); else setSheet("error", "หัวคอลัมน์ในแท็บ ลีด ไม่ตรง (ต้องมี รหัสลีด และ ขั้น)"); return; }
+  const firstLoad = !LIVE;
+  LIVE = Object.assign(s, { k: kpis(s.leads), at });
+  const evs = [];
+  if (prevStages) {
+    for (const l of s.leads) {
+      const was = prevStages.get(l.id);
+      if (was === undefined) evs.push([T.inbox, "ลีดใหม่ " + l.id + (l.channel ? " จาก " + l.channel : "") + (l.type || l.loc ? " · " + [l.type, l.loc].filter(Boolean).join(" ") : "")]);
+      else if (was !== l.stage) evs.push([T[teamOf(l)], l.id + " ย้ายจาก" + was + "ไป" + l.stage]);
+    }
+  }
+  prevStages = new Map(s.leads.map(l => [l.id, l.stage]));
+  if (firstLoad) {
+    clearTimeout(simTimer); schedule();
+    MEMORY.length = 0; $("toasts").innerHTML = "";
+    remember(T.analytics, "เชื่อมชีตลีดกลางแล้ว · " + s.leads.length + " ลีด");
+    caption(T.analytics, "เชื่อมชีตลีดกลางแล้ว · " + s.leads.length + " ลีด");
+    sendCourier("analytics");
+  }
+  evs.slice(0, 3).forEach(([t, text]) => liveEvent(t, text));
+  if (evs.length > 3) remember(T.analytics, "อัปเดตจากชีตอีก " + (evs.length - 3) + " รายการ");
+  setSheet("live");
+  rerenderAll();
+}
+function retract() { if (!LIVE) return; LIVE = null; prevStages = null; rerenderAll(); }
+function onSheet(ev) {
+  if (ev.type === "data") {
+    const vals = valuesOf(ev.result && ev.result.payload);
+    if (!vals) { if (LIVE) setSheet("stale", "อ่านข้อมูลจาก Google Sheets ไม่ออก"); else setSheet("error", "อ่านข้อมูลจาก Google Sheets ไม่ออก"); return; }
+    applySheet(vals, ev.result.cache ? ev.result.cache.storedAt : Date.now());
+    return;
+  }
+  const e = ev.error || {}, code = e.code;
+  if (code === "user_changed") { if (sheetUnsub) sheetUnsub(); return; }
+  if (DENIALS.includes(code)) {
+    retract();
+    let act = null;
+    if (code === "approval_required") act = { label: "อนุญาตให้อ่านชีต", run: approveRead };
+    else if ((code === "not_in_manifest" || code === "consent_required") && perms) act = { label: "ตั้งค่าสิทธิ์", run: () => perms.manage().catch(() => setSheet("error", "เปิดหน้าตั้งค่าไม่ได้ ใช้เมนู Permissions ของหน้านี้แทน")) };
+    setSheet("error", SHEET_MSG[code] || "เปิดหน้านี้ใน Claude เพื่อเชื่อมชีตลีดกลาง", act);
+    return;
+  }
+  const msg = code === "tool_error" ? "Google Sheets ตอบว่าอ่านชีตไม่ได้: " + String(e.message || "").slice(0, 120) : "Google Sheets ไม่ตอบชั่วคราว หน้านี้จะลองใหม่เอง";
+  if (LIVE) setSheet("stale", msg); else setSheet("error", msg);
+}
+async function approveRead() {
+  try {
+    const r = await mcp.callTool(SHEET.server, "get_values", { spreadsheetId: SHEET.id, range: SHEET.range }, { cache: { refresh: true } });
+    const v = valuesOf(r.payload);
+    if (v) applySheet(v, Date.now());
+  } catch (e) { onSheet({ type: "error", error: e }); }
+}
+async function startSheet() {
+  if (!SHEET.id || !window.claude || typeof window.claude.use !== "function") { setSheet("off"); return; }
+  try { mcp = await window.claude.use("mcp"); } catch (e) { mcp = null; }
+  try { perms = await window.claude.use("permissions"); } catch (e) { perms = null; }
+  if (!mcp) { setSheet("off"); return; }
+  setSheet("connecting");
+  sheetUnsub = mcp.watchTool(SHEET.server, "get_values", { spreadsheetId: SHEET.id, range: SHEET.range }, onSheet, { refetchInterval: 60000, cache: { staleTime: 30000 } });
+}
+
+/* writes: always from a tap, never retried on their own */
+function writeErr(e) {
+  const c = e && e.code;
+  if (c === "tool_error") return "Google Sheets ไม่รับคำสั่ง: " + String(e.message || "").slice(0, 140);
+  return ({
+    row_moved: "แถวในชีตเปลี่ยนตำแหน่ง (อาจมีคนเรียงหรือลบแถว) ยังไม่ได้บันทึก รอหน้านี้อ่านชีตใหม่แล้วลองอีกครั้ง",
+    bad_header: "หัวคอลัมน์ในแท็บ ลีด ไม่ตรง ยังไม่ได้บันทึก",
+    approval_required: "ยังไม่ได้อนุญาตให้หน้านี้เขียนชีต กดอีกครั้งแล้วเลือกอนุญาต",
+  })[c] || SHEET_MSG[c] || "ไม่แน่ใจว่าบันทึกสำเร็จหรือไม่ หน้านี้จะอ่านชีตใหม่ ตรวจในชีตก่อนกดซ้ำ";
+}
+const SURE = ["row_moved", "bad_header", "tool_error"].concat(DENIALS);
+function rereadAfter(e) { if (!SURE.includes(e && e.code)) mcp.invalidate(SHEET.server, "get_values").catch(() => {}); }
+async function addLead(f) {
+  const fresh = await mcp.callTool(SHEET.server, "get_values", { spreadsheetId: SHEET.id, range: SHEET.range }, { cache: { refresh: true } });
+  const s = parseSheet(valuesOf(fresh.payload) || []);
+  if (!s.ok) throw { code: "bad_header" };
+  let max = 0;
+  for (const l of s.leads) { const m = /^L-(\d+)$/i.exec(l.rawId); if (m) max = Math.max(max, +m[1]); }
+  const id = "L-" + String(max + 1).padStart(4, "0");
+  const row = new Array(s.head.length).fill("");
+  const put = (k, v) => { if (s.ix[k] >= 0 && v !== "" && v != null) row[s.ix[k]] = v; };
+  put("id", id); put("date", todayStr()); put("time", hhmm(new Date())); put("channel", f.channel); put("name", f.name); put("contact", f.contact);
+  put("budget", f.budget ? Number(f.budget) : ""); put("type", f.type); put("loc", f.loc); put("movein", f.movein); put("level", f.level);
+  put("stage", "ลีดใหม่"); put("resp", f.resp !== "" ? Number(f.resp) : ""); put("note", f.note);
+  await mcp.callTool(SHEET.server, "append_values", { spreadsheetId: SHEET.id, range: SHEET.tab + "!A1", values: [row] });
+  mcp.invalidate(SHEET.server, "get_values").catch(() => {});
+  return id;
+}
+async function moveStage(l, nx) {
+  const ix = LIVE.ix;
+  const chk = await mcp.callTool(SHEET.server, "get_values", { spreadsheetId: SHEET.id, range: SHEET.tab + "!" + colA1(ix.id) + l.row }, { cache: false });
+  const v = valuesOf(chk.payload) || [];
+  if (String((v[0] && v[0][0]) || "").trim() !== l.rawId) throw { code: "row_moved" };
+  await mcp.callTool(SHEET.server, "update_values", { spreadsheetId: SHEET.id, range: SHEET.tab + "!" + colA1(ix.stage) + l.row, values: [[nx]] });
+  mcp.invalidate(SHEET.server, "get_values").catch(() => {});
+}
+function onMove(b) {
+  if (!LIVE || !mcp) return;
+  const l = LIVE.leads.find(x => x.row === +b.dataset.row);
+  const nx = l && NEXT_STAGE[l.stage];
+  if (!nx) return;
+  const label = "เลื่อนไป" + nx + " →";
+  if (!b.classList.contains("confirm")) {
+    b.classList.add("confirm"); b.textContent = "แตะอีกครั้งเพื่อยืนยัน: " + nx;
+    clearTimeout(b._t); b._t = setTimeout(() => { b.classList.remove("confirm"); b.textContent = label; }, 4000);
+    return;
+  }
+  clearTimeout(b._t); b.disabled = true; b.textContent = "กำลังบันทึก…";
+  const old = b.parentNode.querySelector(".fstat"); if (old) old.remove();
+  moveStage(l, nx).then(() => { b.textContent = "บันทึกแล้ว · กำลังอ่านชีตใหม่"; })
+    .catch(e => {
+      b.disabled = false; b.classList.remove("confirm"); b.textContent = label;
+      b.insertAdjacentHTML("afterend", '<p class="fstat err" style="margin:4px 0 0">' + esc(writeErr(e)) + "</p>");
+      rereadAfter(e);
+    });
+}
+["board", "pt-tasks"].forEach(id => $(id).addEventListener("click", e => { const b = e.target.closest(".mv"); if (b && !b.disabled) onMove(b); }));
+$("addLeadBtn").onclick = () => { const f = $("leadForm"); f.hidden = !f.hidden; if (!f.hidden) $("fChannel").focus(); };
+$("fCancel").onclick = () => { $("leadForm").hidden = true; };
+$("leadForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const st = $("fStat"), val = id => $(id).value.trim();
+  if (!val("fChannel")) { st.className = "fstat err"; st.textContent = "เลือกช่องทางที่ลีดเข้ามาก่อน"; $("fChannel").focus(); return; }
+  if (!mcp || !LIVE) { st.className = "fstat err"; st.textContent = "ยังไม่ได้เชื่อมชีตลีดกลาง"; return; }
+  $("fSave").disabled = true; st.className = "fstat"; st.textContent = "กำลังบันทึกลงชีต…";
+  try {
+    const id = await addLead({ channel: val("fChannel"), name: val("fName"), contact: val("fContact"), budget: val("fBudget"), type: val("fType"), loc: val("fLoc"), movein: val("fMovein"), level: val("fLevel"), resp: val("fResp"), note: val("fNote") });
+    $("leadForm").reset(); st.className = "fstat ok"; st.textContent = "บันทึก " + id + " ลงชีตแล้ว";
+  } catch (err) {
+    st.className = "fstat err"; st.textContent = writeErr(err); rereadAfter(err);
+  } finally { $("fSave").disabled = false; }
+});
+
 /* ---------- boot ---------- */
 addEventListener("resize", resize);
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(resize);
@@ -1536,9 +1959,10 @@ resize(); home();
 Object.assign(cam, { zoom: goal.zoom * .82, ox: goal.ox, oy: goal.oy }); cam.target.copy(goal.target);
 renderBoard(); updateCounts();
 const first = MEMORY[0]; caption(T[first.team], first.text);
-setTimeout(simEvent, 1400);
+setTimeout(() => { if (!LIVE) simEvent(); }, 1400);
 schedule();
 requestAnimationFrame(frame);
+startSheet();
 </script>
 </body>
 </html>
