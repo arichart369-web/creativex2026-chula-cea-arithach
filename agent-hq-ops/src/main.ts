@@ -1,6 +1,6 @@
 import { FEATURES, STATUS_TEXT, systemStatus } from "./config/status";
-import * as store from "./data/store";
-import { checkConnection } from "./data/runtime";
+import { type Store, createStore } from "./data/store";
+import { type ConnectionCheck, checkConnection } from "./data/runtime";
 import { esc } from "./rules/escape";
 import { type Role, ROLE_TEXT, can, canMove } from "./rules/roles";
 import { type Lead, COLS, dueFollowUps } from "./rules/sheet";
@@ -9,7 +9,12 @@ import { $, field, showErrors, showResult } from "./ui/dom";
 import { closeDrawer, openDrawer } from "./ui/drawer";
 
 // In-memory state only: nothing personal goes to the URL, storage, analytics or logs.
-const state: { role: Role; leads: Lead[]; source: "live" | "demo"; full: boolean } = { role: "agent", leads: [], source: "demo", full: false };
+const state: { role: Role; leads: Lead[]; source: "live" | "demo"; full: boolean; conn: ConnectionCheck | null; loadError: string } =
+  { role: "agent", leads: [], source: "demo", full: false, conn: null, loadError: "" };
+
+// Starts without a client; swapped for one only when the read-only check reaches the sheet.
+// Writes stay gated by src/config/status.ts either way.
+let store: Store = createStore();
 
 const CHANNELS = ["LINE OA", "Facebook", "Instagram", "TikTok", "เว็บไซต์", "โทรศัพท์"];
 const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; };
@@ -23,6 +28,7 @@ function renderBadge(): void {
 
 const demoNotice = () =>
   (state.source === "demo" ? `<p class="notice">${esc(STATUS_TEXT.demo)} · ${esc(FEATURES.leadSheet.note)}</p>` : "") +
+  (state.loadError ? `<p class="notice bad" role="alert">อ่านชีตไม่สำเร็จ: ${esc(state.loadError)} (แสดงข้อมูลสาธิตแทน)</p>` : "") +
   (state.full ? `<p class="notice bad">แท็บ "ลีด" เต็มช่วงที่อ่าน (1,000 แถว) ลีดหลังจากนั้นจะไม่แสดง</p>` : "");
 
 function cardHtml(l: Lead): string {
@@ -80,10 +86,10 @@ function pageStatus(): string {
     <h2 class="sub">การเชื่อมต่อชีต (อ่านอย่างเดียว)</h2><p id="connCheck" class="notice" role="status">กำลังตรวจ…</p>`;
 }
 
-async function fillConnection(): Promise<void> {
-  const r = await checkConnection();
+function fillConnection(): void {
+  const r = state.conn;
   const box = document.getElementById("connCheck");
-  if (!box) return;
+  if (!box || !r) return;
   box.className = "notice" + (r.ok ? " good" : "");
   box.textContent = r.ok ? `อ่านหัวตารางแท็บ "ลีด" ได้ (${r.headers} คอลัมน์) · การเขียนยังปิดอยู่จนกว่าจะผ่าน gate` : r.message;
 }
@@ -153,10 +159,9 @@ function openLead(id: string, from: HTMLElement): void {
 
 async function start(): Promise<void> {
   renderBadge();
-  const r = await store.listLeads();
-  state.leads = r.leads;
-  state.source = r.status;
-  state.full = r.full;
+  // First paint uses the demo rows straight away; the connector check can take up to 10 s.
+  const d = await createStore().listLeads();
+  Object.assign(state, { leads: d.leads, source: d.status });
   const sel = $("#roleSel") as HTMLSelectElement;
   sel.value = state.role;
   sel.addEventListener("change", () => { state.role = sel.value as Role; closeDrawer(false); render(); });
@@ -164,6 +169,21 @@ async function start(): Promise<void> {
   $(".skip").addEventListener("click", e => { e.preventDefault(); $("#main").focus(); });
   window.addEventListener("hashchange", () => { closeDrawer(false); render(true); });
   render();
+  await load();
+  // Re-render only when the data changed, so a form being filled in is not wiped.
+  if (state.source === "live" || state.loadError) render(); else fillConnection();
+}
+
+async function load(): Promise<void> {
+  state.conn = await checkConnection();
+  if (state.conn.ok) store = createStore({ client: state.conn.client });
+  try {
+    const r = await store.listLeads();
+    Object.assign(state, { leads: r.leads, source: r.status, full: r.full, loadError: "" });
+  } catch (e) {
+    const r = await createStore().listLeads();
+    Object.assign(state, { leads: r.leads, source: r.status, full: false, loadError: e instanceof Error ? e.message : String(e) });
+  }
 }
 
 start();

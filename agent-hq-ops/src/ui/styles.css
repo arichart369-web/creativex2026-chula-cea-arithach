@@ -4,10 +4,20 @@
   --bad-bg: #fde8ea; --bad-ink: #8a1222; --ok-bg: #e3f4ea; --ok-ink: #145a32; --focus: #1f5fbf;
   font-family: system-ui, "Noto Sans Thai", "Sarabun", sans-serif; color: var(--ink); background: var(--bg);
 }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #161614; --surface: #20201d; --ink: #f1efe8; --muted: #b9b5ab; --line: #45433d;
+  --accent: #8db8ff; --accent-ink: #10203a; --warn-bg: #3a2e05; --warn-ink: #ffe08a; --warn-line: #b88a00;
+  --bad-bg: #3d1218; --bad-ink: #ffb3bd; --ok-bg: #0f3320; --ok-ink: #9ee6b8; --focus: #8db8ff;
+} }
+:root[data-theme="dark"] {
+  --bg: #161614; --surface: #20201d; --ink: #f1efe8; --muted: #b9b5ab; --line: #45433d;
+  --accent: #8db8ff; --accent-ink: #10203a; --warn-bg: #3a2e05; --warn-ink: #ffe08a; --warn-line: #b88a00;
+  --bad-bg: #3d1218; --bad-ink: #ffb3bd; --ok-bg: #0f3320; --ok-ink: #9ee6b8; --focus: #8db8ff;
+}
 * { box-sizing: border-box; }
-body { margin: 0; line-height: 1.55; font-size: 16px; }
+body { margin: 0; line-height: 1.55; font-size: 16px; background: var(--bg); color: var(--ink); }
 :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
-.skip { position: absolute; left: 16px; top: -100px; background: var(--ink); color: #fff; padding: 10px 14px; border-radius: 8px; z-index: 50; }
+.skip { position: absolute; left: 16px; top: -100px; background: var(--ink); color: var(--bg); padding: 10px 14px; border-radius: 8px; z-index: 50; }
 .skip:focus { top: 8px; }
 .bar { background: var(--surface); border-bottom: 1px solid var(--line); padding: 8px 16px; }
 .bar-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; }
@@ -16,11 +26,11 @@ body { margin: 0; line-height: 1.55; font-size: 16px; }
 .badge.live { background: var(--ok-bg); color: var(--ok-ink); border-color: var(--ok-ink); }
 .role { margin-left: auto; display: flex; align-items: center; gap: 8px; font-size: 14px; }
 select, input, textarea, button { font: inherit; }
-select, input, textarea { min-height: 44px; padding: 8px 10px; border: 1px solid var(--muted); border-radius: 8px; background: #fff; color: var(--ink); width: 100%; }
+select, input, textarea { min-height: 44px; padding: 8px 10px; border: 1px solid var(--muted); border-radius: 8px; background: var(--surface); color: var(--ink); width: 100%; }
 .role select { width: auto; }
 .nav { list-style: none; display: flex; flex-wrap: wrap; gap: 4px; padding: 0; margin: 8px 0 0; }
 .nav a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 8px; color: var(--ink); text-decoration: none; }
-.nav a[aria-current="page"] { background: var(--ink); color: #fff; }
+.nav a[aria-current="page"] { background: var(--ink); color: var(--bg); }
 main { padding: 16px; max-width: 1200px; margin: 0 auto; }
 main:focus { outline: none; }
 h1 { font-size: 22px; margin: 4px 0 4px; }
@@ -33,7 +43,7 @@ h2 { font-size: 17px; margin: 0 0 8px; }
 .col h2 { display: flex; justify-content: space-between; gap: 8px; }
 .col .team { font-size: 13px; color: var(--muted); margin: -6px 0 8px; }
 .cards { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
-.card { width: 100%; text-align: left; min-height: 44px; padding: 10px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink); cursor: pointer; }
+.card { width: 100%; text-align: left; min-height: 44px; padding: 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--ink); cursor: pointer; }
 .card b { display: block; }
 .card span { font-size: 13px; color: var(--muted); }
 .empty { color: var(--muted); font-size: 14px; }
@@ -42,8 +52,8 @@ h2 { font-size: 17px; margin: 0 0 8px; }
 .field .hint { font-size: 13px; color: var(--muted); margin: 2px 0 0; }
 .field .err { color: var(--bad-ink); font-size: 14px; margin: 4px 0 0; }
 .field [aria-invalid="true"] { border-color: var(--bad-ink); border-width: 2px; }
-.btn { min-height: 44px; padding: 0 16px; border-radius: 8px; border: 1px solid var(--ink); background: var(--ink); color: #fff; cursor: pointer; font-weight: 600; }
-.btn.secondary { background: #fff; color: var(--ink); }
+.btn { min-height: 44px; padding: 0 16px; border-radius: 8px; border: 1px solid var(--ink); background: var(--ink); color: var(--bg); cursor: pointer; font-weight: 600; }
+.btn.secondary { background: var(--surface); color: var(--ink); }
 .btn[disabled] { opacity: .55; cursor: not-allowed; }
 .table-wrap { overflow-x: auto; }
 table { border-collapse: collapse; width: 100%; background: var(--surface); }

@@ -8,7 +8,9 @@
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview --port 4173 --strictPort",
     "test": "vitest run",
-    "e2e": "node tests/e2e/run.mjs"
+    "e2e": "node tests/e2e/run.mjs",
+    "build:artifact": "npm run build && node scripts/inline.mjs",
+    "e2e:artifact": "node tests/e2e/artifact.mjs"
   },
   "devDependencies": {
     "axe-core": "^4.10.2",

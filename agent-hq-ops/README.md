@@ -13,6 +13,8 @@ npm run dev        # local dev server
 npm test           # unit tests (Vitest)
 npm run build      # type-check + production build
 npm run e2e        # e2e + axe + screenshots (needs the build; uses the pre-installed Playwright)
+npm run build:artifact   # one self-contained file: dist-artifact/agent-hq-ops.html
+npm run e2e:artifact     # checks that file: no network, runtime path, dark mode + axe
 ```
 
 Evidence lands in `test-results/` (`e2e.json`, `axe.json`, `screens/*.png`).
@@ -24,6 +26,7 @@ Evidence lands in `test-results/` (`e2e.json`, `axe.json`, `screens/*.png`).
 - `src/data/sheetClient.ts` — the `SheetClient` interface (read / update / append) the store uses to reach a sheet, plus `MemorySheetClient` for tests. No real Google Sheets client is wired in yet.
 - `src/data/connectorSheetClient.ts` — the real `SheetClient`: calls the viewer's claude.ai **Google Sheets** connector (`get_values`, `update_values`, `append_values` with `spreadsheetId`, `range`, `values`) through the artifact `mcp` capability. Each connector error code keeps its own Thai fix message; a write that times out says it may or may not have landed; an unreadable payload is an error, never an empty sheet.
 - `src/config/sheet.ts` — the sheet id. Empty in the repo.
+- On load the app paints the demo rows at once, then runs the connection check; only when the check reaches the sheet does it swap in the connector client (writes stay gated by config). A failed live read falls back to demo rows with the reason shown.
 - `src/data/runtime.ts` — a read-only connection check (header row only) shown on the "สถานะระบบ" page. It never turns writes on: that is still config.
 - `src/data/audit.ts` — one audit row per written cell (time, actor, role, action, lead id, column, before, after). Name, contact and note values are replaced with "(ข้อมูลส่วนตัว)".
 - A write reaches the sheet only when its feature **and** the audit log are `live` in config **and** a client is set. Before writing it re-reads the row and stops if the lead id or stage changed (FR-05). Stage is written last, so a half-failed close leaves the stage as it was. A failed write returns `error`; a write that landed but could not be fully logged or finished returns `partial` with the cells written — never `ok`.
@@ -35,6 +38,7 @@ Evidence lands in `test-results/` (`e2e.json`, `axe.json`, `screens/*.png`).
 
 | # | What | Unit | E2E |
 | --- | --- | --- | --- |
+| M1c-prep | Publish-ready single-file build (`build:artifact`), app swaps in the connector client when the read-only check passes, dark-mode tokens for the artifact page contract | 59/59 | 14/14 + artifact 5/5 (no network, runtime path without id, dark-mode axe at 360/1280) |
 | M1b | Google Sheets client over the claude.ai connector, error-code messages, ambiguous-write message, read-only connection check on the status page | 59/59 (+14) | 14/14 (+1) |
 | M1a | Sheet write path behind the gate: `SheetClient` + in-memory client, live read, add lead (next `L-0001` id, same format as the current page), move, close, lost, FR-05 row and stage re-check, audit rows without personal data, partial/error results | 45/45 (+15) | 13/13 (UI unchanged; still not_connected) |
 | M0 | Skeleton: status config, store boundary, rules, 5 pages (board, new lead, due follow-ups, audit log, system status), lead drawer with move / close / lost, demo role switcher, a11y basics | 30/30 | 13/13 (axe: 0 violations on 12 page/size checks) |
