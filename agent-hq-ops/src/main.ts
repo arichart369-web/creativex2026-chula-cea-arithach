@@ -8,7 +8,7 @@ import { $, field, showErrors, showResult } from "./ui/dom";
 import { closeDrawer, openDrawer } from "./ui/drawer";
 
 // In-memory state only: nothing personal goes to the URL, storage, analytics or logs.
-const state: { role: Role; leads: Lead[]; source: "live" | "demo" } = { role: "agent", leads: [], source: "demo" };
+const state: { role: Role; leads: Lead[]; source: "live" | "demo"; full: boolean } = { role: "agent", leads: [], source: "demo", full: false };
 
 const CHANNELS = ["LINE OA", "Facebook", "Instagram", "TikTok", "เว็บไซต์", "โทรศัพท์"];
 const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; };
@@ -21,7 +21,8 @@ function renderBadge(): void {
 }
 
 const demoNotice = () =>
-  state.source === "demo" ? `<p class="notice">${esc(STATUS_TEXT.demo)} · ${esc(FEATURES.leadSheet.note)}</p>` : "";
+  (state.source === "demo" ? `<p class="notice">${esc(STATUS_TEXT.demo)} · ${esc(FEATURES.leadSheet.note)}</p>` : "") +
+  (state.full ? `<p class="notice bad">แท็บ "ลีด" เต็มช่วงที่อ่าน (1,000 แถว) ลีดหลังจากนั้นจะไม่แสดง</p>` : "");
 
 function cardHtml(l: Lead): string {
   return `<li><button type="button" class="card" data-lead="${esc(l.id)}">
@@ -144,6 +145,7 @@ async function start(): Promise<void> {
   const r = await store.listLeads();
   state.leads = r.leads;
   state.source = r.status;
+  state.full = r.full;
   const sel = $("#roleSel") as HTMLSelectElement;
   sel.value = state.role;
   sel.addEventListener("change", () => { state.role = sel.value as Role; closeDrawer(false); render(); });
