@@ -95,11 +95,26 @@ await test("not_connected offers no reload button", async () => {
   await page.keyboard.press("Escape");
 });
 
+await test("follow-up: past date is refused with a tied alert, a valid one is not_connected", async () => {
+  await go("#/board");
+  await role("agent");
+  await page.click('[data-lead="ตัวอย่าง-03"]');
+  await page.fill("#follow", "2020-01-01");
+  await page.click("#followForm button[type=submit]");
+  await page.waitForSelector("#follow-err[role=alert]");
+  assert((await page.getAttribute("#follow", "aria-describedby")).includes("follow-err"), "error not tied");
+  await page.fill("#follow", "2099-01-01");
+  await page.click("#followForm button[type=submit]");
+  await page.waitForFunction(() => document.querySelector("#followMsg")?.textContent.length > 0);
+  assert((await page.textContent("#followMsg")).includes("ยังไม่ได้เชื่อม"), await page.textContent("#followMsg"));
+  await page.keyboard.press("Escape");
+});
+
 await test("T2 viewer sees no write controls", async () => {
   await go("#/board");
   await role("viewer");
   await page.click('[data-lead="ตัวอย่าง-05"]');
-  assert(!(await page.$("#moveBtn, #closeForm, #lostForm")), "write control visible to viewer");
+  assert(!(await page.$("#moveBtn, #closeForm, #lostForm, #followForm")), "write control visible to viewer");
   await page.keyboard.press("Escape");
   await go("#/new");
   assert(!(await page.$("#newForm")), "new-lead form visible to viewer");

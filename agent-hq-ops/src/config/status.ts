@@ -9,13 +9,14 @@ export interface FeatureStatus {
   note: string;
 }
 
-export type FeatureKey = "leadSheet" | "addLead" | "moveStage" | "closeDeal" | "auditLog" | "roles";
+export type FeatureKey = "leadSheet" | "addLead" | "moveStage" | "closeDeal" | "followUp" | "auditLog" | "roles";
 
 const RELEASE: Record<FeatureKey, FeatureStatus> = {
   leadSheet: { status: "demo", label: "ชีตลีด", note: "แสดงข้อมูลตัวอย่าง ยังไม่ได้อ่านชีตจริง" },
   addLead: { status: "not_connected", label: "เพิ่มลีด", note: "ยังไม่ได้เชื่อมการเขียนลงชีต" },
   moveStage: { status: "not_connected", label: "เลื่อนขั้น", note: "ยังไม่ได้เชื่อมการเขียนลงชีต" },
   closeDeal: { status: "not_connected", label: "ปิดดีล / ปิดไม่ได้", note: "ยังไม่ได้เชื่อมการเขียนลงชีต" },
+  followUp: { status: "not_connected", label: "นัดติดตาม", note: "ยังไม่ได้เชื่อมการเขียนลงชีต" },
   auditLog: { status: "not_connected", label: "บันทึกการเปลี่ยนแปลง", note: "ยังไม่มีแท็บ \"บันทึก\" ในชีต" },
   roles: { status: "demo", label: "บทบาท", note: "สลับบทบาทได้เพื่อทดลองเท่านั้น ยังไม่ยืนยันตัวตน" },
 };

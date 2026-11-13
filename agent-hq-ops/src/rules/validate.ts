@@ -26,6 +26,17 @@ export function validateLost(reason: string): Errors {
   return reason.trim() ? {} : { reason: "ต้องใส่เหตุผลที่ปิดไม่ได้" };
 }
 
+const ISO = /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/;
+
+/** A real calendar date, today or later. Today is passed in so the rule is testable. */
+export function validateFollowUp(date: string, today: string): Errors {
+  const d = date.trim();
+  const real = ISO.test(d) && !Number.isNaN(Date.parse(d + "T00:00:00Z")) && new Date(d + "T00:00:00Z").toISOString().slice(0, 10) === d;
+  if (!real) return { follow: "ใส่วันที่ติดตาม (ปปปป-ดด-วว)" };
+  if (d < today) return { follow: "วันติดตามต้องเป็นวันนี้หรือหลังจากนี้" };
+  return {};
+}
+
 export interface CloseInput { sign: string; rent: string }
 
 /** Both values are typed by a person; nothing is calculated (FR-07). */

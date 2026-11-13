@@ -41,6 +41,7 @@ Evidence lands in `test-results/` (`e2e.json`, `axe.json`, `screens/*.png`).
 
 | # | What | Unit | E2E |
 | --- | --- | --- | --- |
+| M1f | Set the next follow-up date from the lead drawer (FR-08 action): agent and lead, open leads only, a real date today or later; same gate, row re-check and audit row as every write; new `followUp` feature in the status config | 74/74 (+9) | 17/17 (+1) + artifact 6/6 + live 10/10 (+1: set to today → shows on the due page) |
 | M1e | Browser e2e of the live path on a fake "Google Sheets" connector: T1 live read, T3 move (one cell + one audit row, drawer re-opens), T4 re-sorted sheet (conflict, nothing written, reload re-opens the right lead), T5 close, partial close, T6 lost with reason redacted, add lead, T8 no PII / no network; guard that the publish build stays not_connected | 65/65 | 16/16 + artifact 6/6 (+1) + live 9/9 (new) |
 | M1d | Reload after writes: a success re-reads the sheet and re-opens the lead by id; conflict / partial / error offer a "โหลดข้อมูลใหม่" button; not_connected / forbidden / invalid change nothing. Board shows when the data was loaded and has its own reload button | 65/65 (+6) | 16/16 (+2) + artifact 5/5 |
 | M1c-prep | Publish-ready single-file build (`build:artifact`), app swaps in the connector client when the read-only check passes, dark-mode tokens for the artifact page contract | 59/59 | 14/14 + artifact 5/5 (no network, runtime path without id, dark-mode axe at 360/1280) |
@@ -64,4 +65,5 @@ Evidence lands in `test-results/` (`e2e.json`, `axe.json`, `screens/*.png`).
 - The id of a TEST sheet (not the live lead sheet) for `src/config/sheet.ts`, and approval to publish the app as a private artifact that declares `mcp: {servers: [{server: "Google Sheets", tools: ["get_values", "update_values", "append_values"]}]}`.
 - Whether "ปิดไม่ได้" reasons come from a fixed list.
 - Whether a stage can be moved back, and by whom.
+- Follow-up dates: I assumed "today or later" and that agents and leads may both set them; confirm or change.
 - Retention period for lost leads (PDPA).

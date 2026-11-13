@@ -3,7 +3,7 @@ import { type Store, createStore } from "./data/store";
 import { type ConnectionCheck, checkConnection } from "./data/runtime";
 import { afterWrite, findLead, hhmm } from "./rules/afterWrite";
 import { esc } from "./rules/escape";
-import { type Role, ROLE_TEXT, can, canMove } from "./rules/roles";
+import { type Role, ROLE_TEXT, can, canFollowUp, canMove } from "./rules/roles";
 import { type Lead, COLS, dueFollowUps } from "./rules/sheet";
 import { STAGES, STAGE_TEAM, isOpen, nextStage } from "./rules/stages";
 import { $, field, showErrors, showResult } from "./ui/dom";
@@ -179,6 +179,10 @@ function openLead(id: string, from: HTMLElement, note = ""): void {
       ${field("sign", "วันเซ็นสัญญา *", `<input %A% type="date">`)}
       ${field("rent", "ค่าเช่าที่ปิดได้ (บาท) *", `<input %A% inputmode="numeric">`, "กรอกตามสัญญา ระบบไม่คำนวณให้")}
       <div><button class="btn" type="submit">บันทึกปิดดีล</button></div><div id="closeMsg" aria-live="polite"></div></form></section>`);
+  if (canFollowUp(role, l.stage).ok)
+    parts.push(`<section><h3>นัดติดตามครั้งถัดไป</h3><form class="form" id="followForm" novalidate>
+      ${field("follow", "วันติดตาม *", `<input %A% type="date" min="${today()}" value="${esc(l.fields.follow ?? "")}">`, "วันนี้หรือหลังจากนี้")}
+      <div><button class="btn secondary" type="submit">บันทึกวันติดตาม</button></div><div id="followMsg" aria-live="polite"></div></form></section>`);
   if (isOpen(l.stage) && canMove(role, l.stage, "ปิดไม่ได้").ok)
     parts.push(`<section><h3>ปิดไม่ได้</h3><form class="form" id="lostForm" novalidate>
       ${field("reason", "เหตุผลที่ปิดไม่ได้ *", `<textarea %A% rows="3"></textarea>`)}
@@ -193,6 +197,13 @@ function openLead(id: string, from: HTMLElement, note = ""): void {
     const r = await store.closeDeal(role, l, { sign: ($("#sign", cf) as HTMLInputElement).value, rent: ($("#rent", cf) as HTMLInputElement).value });
     showErrors(cf, !r.ok && r.status === "invalid" ? r.errors : {});
     if (r.ok || r.status !== "invalid") await handleWrite($("#closeMsg", cf), r, l.id);
+  });
+  const ff = dlg.querySelector<HTMLFormElement>("#followForm");
+  ff?.addEventListener("submit", async e => {
+    e.preventDefault();
+    const r = await store.setFollowUp(role, l, ($("#follow", ff) as HTMLInputElement).value);
+    showErrors(ff, !r.ok && r.status === "invalid" ? r.errors : {});
+    if (r.ok || r.status !== "invalid") await handleWrite($("#followMsg", ff), r, l.id);
   });
   const lf = dlg.querySelector<HTMLFormElement>("#lostForm");
   lf?.addEventListener("submit", async e => {

@@ -192,6 +192,25 @@ await test("add lead appends the next id; contact stays out of the audit log", a
   assert((await page.inputValue("#name")) === "", "form not cleared after success");
 });
 
+await test("follow-up set to today: one cell, one audit row, lead shows on the due page", async () => {
+  const today = await page.evaluate(() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; });
+  await page.evaluate(() => { location.hash = "#/board"; });
+  await page.click("[data-refresh]");
+  await page.waitForSelector('[data-lead="L-0005"]');
+  await role("agent");
+  const auditBefore = (await sheet())["บันทึก"].length;
+  await page.click('[data-lead="L-0005"]');
+  await page.fill("#follow", today);
+  await page.click("#followForm button[type=submit]");
+  await page.waitForSelector('.drawer .notice.good');
+  const t = await sheet();
+  assert(t["ลีด"].find(r => r[0] === "L-0005")[C("ติดตามครั้งถัดไป")] === today, "follow not written");
+  assert(t["บันทึก"].length === auditBefore + 1 && t["บันทึก"].at(-1)[3] === "setFollowUp", "audit: " + JSON.stringify(t["บันทึก"].at(-1)));
+  await page.keyboard.press("Escape");
+  await page.evaluate(() => { location.hash = "#/due"; });
+  await page.waitForSelector('table [data-lead="L-0005"]');
+});
+
 await test("T8 no personal data in URL or storage; no request leaves the page", async () => {
   const s = await page.evaluate(() => location.href + JSON.stringify(localStorage) + JSON.stringify(sessionStorage) + document.cookie);
   for (const pii of ["คุณทดสอบสด", "0899999999", "เชียงใหม่"]) assert(!decodeURIComponent(s).includes(pii), "found " + pii);

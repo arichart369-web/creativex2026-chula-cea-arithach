@@ -1,8 +1,8 @@
 import { FEATURES, type FeatureKey, type FeatureStatus } from "../config/status";
-import { type Role, can, canMove } from "../rules/roles";
+import { type Role, can, canFollowUp, canMove } from "../rules/roles";
 import type { Stage } from "../rules/stages";
 import { COLS, type Field, type Lead, parseSheet, rowStillMatches } from "../rules/sheet";
-import { type CloseInput, type Errors, type NewLeadInput, validateClose, validateLost, validateNewLead } from "../rules/validate";
+import { type CloseInput, type Errors, type NewLeadInput, validateClose, validateFollowUp, validateLost, validateNewLead } from "../rules/validate";
 import { type AuditEntry, auditRow } from "./audit";
 import { DEMO_LEADS } from "./demo";
 import { AUDIT_TAB, LEAD_TAB, type SheetClient, colA1 } from "./sheetClient";
@@ -161,6 +161,14 @@ export function createStore(deps: StoreDeps = {}) {
       if (Object.keys(e).length) return invalid(e);
       return gate("closeDeal") ?? writeCells(role, "markLost", lead, { note: reason.trim(), stage: "ปิดไม่ได้" });
     },
+
+    async setFollowUp(role: Role, lead: Lead, date: string): Promise<WriteResult> {
+      const p = canFollowUp(role, lead.stage);
+      if (!p.ok) return forbidden(p.reason);
+      const e = validateFollowUp(date, ymd(now()));
+      if (Object.keys(e).length) return invalid(e);
+      return gate("followUp") ?? writeCells(role, "setFollowUp", lead, { follow: date.trim() });
+    },
   };
 }
 
@@ -168,4 +176,4 @@ export type Store = ReturnType<typeof createStore>;
 
 // The app's store: built from config, no client yet, so every write is not_connected.
 const app = createStore();
-export const { listLeads, addLead, moveStage, closeDeal, markLost } = app;
+export const { listLeads, addLead, moveStage, closeDeal, markLost, setFollowUp } = app;

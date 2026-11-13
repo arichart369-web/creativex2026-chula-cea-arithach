@@ -12,7 +12,7 @@ export interface AuditEntry {
   at: string;
   actor: string;
   role: Role;
-  action: "addLead" | "moveStage" | "closeDeal" | "markLost";
+  action: "addLead" | "moveStage" | "closeDeal" | "markLost" | "setFollowUp";
   leadId: string;
   field: Field;
   before: string;
