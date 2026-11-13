@@ -1,5 +1,6 @@
 import { FEATURES, STATUS_TEXT, systemStatus } from "./config/status";
 import * as store from "./data/store";
+import { checkConnection } from "./data/runtime";
 import { esc } from "./rules/escape";
 import { type Role, ROLE_TEXT, can, canMove } from "./rules/roles";
 import { type Lead, COLS, dueFollowUps } from "./rules/sheet";
@@ -75,7 +76,16 @@ function pageLog(): string {
 function pageStatus(): string {
   const rows = Object.values(FEATURES).map(f => `<tr><td>${esc(f.label)}</td><td><span class="st ${f.status}">${esc(STATUS_TEXT[f.status])}</span></td><td>${esc(f.note)}</td></tr>`).join("");
   return `<h1>สถานะระบบ</h1><p class="lead-in">ค่าทั้งหมดมาจากไฟล์ <code>src/config/status.ts</code> ที่เดียว</p>
-    <div class="table-wrap"><table><thead><tr><th scope="col">ส่วน</th><th scope="col">สถานะ</th><th scope="col">หมายเหตุ</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+    <div class="table-wrap"><table><thead><tr><th scope="col">ส่วน</th><th scope="col">สถานะ</th><th scope="col">หมายเหตุ</th></tr></thead><tbody>${rows}</tbody></table></div>
+    <h2 class="sub">การเชื่อมต่อชีต (อ่านอย่างเดียว)</h2><p id="connCheck" class="notice" role="status">กำลังตรวจ…</p>`;
+}
+
+async function fillConnection(): Promise<void> {
+  const r = await checkConnection();
+  const box = document.getElementById("connCheck");
+  if (!box) return;
+  box.className = "notice" + (r.ok ? " good" : "");
+  box.textContent = r.ok ? `อ่านหัวตารางแท็บ "ลีด" ได้ (${r.headers} คอลัมน์) · การเขียนยังปิดอยู่จนกว่าจะผ่าน gate` : r.message;
 }
 
 const ROUTES: Record<string, () => string> = { "#/board": pageBoard, "#/new": pageNew, "#/due": pageDue, "#/log": pageLog, "#/status": pageStatus };
@@ -88,6 +98,7 @@ function render(focus = false): void {
   document.title = `${$("h1", main).textContent} · Agent HQ`;
   if (focus) main.focus();
   bind(main);
+  if (route === "#/status") fillConnection();
 }
 
 function bind(main: HTMLElement): void {

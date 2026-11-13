@@ -69,6 +69,13 @@ await test("T1 writes return not_connected and never show success", async () => 
   await page.keyboard.press("Escape");
 });
 
+await test("status page reports the sheet connection without writing", async () => {
+  await go("#/status");
+  await page.waitForFunction(() => !document.querySelector("#connCheck").textContent.includes("กำลังตรวจ"));
+  const t = await page.textContent("#connCheck");
+  assert(t.includes("ไม่ได้เปิดใน claude.ai"), "connection line: " + t);
+});
+
 await test("T2 viewer sees no write controls", async () => {
   await go("#/board");
   await role("viewer");
