@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Agent HQ · Live Ops</title>
+  <link rel="stylesheet" href="./src/ui/styles.css">
+</head>
+<body>
+  <a class="skip" href="#main">ข้ามไปเนื้อหาหลัก</a>
+  <header class="bar">
+    <div class="bar-row">
+      <span class="brand">Agent HQ · Live Ops</span>
+      <span id="sysBadge" class="badge" role="status"></span>
+      <label class="role">บทบาท (ทดลอง)
+        <select id="roleSel">
+          <option value="viewer">ผู้ชม</option>
+          <option value="agent" selected>เอเจนต์</option>
+          <option value="lead">หัวหน้า</option>
+        </select>
+      </label>
+    </div>
+    <nav aria-label="เมนูหลัก">
+      <ul class="nav">
+        <li><a href="#/board">บอร์ดลีด</a></li>
+        <li><a href="#/new">เพิ่มลีด</a></li>
+        <li><a href="#/due">ติดตามถึงกำหนด</a></li>
+        <li><a href="#/log">บันทึก</a></li>
+        <li><a href="#/status">สถานะระบบ</a></li>
+      </ul>
+    </nav>
+  </header>
+  <main id="main" tabindex="-1"></main>
+  <div id="drawerRoot"></div>
+  <script type="module" src="./src/main.ts"></script>
+</body>
+</html>
