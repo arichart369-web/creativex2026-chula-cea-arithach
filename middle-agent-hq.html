@@ -466,6 +466,8 @@ body.sheet-open #tags, body.sheet-open #toasts, body.sheet-open .now, body.sheet
   <div class="s-body"><div class="brainGrid"><div class="rules" id="rules"></div><div class="mem" id="mem"></div></div></div>
 </section>
 
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="middle-sheets.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 "use strict";
@@ -678,12 +680,12 @@ function renderBoard() {
   $("taskCount2").textContent = LIVE ? LIVE.leads.length + " ลีด" : TASKS.length;
   $("tasksSub").textContent = LIVE ? "จากชีตลีดกลาง · อัปเดต " + hhmm(new Date(LIVE.at)) + (LIVE.k.lost ? " · ปิดไม่ได้ " + LIVE.k.lost + " ราย ไม่แสดงบนบอร์ด" : "")
     : "เรียงตาม funnel ออนไลน์ 8 ขั้นของ Middle Property · การ์ดทั้งหมดเป็นตัวอย่างจำลอง";
-  $("sheetActs").hidden = !SHEET.id; $("addLeadBtn").hidden = !LIVE; if (SHEET.id) $("openSheetBtn").href = sheetUrl();
+  $("sheetActs").hidden = !SHEET.id; $("addLeadBtn").hidden = !LIVE || !mcp; if (SHEET.id) $("openSheetBtn").href = sheetUrl();
   if (!LIVE) $("leadForm").hidden = true;
   renderKpis();
   $("board").innerHTML = STAGES.map(([k, label]) => {
     const cs = cards.filter(c => c.stage === k);
-    return '<div class="col"><h3>' + label + "<span>" + cs.length + "</span></h3>" + (cs.length ? cs.map(cardHTML).join("") : LIVE && k === "new" ? '<p class="colEmpty">ยังไม่มีลีดใหม่ กด เพิ่มลีด หรือกรอกในชีต</p>' : "") + "</div>";
+    return '<div class="col"><h3>' + label + "<span>" + cs.length + "</span></h3>" + (cs.length ? cs.map(cardHTML).join("") : LIVE && k === "new" ? '<p class="colEmpty">ยังไม่มีลีดใหม่ กรอกข้อมูลในชีตเพื่อเริ่มใช้งาน</p>' : "") + "</div>";
   }).join("");
 }
 
@@ -1623,8 +1625,9 @@ document.addEventListener("keydown", e => {
 /* ===================================================================== */
 /* ---------- Central lead sheet (Google Sheets connector) ------------- */
 /* ===================================================================== */
-// The artifact build fills in the spreadsheet id; the repo copy stays a demo.
-const SHEET = { id: "", server: "Google Sheets", tab: "ลีด", range: "ลีด!A1:X1000" };
+// Public OAuth client identifier; never put a client secret here.
+const GOOGLE_CLIENT_ID = "191373388886-1f3cda13nh9g22jkka5pj7u61hsm17u5.apps.googleusercontent.com";
+const SHEET = { id: "1iC59avLNuMXYmRho50X2m1-AmyIcxB5TH-pId9pjWtA", server: "Google Sheets", tab: "ลีด", range: "'ลีด'!A1:X1000" };
 const sheetUrl = () => "https://docs.google.com/spreadsheets/d/" + SHEET.id + "/edit";
 const COLS = {
   id: "รหัสลีด", date: "วันที่เข้า", time: "เวลาเข้า", channel: "ช่องทาง", name: "ชื่อลูกค้า", contact: "ติดต่อ (LINE/เบอร์)",
@@ -1639,7 +1642,7 @@ const FUNNEL = ["inbox", "screening", "listings", "walkthrough", "closing"];
 const SOCIAL = ["Facebook", "Instagram", "TikTok"];
 const OPEN = l => l.stage !== "ปิดดีล" && l.stage !== "ปิดไม่ได้";
 const teamOf = l => STAGE_TEAM[STAGE_OF[l.stage] || "new"];
-let mcp = null, perms = null, LIVE = null, prevStages = null, sheetUnsub = null;
+let mcp = null, perms = null, LIVE = null, prevStages = null, sheetUnsub = null, webReader = null;
 
 const ymd = (y, m, d) => y + "-" + String(m).padStart(2, "0") + "-" + String(d).padStart(2, "0");
 const todayStr = () => { const d = new Date(); return ymd(d.getFullYear(), d.getMonth() + 1, d.getDate()); };
@@ -1800,6 +1803,7 @@ function setSheet(k, msg, act) {
     : k === "error" ? msg + " · ตอนนี้แสดงข้อมูลตัวอย่าง"
     : "โหมดจำลอง · ข้อมูลในหน้านี้เป็นตัวอย่าง ยังไม่ต่อระบบจริง";
   ln.hidden = !SHEET.id; if (SHEET.id) ln.href = sheetUrl();
+  if (!act && webReader && LIVE) act = { label: "ตัดการเชื่อมต่อ", run: webReader.disconnect };
   ab.hidden = !act; if (act) { ab.textContent = act.label; ab.onclick = act.run; }
   const m = $("sheetMsg");
   m.hidden = !(k === "error" || k === "stale");
@@ -1871,6 +1875,20 @@ async function approveRead() {
   } catch (e) { onSheet({ type: "error", error: e }); }
 }
 async function startSheet() {
+  if (!window.claude || typeof window.claude.use !== "function") {
+    webReader = createLeadSheetReader({
+      clientId: GOOGLE_CLIENT_ID, spreadsheetId: SHEET.id, range: SHEET.range,
+      onData: applySheet,
+      onClear: () => {
+        retract(); MEMORY.length = 0; $("toasts").innerHTML = "";
+        $("leadForm").hidden = true; rerenderAll();
+      },
+      onStatus: (message, reconnect) => setSheet(LIVE ? "stale" : "error", message,
+        reconnect ? { label: "เชื่อม Google", run: () => webReader.connect() } : null),
+    });
+    setSheet("error", "ยังไม่ได้เชื่อม Google", { label: "เชื่อม Google", run: webReader.connect });
+    return;
+  }
   if (!SHEET.id || !window.claude || typeof window.claude.use !== "function") { setSheet("off"); return; }
   try { mcp = await window.claude.use("mcp"); } catch (e) { mcp = null; }
   try { perms = await window.claude.use("permissions"); } catch (e) { perms = null; }
