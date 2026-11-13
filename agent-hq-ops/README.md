@@ -38,6 +38,7 @@ Evidence lands in `test-results/` (`e2e.json`, `axe.json`, `screens/*.png`).
 
 | # | What | Unit | E2E |
 | --- | --- | --- | --- |
+| M1d | Reload after writes: a success re-reads the sheet and re-opens the lead by id; conflict / partial / error offer a "โหลดข้อมูลใหม่" button; not_connected / forbidden / invalid change nothing. Board shows when the data was loaded and has its own reload button | 65/65 (+6) | 16/16 (+2) + artifact 5/5 |
 | M1c-prep | Publish-ready single-file build (`build:artifact`), app swaps in the connector client when the read-only check passes, dark-mode tokens for the artifact page contract | 59/59 | 14/14 + artifact 5/5 (no network, runtime path without id, dark-mode axe at 360/1280) |
 | M1b | Google Sheets client over the claude.ai connector, error-code messages, ambiguous-write message, read-only connection check on the status page | 59/59 (+14) | 14/14 (+1) |
 | M1a | Sheet write path behind the gate: `SheetClient` + in-memory client, live read, add lead (next `L-0001` id, same format as the current page), move, close, lost, FR-05 row and stage re-check, audit rows without personal data, partial/error results | 45/45 (+15) | 13/13 (UI unchanged; still not_connected) |
@@ -46,6 +47,7 @@ Evidence lands in `test-results/` (`e2e.json`, `axe.json`, `screens/*.png`).
 ## Not yet tested
 
 - Real Google Sheets reads and writes: the connector client is tested against a fake runtime backed by `MemorySheetClient`. The `get_values` result shape is taken from the parser in `middle-agent-hq.html`, not from a real call made here. Config still says not_connected, so the app never takes the write path.
+- The reload-and-reopen path after a successful, conflicting or partial write: the decision (`afterWrite`) is unit-tested, but the browser e2e can only reach not_connected, so the screen wiring for those results has not run.
 - Running inside claude.ai as an artifact (the app is not published; publishing needs your approval).
 - Two people writing the same row at the same moment: the re-check narrows the window but the sheet API has no compare-and-set.
 - Screen readers (NVDA / VoiceOver) — only axe and keyboard checks so far.

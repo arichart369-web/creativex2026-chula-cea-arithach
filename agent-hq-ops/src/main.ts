@@ -1,6 +1,7 @@
 import { FEATURES, STATUS_TEXT, systemStatus } from "./config/status";
 import { type Store, createStore } from "./data/store";
 import { type ConnectionCheck, checkConnection } from "./data/runtime";
+import { afterWrite, findLead, hhmm } from "./rules/afterWrite";
 import { esc } from "./rules/escape";
 import { type Role, ROLE_TEXT, can, canMove } from "./rules/roles";
 import { type Lead, COLS, dueFollowUps } from "./rules/sheet";
@@ -9,8 +10,8 @@ import { $, field, showErrors, showResult } from "./ui/dom";
 import { closeDrawer, openDrawer } from "./ui/drawer";
 
 // In-memory state only: nothing personal goes to the URL, storage, analytics or logs.
-const state: { role: Role; leads: Lead[]; source: "live" | "demo"; full: boolean; conn: ConnectionCheck | null; loadError: string } =
-  { role: "agent", leads: [], source: "demo", full: false, conn: null, loadError: "" };
+const state: { role: Role; leads: Lead[]; source: "live" | "demo"; full: boolean; conn: ConnectionCheck | null; loadError: string; loadedAt: Date | null } =
+  { role: "agent", leads: [], source: "demo", full: false, conn: null, loadError: "", loadedAt: null };
 
 // Starts without a client; swapped for one only when the read-only check reaches the sheet.
 // Writes stay gated by src/config/status.ts either way.
@@ -45,7 +46,10 @@ function pageBoard(): string {
       ${ls.length ? `<ul class="cards">${ls.map(cardHtml).join("")}</ul>` : `<p class="empty">ไม่มีลีดในขั้นนี้</p>`}
     </section>`;
   }).join("");
-  return `<h1>บอร์ดลีด</h1><p class="lead-in">ลีดทุกขั้นจากแท็บ "ลีด" กดการ์ดเพื่อดูรายละเอียดและเลื่อนขั้น</p>${demoNotice()}<div class="board">${cols}</div>`;
+  return `<h1>บอร์ดลีด</h1><p class="lead-in">ลีดทุกขั้นจากแท็บ "ลีด" กดการ์ดเพื่อดูรายละเอียดและเลื่อนขั้น</p>
+    <div class="toolbar"><span id="loadedAt">${state.loadedAt ? `ข้อมูลเมื่อ ${hhmm(state.loadedAt)}` : ""}</span>
+      <button type="button" class="btn secondary" data-refresh>โหลดข้อมูลใหม่</button><span id="refreshMsg" role="status"></span></div>
+    ${demoNotice()}<div class="board">${cols}</div>`;
 }
 
 function pageNew(): string {
@@ -107,19 +111,61 @@ function render(focus = false): void {
   if (route === "#/status") fillConnection();
 }
 
+async function refresh(): Promise<void> {
+  closeDrawer(false);
+  await load();
+  render();
+}
+
+/** Re-open a lead after a reload; it is found by id, so a re-sorted sheet is fine. */
+function reopen(id: string, note: string): void {
+  const l = findLead(state.leads, id);
+  const card = document.querySelector<HTMLElement>(`[data-lead="${CSS.escape(id)}"]`);
+  if (l) { openLead(id, card ?? $("#main"), note); return; }
+  const box = document.getElementById("refreshMsg");
+  if (box) box.textContent = `ไม่พบลีด ${id} ในชีตแล้ว`;
+}
+
+/** Show a store result, then reload or offer a reload as afterWrite says. */
+async function handleWrite(box: HTMLElement, r: Awaited<ReturnType<Store["moveStage"]>>, leadId?: string): Promise<void> {
+  const next = afterWrite(r);
+  if (next === "reload") {
+    await refresh();
+    if (leadId) reopen(leadId, "บันทึกแล้ว · โหลดข้อมูลจากชีตใหม่แล้ว");
+    else { const m = document.getElementById("newMsg"); if (m) showResult(m, r); }
+    return;
+  }
+  showResult(box, r);
+  if (next === "offer_reload") {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "btn secondary";
+    b.textContent = "โหลดข้อมูลใหม่";
+    b.addEventListener("click", async () => { await refresh(); if (leadId) reopen(leadId, "โหลดข้อมูลจากชีตใหม่แล้ว"); });
+    box.append(" ", b);
+  }
+}
+
 function bind(main: HTMLElement): void {
   main.querySelectorAll<HTMLButtonElement>("[data-lead]").forEach(b => b.addEventListener("click", () => openLead(b.dataset.lead!, b)));
+  main.querySelector<HTMLButtonElement>("[data-refresh]")?.addEventListener("click", async () => {
+    await refresh();
+    const b = document.querySelector<HTMLElement>("[data-refresh]");
+    b?.focus();
+    const m = document.getElementById("refreshMsg");
+    if (m) m.textContent = "โหลดข้อมูลใหม่แล้ว";
+  });
   const form = main.querySelector<HTMLFormElement>("#newForm");
   form?.addEventListener("submit", async e => {
     e.preventDefault();
     const v = (k: string) => (form.elements.namedItem(k) as HTMLInputElement).value;
     const r = await store.addLead(state.role, { channel: v("channel"), name: v("name"), contact: v("contact"), budget: v("budget"), type: v("type"), loc: v("loc"), movein: v("movein") });
     showErrors(form, !r.ok && r.status === "invalid" ? r.errors : {});
-    if (r.ok || r.status !== "invalid") showResult($("#newMsg", form), r);
+    if (r.ok || r.status !== "invalid") await handleWrite($("#newMsg", form), r);
   });
 }
 
-function openLead(id: string, from: HTMLElement): void {
+function openLead(id: string, from: HTMLElement, note = ""): void {
   const l = state.leads.find(x => x.id === id);
   if (!l) return;
   const role = state.role;
@@ -138,22 +184,22 @@ function openLead(id: string, from: HTMLElement): void {
       ${field("reason", "เหตุผลที่ปิดไม่ได้ *", `<textarea %A% rows="3"></textarea>`)}
       <div><button class="btn secondary" type="submit">บันทึกปิดไม่ได้</button></div><div id="lostMsg" aria-live="polite"></div></form></section>`);
   const none = !parts.length ? `<p class="notice">${esc(isOpen(l.stage) ? `บทบาท${ROLE_TEXT[role]}ทำอะไรกับลีดนี้ไม่ได้` : "ลีดนี้ปิดแล้ว")}</p>` : "";
-  const dlg = openDrawer(esc(l.id), `${demoNotice()}<p><span class="st ${state.source}">${esc(l.stage)}</span> · ทีม${esc(STAGE_TEAM[l.stage])}</p><dl>${facts}</dl>${none}<div class="actions">${parts.join("")}</div>`, from);
+  const dlg = openDrawer(esc(l.id), `${note ? `<p class="notice good" role="status">${esc(note)}</p>` : ""}${demoNotice()}<p><span class="st ${state.source}">${esc(l.stage)}</span> · ทีม${esc(STAGE_TEAM[l.stage])}</p><dl>${facts}</dl>${none}<div class="actions">${parts.join("")}</div>`, from);
 
-  dlg.querySelector("#moveBtn")?.addEventListener("click", async () => showResult($("#moveMsg", dlg), await store.moveStage(role, l, nx!)));
+  dlg.querySelector("#moveBtn")?.addEventListener("click", async () => handleWrite($("#moveMsg", dlg), await store.moveStage(role, l, nx!), l.id));
   const cf = dlg.querySelector<HTMLFormElement>("#closeForm");
   cf?.addEventListener("submit", async e => {
     e.preventDefault();
     const r = await store.closeDeal(role, l, { sign: ($("#sign", cf) as HTMLInputElement).value, rent: ($("#rent", cf) as HTMLInputElement).value });
     showErrors(cf, !r.ok && r.status === "invalid" ? r.errors : {});
-    if (r.ok || r.status !== "invalid") showResult($("#closeMsg", cf), r);
+    if (r.ok || r.status !== "invalid") await handleWrite($("#closeMsg", cf), r, l.id);
   });
   const lf = dlg.querySelector<HTMLFormElement>("#lostForm");
   lf?.addEventListener("submit", async e => {
     e.preventDefault();
     const r = await store.markLost(role, l, ($("#reason", lf) as HTMLTextAreaElement).value);
     showErrors(lf, !r.ok && r.status === "invalid" ? r.errors : {});
-    if (r.ok || r.status !== "invalid") showResult($("#lostMsg", lf), r);
+    if (r.ok || r.status !== "invalid") await handleWrite($("#lostMsg", lf), r, l.id);
   });
 }
 
@@ -161,7 +207,7 @@ async function start(): Promise<void> {
   renderBadge();
   // First paint uses the demo rows straight away; the connector check can take up to 10 s.
   const d = await createStore().listLeads();
-  Object.assign(state, { leads: d.leads, source: d.status });
+  Object.assign(state, { leads: d.leads, source: d.status, loadedAt: new Date() });
   const sel = $("#roleSel") as HTMLSelectElement;
   sel.value = state.role;
   sel.addEventListener("change", () => { state.role = sel.value as Role; closeDrawer(false); render(); });
@@ -179,10 +225,10 @@ async function load(): Promise<void> {
   if (state.conn.ok) store = createStore({ client: state.conn.client });
   try {
     const r = await store.listLeads();
-    Object.assign(state, { leads: r.leads, source: r.status, full: r.full, loadError: "" });
+    Object.assign(state, { leads: r.leads, source: r.status, full: r.full, loadError: "", loadedAt: new Date() });
   } catch (e) {
     const r = await createStore().listLeads();
-    Object.assign(state, { leads: r.leads, source: r.status, full: false, loadError: e instanceof Error ? e.message : String(e) });
+    Object.assign(state, { leads: r.leads, source: r.status, full: false, loadError: e instanceof Error ? e.message : String(e), loadedAt: new Date() });
   }
 }
 

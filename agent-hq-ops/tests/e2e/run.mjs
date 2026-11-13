@@ -76,6 +76,25 @@ await test("status page reports the sheet connection without writing", async () 
   assert(t.includes("ไม่ได้เปิดใน claude.ai"), "connection line: " + t);
 });
 
+await test("board reload button re-reads, keeps focus and announces it", async () => {
+  await go("#/board");
+  assert(/ข้อมูลเมื่อ \d\d:\d\d/.test(await page.textContent("#loadedAt")), "no last-loaded time");
+  await page.focus("[data-refresh]");
+  await page.keyboard.press("Enter");
+  await page.waitForFunction(() => document.querySelector("#refreshMsg")?.textContent.includes("โหลดข้อมูลใหม่แล้ว"));
+  assert(await page.evaluate(() => document.activeElement.matches("[data-refresh]")), "focus lost after reload");
+  assert((await page.$$(".card")).length === 6, "cards changed after reload");
+});
+
+await test("not_connected offers no reload button", async () => {
+  await go("#/board");
+  await role("agent");
+  await page.click('[data-lead="ตัวอย่าง-01"]');
+  await page.click("#moveBtn");
+  assert(!(await page.$("#moveMsg button")), "reload offered for a write that never reached the sheet");
+  await page.keyboard.press("Escape");
+});
+
 await test("T2 viewer sees no write controls", async () => {
   await go("#/board");
   await role("viewer");
