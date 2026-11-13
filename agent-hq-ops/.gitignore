@@ -2,3 +2,4 @@ node_modules
 dist
 test-results
 dist-artifact
+dist-e2e-live

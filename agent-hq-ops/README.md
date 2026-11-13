@@ -15,7 +15,10 @@ npm run build      # type-check + production build
 npm run e2e        # e2e + axe + screenshots (needs the build; uses the pre-installed Playwright)
 npm run build:artifact   # one self-contained file: dist-artifact/agent-hq-ops.html
 npm run e2e:artifact     # checks that file: no network, runtime path, dark mode + axe
+npm run e2e:live         # TEST build (vite --mode e2e-live): live path in a browser on a fake in-page connector
 ```
+
+`e2e:live` builds a separate test bundle in `dist-e2e-live/` where every feature is live and the sheet id is a fake one. It is never published; `e2e:artifact` checks that the publish build contains none of it and marks no feature live.
 
 Evidence lands in `test-results/` (`e2e.json`, `axe.json`, `screens/*.png`).
 
@@ -38,6 +41,7 @@ Evidence lands in `test-results/` (`e2e.json`, `axe.json`, `screens/*.png`).
 
 | # | What | Unit | E2E |
 | --- | --- | --- | --- |
+| M1e | Browser e2e of the live path on a fake "Google Sheets" connector: T1 live read, T3 move (one cell + one audit row, drawer re-opens), T4 re-sorted sheet (conflict, nothing written, reload re-opens the right lead), T5 close, partial close, T6 lost with reason redacted, add lead, T8 no PII / no network; guard that the publish build stays not_connected | 65/65 | 16/16 + artifact 6/6 (+1) + live 9/9 (new) |
 | M1d | Reload after writes: a success re-reads the sheet and re-opens the lead by id; conflict / partial / error offer a "โหลดข้อมูลใหม่" button; not_connected / forbidden / invalid change nothing. Board shows when the data was loaded and has its own reload button | 65/65 (+6) | 16/16 (+2) + artifact 5/5 |
 | M1c-prep | Publish-ready single-file build (`build:artifact`), app swaps in the connector client when the read-only check passes, dark-mode tokens for the artifact page contract | 59/59 | 14/14 + artifact 5/5 (no network, runtime path without id, dark-mode axe at 360/1280) |
 | M1b | Google Sheets client over the claude.ai connector, error-code messages, ambiguous-write message, read-only connection check on the status page | 59/59 (+14) | 14/14 (+1) |
@@ -47,7 +51,6 @@ Evidence lands in `test-results/` (`e2e.json`, `axe.json`, `screens/*.png`).
 ## Not yet tested
 
 - Real Google Sheets reads and writes: the connector client is tested against a fake runtime backed by `MemorySheetClient`. The `get_values` result shape is taken from the parser in `middle-agent-hq.html`, not from a real call made here. Config still says not_connected, so the app never takes the write path.
-- The reload-and-reopen path after a successful, conflicting or partial write: the decision (`afterWrite`) is unit-tested, but the browser e2e can only reach not_connected, so the screen wiring for those results has not run.
 - Running inside claude.ai as an artifact (the app is not published; publishing needs your approval).
 - Two people writing the same row at the same moment: the re-check narrows the window but the sheet API has no compare-and-set.
 - Screen readers (NVDA / VoiceOver) — only axe and keyboard checks so far.

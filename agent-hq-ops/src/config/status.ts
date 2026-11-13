@@ -9,16 +9,27 @@ export interface FeatureStatus {
   note: string;
 }
 
-export const FEATURES = {
+export type FeatureKey = "leadSheet" | "addLead" | "moveStage" | "closeDeal" | "auditLog" | "roles";
+
+const RELEASE: Record<FeatureKey, FeatureStatus> = {
   leadSheet: { status: "demo", label: "ชีตลีด", note: "แสดงข้อมูลตัวอย่าง ยังไม่ได้อ่านชีตจริง" },
   addLead: { status: "not_connected", label: "เพิ่มลีด", note: "ยังไม่ได้เชื่อมการเขียนลงชีต" },
   moveStage: { status: "not_connected", label: "เลื่อนขั้น", note: "ยังไม่ได้เชื่อมการเขียนลงชีต" },
   closeDeal: { status: "not_connected", label: "ปิดดีล / ปิดไม่ได้", note: "ยังไม่ได้เชื่อมการเขียนลงชีต" },
   auditLog: { status: "not_connected", label: "บันทึกการเปลี่ยนแปลง", note: "ยังไม่มีแท็บ \"บันทึก\" ในชีต" },
   roles: { status: "demo", label: "บทบาท", note: "สลับบทบาทได้เพื่อทดลองเท่านั้น ยังไม่ยืนยันตัวตน" },
-} as const satisfies Record<string, FeatureStatus>;
+};
 
-export type FeatureKey = keyof typeof FEATURES;
+/**
+ * True only in the `e2e-live` test build (vite --mode e2e-live), which runs the live path
+ * against a fake in-page connector. That build is never published; the artifact e2e checks
+ * the publish build still says not_connected.
+ */
+export const E2E_LIVE = import.meta.env.MODE === "e2e-live";
+
+export const FEATURES: Record<FeatureKey, FeatureStatus> = E2E_LIVE
+  ? (Object.fromEntries(Object.entries(RELEASE).map(([k, v]) => [k, { ...v, status: "live", note: "ทดสอบกับชีตจำลอง (build ทดสอบ)" }])) as Record<FeatureKey, FeatureStatus>)
+  : RELEASE;
 
 export const STATUS_TEXT: Record<Status, string> = {
   live: "ทำงานจริง",

@@ -10,7 +10,8 @@
     "test": "vitest run",
     "e2e": "node tests/e2e/run.mjs",
     "build:artifact": "npm run build && node scripts/inline.mjs",
-    "e2e:artifact": "node tests/e2e/artifact.mjs"
+    "e2e:artifact": "node tests/e2e/artifact.mjs",
+    "e2e:live": "vite build --mode e2e-live --outDir dist-e2e-live --emptyOutDir && node scripts/inline.mjs dist-e2e-live dist-e2e-live/single.html && node tests/e2e/live.mjs"
   },
   "devDependencies": {
     "axe-core": "^4.10.2",

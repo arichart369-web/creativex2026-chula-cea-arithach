@@ -42,6 +42,17 @@ await test("single file loads with no other requests and no errors", async () =>
   await ctx.close();
 });
 
+await test("the publish build carries none of the e2e-live test build", async () => {
+  const html = readFileSync(new URL(FILE));
+  for (const s of ["E2E-FAKE-SHEET", "build ทดสอบ", "e2e-live"]) assert(!html.includes(s), `found "${s}" in the publish build`);
+  const { ctx, page } = await open();
+  await page.goto(FILE + "#/status");
+  await page.waitForSelector(".st");
+  const live = await page.$$eval(".st.live", n => n.length);
+  assert(live === 0, `${live} feature(s) marked live in the publish build`);
+  await ctx.close();
+});
+
 await test("outside claude.ai the status page says so", async () => {
   const { ctx, page } = await open();
   await page.goto(FILE + "#/status");
