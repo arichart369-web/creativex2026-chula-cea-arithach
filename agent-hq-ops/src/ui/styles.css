@@ -26,7 +26,8 @@ body { margin: 0; line-height: 1.55; font-size: 16px; background: var(--bg); col
 .brand { font-weight: 700; }
 .badge { font-size: 14px; font-weight: 600; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--warn-line); background: var(--warn-bg); color: var(--warn-ink); }
 .badge.live { background: var(--ok-bg); color: var(--ok-ink); border-color: var(--ok-ink); }
-.role { margin-left: auto; display: flex; align-items: center; gap: 8px; font-size: 14px; }
+.who { margin-left: auto; font-size: 14px; color: var(--muted); overflow-wrap: anywhere; min-width: 0; }
+.role { display: flex; align-items: center; gap: 8px; font-size: 14px; }
 select, input, textarea, button { font: inherit; }
 select, input, textarea { min-height: 44px; padding: 8px 10px; border: 1px solid var(--muted); border-radius: 8px; background: var(--surface); color: var(--ink); width: 100%; }
 .role select { width: auto; }

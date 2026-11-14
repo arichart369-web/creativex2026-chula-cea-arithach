@@ -40,6 +40,11 @@ const axe = async key => {
 
 const PAGES = ["#board", "#new", "#due", "#log", "#status"];
 
+await test("outside claude.ai the viewer is shown as anonymous", async () => {
+  await go("#board");
+  await page.waitForFunction(() => document.querySelector("#whoAmI")?.textContent.includes("ไม่ระบุตัวตน"));
+});
+
 await test("T1 every page loads in demo mode with the badge", async () => {
   for (const h of PAGES) {
     await go(h);

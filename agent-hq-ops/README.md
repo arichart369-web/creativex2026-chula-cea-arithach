@@ -42,6 +42,7 @@ Evidence lands in `test-results/` (`e2e.json`, `axe.json`, `screens/*.png`).
 
 | # | What | Unit | E2E |
 | --- | --- | --- | --- |
+| B1 | Real viewer identity: `src/data/identity.ts` reads claude.ai's `user` capability (scopes profile + email). The audit log's "ผู้ทำ" gets the viewer's email, else the opaque claude.ai id, else "ไม่ระบุตัวตน"; the display name is shown in the header only, never written. Test-sheet artifact republished (v2) with `user` declared | 82/82 (+8) | 18/18 (+1) + artifact 6/6 + live 10/10 (actor = email, name not in log) |
 | M1c | Published to a TEST sheet ("Agent HQ Ops — ชีตทดสอบ", created for this) as a private claude.ai artifact with `mcp: Google Sheets [get_values, update_values, append_values]`. Fits the artifact page contract: plain `#board`-style routes, safe-area side gutters, `color-scheme: dark` in the dark tokens, fragment output (`--fragment`). `build:test-sheet` takes the sheet id from `VITE_SHEET_ID` at build time; the repo keeps it empty. The role switcher no longer drags the badge to "ข้อมูลสาธิต" | 74/74 | 17/17 + artifact 6/6 + live 10/10; T1–T5 on the real test sheet: waiting for the owner's run in claude.ai |
 | M1f | Set the next follow-up date from the lead drawer (FR-08 action): agent and lead, open leads only, a real date today or later; same gate, row re-check and audit row as every write; new `followUp` feature in the status config | 74/74 (+9) | 17/17 (+1) + artifact 6/6 + live 10/10 (+1: set to today → shows on the due page) |
 | M1e | Browser e2e of the live path on a fake "Google Sheets" connector: T1 live read, T3 move (one cell + one audit row, drawer re-opens), T4 re-sorted sheet (conflict, nothing written, reload re-opens the right lead), T5 close, partial close, T6 lost with reason redacted, add lead, T8 no PII / no network; guard that the publish build stays not_connected | 65/65 | 16/16 + artifact 6/6 (+1) + live 9/9 (new) |
@@ -67,5 +68,6 @@ Evidence lands in `test-results/` (`e2e.json`, `axe.json`, `screens/*.png`).
 - The id of a TEST sheet (not the live lead sheet) for `src/config/sheet.ts`, and approval to publish the app as a private artifact that declares `mcp: {servers: [{server: "Google Sheets", tools: ["get_values", "update_values", "append_values"]}]}`.
 - Whether "ปิดไม่ได้" reasons come from a fixed list.
 - Whether a stage can be moved back, and by whom.
+- Audit "ผู้ทำ": I write the staff member's email (readable in the sheet) rather than claude.ai's opaque id, which the platform recommends for stored state; confirm that staff emails may sit in the audit tab.
 - Follow-up dates: I assumed "today or later" and that agents and leads may both set them; confirm or change.
 - Retention period for lost leads (PDPA).

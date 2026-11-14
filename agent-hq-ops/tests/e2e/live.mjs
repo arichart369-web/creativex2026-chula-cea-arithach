@@ -36,7 +36,7 @@ function installFake(seed) {
   };
   window.__sheet = { tabs, fails, calls };
   window.claude = {
-    use: async name => name !== "mcp" ? null : {
+    use: async name => name === "user" ? { me: async () => ({ id: "u_e2e", email: "agent@example.com", name: "เอเจนต์ทดสอบ" }) } : name !== "mcp" ? null : {
       callTool: async (server, tool, input) => {
         calls.push([tool, input.range]);
         const f = fails.findIndex(x => x.tool === tool && input.range.includes(x.match));
@@ -98,6 +98,9 @@ await test("T3 agent moves a lead one stage: one cell, one audit row, drawer re-
   const t = await sheet();
   assert(t["ลีด"][1][C("ขั้น")] === "คัดกรอง", "stage not written");
   assert(t["บันทึก"].length === 2 && t["บันทึก"][1][3] === "moveStage" && t["บันทึก"][1][6] === "ลีดใหม่", "audit: " + JSON.stringify(t["บันทึก"]));
+  assert(t["บันทึก"][1][1] === "agent@example.com", "actor in audit log: " + t["บันทึก"][1][1]);
+  assert(!JSON.stringify(t["บันทึก"]).includes("เอเจนต์ทดสอบ"), "display name written to the audit log");
+  assert((await page.textContent("#whoAmI")) === "ผู้ใช้: เอเจนต์ทดสอบ", "header: " + (await page.textContent("#whoAmI")));
   await axe("drawer-after-success");
   await page.keyboard.press("Escape");
   assert(await cardIn("L-0001", "คัดกรอง"), "board not reloaded");

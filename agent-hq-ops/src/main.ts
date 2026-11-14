@@ -1,5 +1,6 @@
 import { FEATURES, STATUS_TEXT, TEST_SHEET_LIVE, systemStatus } from "./config/status";
 import { type Store, createStore } from "./data/store";
+import { type Identity, actorFrom, resolveIdentity } from "./data/identity";
 import { type ConnectionCheck, checkConnection } from "./data/runtime";
 import { afterWrite, findLead, hhmm } from "./rules/afterWrite";
 import { esc } from "./rules/escape";
@@ -16,6 +17,7 @@ const state: { role: Role; leads: Lead[]; source: "live" | "demo"; full: boolean
 // Starts without a client; swapped for one only when the read-only check reaches the sheet.
 // Writes stay gated by src/config/status.ts either way.
 let store: Store = createStore();
+let identity: Identity = actorFrom(null);
 
 const CHANNELS = ["LINE OA", "Facebook", "Instagram", "TikTok", "เว็บไซต์", "โทรศัพท์"];
 const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; };
@@ -233,7 +235,10 @@ async function start(): Promise<void> {
 
 async function load(): Promise<void> {
   state.conn = await checkConnection();
-  if (state.conn.ok) store = createStore({ client: state.conn.client });
+  identity = await resolveIdentity();
+  const who = document.getElementById("whoAmI");
+  if (who) who.textContent = `ผู้ใช้: ${identity.display}`;
+  if (state.conn.ok) store = createStore({ client: state.conn.client, actor: identity.actor });
   try {
     const r = await store.listLeads();
     Object.assign(state, { leads: r.leads, source: r.status, full: r.full, loadError: "", loadedAt: new Date() });
