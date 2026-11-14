@@ -18,7 +18,7 @@ const SEED = { "ลีด": [COLS, row("L-0001", "ลีดใหม่", "LINE 
 const C = name => COLS.indexOf(name);
 
 // The fake runtime, installed before the page's own script runs.
-function installFake(seed) {
+function installFake({ seed, refuse = "" }) {
   const tabs = JSON.parse(JSON.stringify(seed));
   const fails = []; // [{tool, match}] consumed once
   const calls = [];
@@ -41,6 +41,7 @@ function installFake(seed) {
         calls.push([tool, input.range]);
         const f = fails.findIndex(x => x.tool === tool && input.range.includes(x.match));
         if (f >= 0) { const { code } = fails.splice(f, 1)[0]; throw { code, message: "injected" }; }
+        if (refuse) throw { code: refuse, message: "refused" };
         if (server !== "Google Sheets" || input.spreadsheetId !== "E2E-FAKE-SHEET") throw { code: "not_in_manifest", message: "?" };
         if (tool === "get_values") return { payload: { range: input.range, values: read(input.range) } };
         if (tool === "update_values") { const [g, ref] = split(input.range); const a = cell(ref); g[a.r][a.c] = String(input.values[0][0]); return { payload: {} }; }
@@ -60,7 +61,7 @@ const assert = (c, m) => { if (!c) throw new Error(m); };
 
 const browser = await chromium.launch();
 const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
-await ctx.addInitScript(installFake, SEED);
+await ctx.addInitScript(installFake, { seed: SEED });
 const page = await ctx.newPage();
 const errors = [], requests = [];
 page.on("pageerror", e => errors.push(String(e)));
@@ -218,6 +219,18 @@ await test("T8 no personal data in URL or storage; no request leaves the page", 
   const s = await page.evaluate(() => location.href + JSON.stringify(localStorage) + JSON.stringify(sessionStorage) + document.cookie);
   for (const pii of ["คุณทดสอบสด", "0899999999", "เชียงใหม่"]) assert(!decodeURIComponent(s).includes(pii), "found " + pii);
   assert(requests.every(u => u.startsWith("file:")), "network: " + requests.filter(u => !u.startsWith("file:")).join(", "));
+});
+
+await test("a live build that cannot reach the sheet does not claim to be live", async () => {
+  const c2 = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+  await c2.addInitScript(installFake, { seed: SEED, refuse: "needs_reauth" });
+  const p2 = await c2.newPage();
+  await p2.goto(FILE + "#status");
+  await p2.waitForFunction(() => document.querySelector("#sysBadge")?.textContent.includes("เชื่อมชีตไม่ได้"));
+  const conn = await p2.textContent("#connCheck");
+  assert(conn.includes("เชื่อม Google Sheets ใหม่"), "connection line: " + conn);
+  assert(!(await p2.textContent("#sysBadge")).includes("ทำงานจริง"), "badge still claims live");
+  await c2.close();
 });
 
 await test("no page errors", async () => assert(!errors.length, errors.join("\n")));

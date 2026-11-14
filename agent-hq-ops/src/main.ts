@@ -3,6 +3,7 @@ import { type Store, createStore } from "./data/store";
 import { type Identity, actorFrom, resolveIdentity } from "./data/identity";
 import { type ConnectionCheck, checkConnection } from "./data/runtime";
 import { afterWrite, findLead, hhmm } from "./rules/afterWrite";
+import { badgeFor } from "./rules/badge";
 import { esc } from "./rules/escape";
 import { type Role, ROLE_TEXT, can, canFollowUp, canMove } from "./rules/roles";
 import { type Lead, COLS, dueFollowUps } from "./rules/sheet";
@@ -22,11 +23,11 @@ let identity: Identity = actorFrom(null);
 const CHANNELS = ["LINE OA", "Facebook", "Instagram", "TikTok", "เว็บไซต์", "โทรศัพท์"];
 const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; };
 
-function renderBadge(): void {
-  const s = systemStatus();
+function renderBadge(source: "live" | "demo" | "pending" = "pending"): void {
+  const badge = badgeFor({ config: systemStatus(), source, testSheet: TEST_SHEET_LIVE });
   const b = $("#sysBadge");
-  b.className = "badge" + (s === "live" ? " live" : "");
-  b.textContent = `ระบบ: ${STATUS_TEXT[s]}${TEST_SHEET_LIVE && s === "live" ? " (ชีตทดสอบ)" : ""}`;
+  b.className = "badge" + (badge.tone === "live" ? " live" : "");
+  b.textContent = badge.text;
 }
 
 const demoNotice = () =>
@@ -246,6 +247,8 @@ async function load(): Promise<void> {
     const r = await createStore().listLeads();
     Object.assign(state, { leads: r.leads, source: r.status, full: false, loadError: e instanceof Error ? e.message : String(e), loadedAt: new Date() });
   }
+  // The badge follows what was actually read, not only what config says.
+  renderBadge(state.source);
 }
 
 start();
