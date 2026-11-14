@@ -15,6 +15,7 @@ npm run build      # type-check + production build
 npm run e2e        # e2e + axe + screenshots (needs the build; uses the pre-installed Playwright)
 npm run build:artifact   # one self-contained file: dist-artifact/agent-hq-ops.html
 npm run e2e:artifact     # checks that file: no network, runtime path, dark mode + axe
+VITE_SHEET_ID=<test sheet id> npm run build:test-sheet   # artifact fragment wired to a TEST sheet: dist-artifact/agent-hq-ops-test-sheet.html
 npm run e2e:live         # TEST build (vite --mode e2e-live): live path in a browser on a fake in-page connector
 ```
 
@@ -41,6 +42,7 @@ Evidence lands in `test-results/` (`e2e.json`, `axe.json`, `screens/*.png`).
 
 | # | What | Unit | E2E |
 | --- | --- | --- | --- |
+| M1c | Published to a TEST sheet ("Agent HQ Ops — ชีตทดสอบ", created for this) as a private claude.ai artifact with `mcp: Google Sheets [get_values, update_values, append_values]`. Fits the artifact page contract: plain `#board`-style routes, safe-area side gutters, `color-scheme: dark` in the dark tokens, fragment output (`--fragment`). `build:test-sheet` takes the sheet id from `VITE_SHEET_ID` at build time; the repo keeps it empty. The role switcher no longer drags the badge to "ข้อมูลสาธิต" | 74/74 | 17/17 + artifact 6/6 + live 10/10; T1–T5 on the real test sheet: waiting for the owner's run in claude.ai |
 | M1f | Set the next follow-up date from the lead drawer (FR-08 action): agent and lead, open leads only, a real date today or later; same gate, row re-check and audit row as every write; new `followUp` feature in the status config | 74/74 (+9) | 17/17 (+1) + artifact 6/6 + live 10/10 (+1: set to today → shows on the due page) |
 | M1e | Browser e2e of the live path on a fake "Google Sheets" connector: T1 live read, T3 move (one cell + one audit row, drawer re-opens), T4 re-sorted sheet (conflict, nothing written, reload re-opens the right lead), T5 close, partial close, T6 lost with reason redacted, add lead, T8 no PII / no network; guard that the publish build stays not_connected | 65/65 | 16/16 + artifact 6/6 (+1) + live 9/9 (new) |
 | M1d | Reload after writes: a success re-reads the sheet and re-opens the lead by id; conflict / partial / error offer a "โหลดข้อมูลใหม่" button; not_connected / forbidden / invalid change nothing. Board shows when the data was loaded and has its own reload button | 65/65 (+6) | 16/16 (+2) + artifact 5/5 |
@@ -51,7 +53,7 @@ Evidence lands in `test-results/` (`e2e.json`, `axe.json`, `screens/*.png`).
 
 ## Not yet tested
 
-- Real Google Sheets reads and writes: the connector client is tested against a fake runtime backed by `MemorySheetClient`. The `get_values` result shape is taken from the parser in `middle-agent-hq.html`, not from a real call made here. Config still says not_connected, so the app never takes the write path.
+- Real Google Sheets reads and writes from the published page: the connector client is tested against a fake runtime. The `get_values` result shape was confirmed with a real read of the test sheet (`{range, values}`, and `{range}` alone for an empty range). Config still says not_connected, so the app never takes the write path.
 - Running inside claude.ai as an artifact (the app is not published; publishing needs your approval).
 - Two people writing the same row at the same moment: the re-check narrows the window but the sheet API has no compare-and-set.
 - Screen readers (NVDA / VoiceOver) — only axe and keyboard checks so far.

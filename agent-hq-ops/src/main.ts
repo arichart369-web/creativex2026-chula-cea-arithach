@@ -1,4 +1,4 @@
-import { FEATURES, STATUS_TEXT, systemStatus } from "./config/status";
+import { FEATURES, STATUS_TEXT, TEST_SHEET_LIVE, systemStatus } from "./config/status";
 import { type Store, createStore } from "./data/store";
 import { type ConnectionCheck, checkConnection } from "./data/runtime";
 import { afterWrite, findLead, hhmm } from "./rules/afterWrite";
@@ -24,7 +24,7 @@ function renderBadge(): void {
   const s = systemStatus();
   const b = $("#sysBadge");
   b.className = "badge" + (s === "live" ? " live" : "");
-  b.textContent = `ระบบ: ${STATUS_TEXT[s]}`;
+  b.textContent = `ระบบ: ${STATUS_TEXT[s]}${TEST_SHEET_LIVE && s === "live" ? " (ชีตทดสอบ)" : ""}`;
 }
 
 const demoNotice = () =>
@@ -98,17 +98,17 @@ function fillConnection(): void {
   box.textContent = r.ok ? `อ่านหัวตารางแท็บ "ลีด" ได้ (${r.headers} คอลัมน์) · การเขียนยังปิดอยู่จนกว่าจะผ่าน gate` : r.message;
 }
 
-const ROUTES: Record<string, () => string> = { "#/board": pageBoard, "#/new": pageNew, "#/due": pageDue, "#/log": pageLog, "#/status": pageStatus };
+const ROUTES: Record<string, () => string> = { "#board": pageBoard, "#new": pageNew, "#due": pageDue, "#log": pageLog, "#status": pageStatus };
 
 function render(focus = false): void {
-  const route = ROUTES[location.hash] ? location.hash : "#/board";
+  const route = ROUTES[location.hash] ? location.hash : "#board";
   const main = $("#main");
   main.innerHTML = ROUTES[route]();
   document.querySelectorAll<HTMLAnchorElement>(".nav a").forEach(a => (a.getAttribute("href") === route ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current")));
   document.title = `${$("h1", main).textContent} · Agent HQ`;
   if (focus) main.focus();
   bind(main);
-  if (route === "#/status") fillConnection();
+  if (route === "#status") fillConnection();
 }
 
 async function refresh(): Promise<void> {

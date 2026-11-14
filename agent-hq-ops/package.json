@@ -11,7 +11,8 @@
     "e2e": "node tests/e2e/run.mjs",
     "build:artifact": "npm run build && node scripts/inline.mjs",
     "e2e:artifact": "node tests/e2e/artifact.mjs",
-    "e2e:live": "vite build --mode e2e-live --outDir dist-e2e-live --emptyOutDir && node scripts/inline.mjs dist-e2e-live dist-e2e-live/single.html && node tests/e2e/live.mjs"
+    "e2e:live": "vite build --mode e2e-live --outDir dist-e2e-live --emptyOutDir && node scripts/inline.mjs dist-e2e-live dist-e2e-live/single.html && node tests/e2e/live.mjs",
+    "build:test-sheet": "test -n \"$VITE_SHEET_ID\" && VITE_LIVE=1 vite build --outDir dist-test-sheet --emptyOutDir && node scripts/inline.mjs dist-test-sheet dist-artifact/agent-hq-ops-test-sheet.html --fragment"
   },
   "devDependencies": {
     "axe-core": "^4.10.2",

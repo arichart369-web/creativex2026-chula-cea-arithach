@@ -68,7 +68,7 @@ page.on("request", r => requests.push(r.url()));
 
 const sheet = () => page.evaluate(() => window.__sheet.tabs);
 const role = async r => { await page.selectOption("#roleSel", r); await page.waitForTimeout(50); };
-const openBoard = async () => { await page.goto(FILE + "#/board"); await page.waitForSelector('[data-lead="L-0001"]'); };
+const openBoard = async () => { await page.goto(FILE + "#board"); await page.waitForSelector('[data-lead="L-0001"]'); };
 const cardIn = (id, stage) => page.$(`section:has(h2 span:text-is("${stage}")) [data-lead="${id}"]`);
 const axe = async key => {
   await page.addScriptTag({ content: AXE });
@@ -83,7 +83,7 @@ await test("T1 live: reads the sheet through the connector and labels it live", 
   assert((await page.textContent("#sysBadge")).includes("ทำงานจริง"), "badge");
   assert(!(await page.$("main .notice")), "a demo or error notice is shown");
   assert(await cardIn("L-0002", "นัดดูจริง"), "L-0002 not in นัดดูจริง");
-  await page.goto(FILE + "#/status");
+  await page.goto(FILE + "#status");
   await page.waitForFunction(() => document.querySelector("#connCheck")?.textContent.includes("คอลัมน์"));
   assert((await page.textContent("#connCheck")).includes("19 คอลัมน์"), await page.textContent("#connCheck"));
 });
@@ -144,7 +144,7 @@ await test("T5 agent cannot close; lead closes with typed date and rent", async 
 
 await test("partial close: a failed cell is reported, stage stays, reload offered", async () => {
   // The fake sheet is re-seeded on a full page load, so add the row and use the app's own reload.
-  await page.evaluate(() => { location.hash = "#/board"; window.__sheet.tabs["ลีด"].push(["L-0004", ...Array(10).fill(""), "นัดดูจริง", ...Array(7).fill("")]); });
+  await page.evaluate(() => { location.hash = "#board"; window.__sheet.tabs["ลีด"].push(["L-0004", ...Array(10).fill(""), "นัดดูจริง", ...Array(7).fill("")]); });
   await page.click("[data-refresh]");
   await page.waitForSelector('[data-lead="L-0004"]');
   await role("lead");
@@ -177,7 +177,7 @@ await test("T6 lost needs a reason; the reason is redacted in the audit log", as
 });
 
 await test("add lead appends the next id; contact stays out of the audit log", async () => {
-  await page.goto(FILE + "#/new");
+  await page.goto(FILE + "#new");
   await page.waitForSelector("#newForm");
   await role("agent");
   await page.selectOption("#channel", "LINE OA");
@@ -194,7 +194,7 @@ await test("add lead appends the next id; contact stays out of the audit log", a
 
 await test("follow-up set to today: one cell, one audit row, lead shows on the due page", async () => {
   const today = await page.evaluate(() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; });
-  await page.evaluate(() => { location.hash = "#/board"; });
+  await page.evaluate(() => { location.hash = "#board"; });
   await page.click("[data-refresh]");
   await page.waitForSelector('[data-lead="L-0005"]');
   await role("agent");
@@ -207,7 +207,7 @@ await test("follow-up set to today: one cell, one audit row, lead shows on the d
   assert(t["ลีด"].find(r => r[0] === "L-0005")[C("ติดตามครั้งถัดไป")] === today, "follow not written");
   assert(t["บันทึก"].length === auditBefore + 1 && t["บันทึก"].at(-1)[3] === "setFollowUp", "audit: " + JSON.stringify(t["บันทึก"].at(-1)));
   await page.keyboard.press("Escape");
-  await page.evaluate(() => { location.hash = "#/due"; });
+  await page.evaluate(() => { location.hash = "#due"; });
   await page.waitForSelector('table [data-lead="L-0005"]');
 });
 

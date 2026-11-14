@@ -3,3 +3,4 @@ dist
 test-results
 dist-artifact
 dist-e2e-live
+dist-test-sheet

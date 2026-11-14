@@ -34,7 +34,7 @@ async function open(opts = {}) {
 
 await test("single file loads with no other requests and no errors", async () => {
   const { ctx, page, requests, errors } = await open();
-  await page.goto(FILE + "#/board");
+  await page.goto(FILE + "#board");
   await page.waitForSelector(".card");
   assert(requests.every(u => u.startsWith("file:")), "network requests: " + requests.filter(u => !u.startsWith("file:")).join(", "));
   assert((await page.textContent("#sysBadge")).includes("ข้อมูลสาธิต"), "badge");
@@ -46,7 +46,7 @@ await test("the publish build carries none of the e2e-live test build", async ()
   const html = readFileSync(new URL(FILE));
   for (const s of ["E2E-FAKE-SHEET", "build ทดสอบ", "e2e-live"]) assert(!html.includes(s), `found "${s}" in the publish build`);
   const { ctx, page } = await open();
-  await page.goto(FILE + "#/status");
+  await page.goto(FILE + "#status");
   await page.waitForSelector(".st");
   const live = await page.$$eval(".st.live", n => n.length);
   assert(live === 0, `${live} feature(s) marked live in the publish build`);
@@ -55,7 +55,7 @@ await test("the publish build carries none of the e2e-live test build", async ()
 
 await test("outside claude.ai the status page says so", async () => {
   const { ctx, page } = await open();
-  await page.goto(FILE + "#/status");
+  await page.goto(FILE + "#status");
   await page.waitForFunction(() => !document.querySelector("#connCheck").textContent.includes("กำลังตรวจ"));
   assert((await page.textContent("#connCheck")).includes("ไม่ได้เปิดใน claude.ai"), await page.textContent("#connCheck"));
   await ctx.close();
@@ -63,7 +63,7 @@ await test("outside claude.ai the status page says so", async () => {
 
 await test("with a runtime but no sheet id it asks for the id and makes no connector call", async () => {
   const { ctx, page } = await open({ runtime: true });
-  await page.goto(FILE + "#/status");
+  await page.goto(FILE + "#status");
   await page.waitForFunction(() => !document.querySelector("#connCheck").textContent.includes("กำลังตรวจ"));
   const t = await page.textContent("#connCheck");
   assert(t.includes("ยังไม่ได้ใส่ id ชีต"), t);
@@ -75,7 +75,7 @@ await test("with a runtime but no sheet id it asks for the id and makes no conne
 for (const width of [360, 1280]) {
   await test(`dark mode passes axe and does not overflow at ${width}px`, async () => {
     const { ctx, page } = await open({ dark: true, width });
-    for (const r of ["#/board", "#/new", "#/status"]) {
+    for (const r of ["#board", "#new", "#status"]) {
       await page.goto(FILE + r);
       await page.waitForSelector("main h1");
       const over = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
@@ -84,7 +84,7 @@ for (const width of [360, 1280]) {
       const v = await page.evaluate(async () => (await window.axe.run(document, { runOnly: { type: "tag", values: ["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"] } })).violations);
       const bad = v.filter(x => x.impact === "serious" || x.impact === "critical");
       assert(!bad.length, `${r}: ` + bad.map(x => `${x.id}(${x.nodes.length})`).join(", "));
-      await page.screenshot({ path: `${OUT}screens/dark-${r.slice(2)}-${width}.png`, fullPage: true });
+      await page.screenshot({ path: `${OUT}screens/dark-${r.slice(1)}-${width}.png`, fullPage: true });
     }
     await ctx.close();
   });

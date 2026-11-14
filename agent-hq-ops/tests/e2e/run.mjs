@@ -38,7 +38,7 @@ const axe = async key => {
   assert(!bad.length, `axe ${key}: ` + bad.map(v => `${v.id}(${v.nodes.length})`).join(", "));
 };
 
-const PAGES = ["#/board", "#/new", "#/due", "#/log", "#/status"];
+const PAGES = ["#board", "#new", "#due", "#log", "#status"];
 
 await test("T1 every page loads in demo mode with the badge", async () => {
   for (const h of PAGES) {
@@ -50,17 +50,17 @@ await test("T1 every page loads in demo mode with the badge", async () => {
 
 await test("skip link is the first focusable element and moves focus to main", async () => {
   await page.goto("about:blank");
-  await go("#/due");
+  await go("#due");
   await page.keyboard.press("Tab");
   assert((await page.evaluate(() => document.activeElement.className)) === "skip", "first tab is not the skip link");
   await page.keyboard.press("Enter");
   assert((await page.evaluate(() => document.activeElement.id)) === "main", "focus did not move to main");
-  assert((await page.evaluate(() => location.hash)) === "#/due", "skip link changed the route");
+  assert((await page.evaluate(() => location.hash)) === "#due", "skip link changed the route");
 });
 
 await test("T1 writes return not_connected and never show success", async () => {
   await role("agent");
-  await go("#/board");
+  await go("#board");
   await page.click('[data-lead="ตัวอย่าง-01"]');
   await page.click("#moveBtn");
   const m = await page.textContent("#moveMsg");
@@ -70,14 +70,14 @@ await test("T1 writes return not_connected and never show success", async () => 
 });
 
 await test("status page reports the sheet connection without writing", async () => {
-  await go("#/status");
+  await go("#status");
   await page.waitForFunction(() => !document.querySelector("#connCheck").textContent.includes("กำลังตรวจ"));
   const t = await page.textContent("#connCheck");
   assert(t.includes("ไม่ได้เปิดใน claude.ai"), "connection line: " + t);
 });
 
 await test("board reload button re-reads, keeps focus and announces it", async () => {
-  await go("#/board");
+  await go("#board");
   assert(/ข้อมูลเมื่อ \d\d:\d\d/.test(await page.textContent("#loadedAt")), "no last-loaded time");
   await page.focus("[data-refresh]");
   await page.keyboard.press("Enter");
@@ -87,7 +87,7 @@ await test("board reload button re-reads, keeps focus and announces it", async (
 });
 
 await test("not_connected offers no reload button", async () => {
-  await go("#/board");
+  await go("#board");
   await role("agent");
   await page.click('[data-lead="ตัวอย่าง-01"]');
   await page.click("#moveBtn");
@@ -96,7 +96,7 @@ await test("not_connected offers no reload button", async () => {
 });
 
 await test("follow-up: past date is refused with a tied alert, a valid one is not_connected", async () => {
-  await go("#/board");
+  await go("#board");
   await role("agent");
   await page.click('[data-lead="ตัวอย่าง-03"]');
   await page.fill("#follow", "2020-01-01");
@@ -111,18 +111,18 @@ await test("follow-up: past date is refused with a tied alert, a valid one is no
 });
 
 await test("T2 viewer sees no write controls", async () => {
-  await go("#/board");
+  await go("#board");
   await role("viewer");
   await page.click('[data-lead="ตัวอย่าง-05"]');
   assert(!(await page.$("#moveBtn, #closeForm, #lostForm, #followForm")), "write control visible to viewer");
   await page.keyboard.press("Escape");
-  await go("#/new");
+  await go("#new");
   assert(!(await page.$("#newForm")), "new-lead form visible to viewer");
   await role("agent");
 });
 
 await test("T5 agent cannot see close or lost on นัดดูจริง", async () => {
-  await go("#/board");
+  await go("#board");
   await role("agent");
   await page.click('[data-lead="ตัวอย่าง-05"]');
   assert(!(await page.$("#closeForm, #lostForm")), "close/lost visible to agent");
@@ -130,7 +130,7 @@ await test("T5 agent cannot see close or lost on นัดดูจริง", a
 });
 
 await test("T6 lost without a reason shows a tied alert", async () => {
-  await go("#/board");
+  await go("#board");
   await role("lead");
   await page.click('[data-lead="ตัวอย่าง-02"]');
   await page.click("#lostForm button[type=submit]");
@@ -149,7 +149,7 @@ await test("T6 lost without a reason shows a tied alert", async () => {
 });
 
 await test("drawer traps focus, closes on Esc and returns focus", async () => {
-  await go("#/board");
+  await go("#board");
   await page.focus('[data-lead="ตัวอย่าง-03"]');
   await page.keyboard.press("Enter");
   await page.waitForSelector(".drawer");
@@ -163,7 +163,7 @@ await test("drawer traps focus, closes on Esc and returns focus", async () => {
 });
 
 await test("T9 keyboard-only new lead: errors, then not_connected", async () => {
-  await go("#/new");
+  await go("#new");
   await page.focus("#channel");
   await page.keyboard.press("Tab"); // to the name field
   await page.keyboard.press("Enter"); // implicit submit from a text field
@@ -192,7 +192,7 @@ await test("T8 no personal data in URL or storage after the full flow", async ()
 });
 
 await test("rendered pages hold no script elements (T10 escaping is unit-tested)", async () => {
-  await go("#/board");
+  await go("#board");
   assert(!(await page.$("main script, #drawerRoot script")), "script element rendered");
 });
 
@@ -203,10 +203,10 @@ for (const [w, h] of [[360, 780], [1280, 900]]) {
       await go(r);
       const over = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
       assert(over <= 0, `${r} overflows by ${over}px at ${w}`);
-      await axe(`${r.slice(2)}-${w}`);
-      await page.screenshot({ path: `${OUT}screens/${r.slice(2)}-${w}.png`, fullPage: true });
+      await axe(`${r.slice(1)}-${w}`);
+      await page.screenshot({ path: `${OUT}screens/${r.slice(1)}-${w}.png`, fullPage: true });
     }
-    await go("#/board");
+    await go("#board");
     await role("lead");
     await page.click('[data-lead="ตัวอย่าง-05"]');
     await page.screenshot({ path: `${OUT}screens/drawer-lead-${w}.png` });
